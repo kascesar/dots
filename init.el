@@ -14,6 +14,20 @@
   (require 'use-package))
 (setq use-package-always-ensure t)
 
+;; LIST of packages to be installed
+(defvar needed-packages
+  '(lsp-pyright
+    lsp-ui company
+    flycheck pyvenv
+    python-black
+    py-isort
+    magit-gitflow
+    highlight-indent-guides))
+
+;; Install packages if not already installed
+(dolist (package needed-packages)
+  (unless (package-installed-p package)
+    (package-install package)))
 ;; Python development setup
 (use-package lsp-pyright
   :ensure t
@@ -85,11 +99,6 @@
   :hook (prog-mode . highlight-indent-guides-mode)
   :config
   (setq highlight-indent-guides-character "|"))
-
-;;; add gitflow to magit
-(require 'magit-gitflow)
-(add-hook 'magit-mode-hook 'turn-on-magit-gitflow)
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -106,7 +115,7 @@
  '(highlight-indent-guides-method 'bitmap)
  '(ispell-dictionary nil)
  '(package-selected-packages
-   '(py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
+   '(magit-gitflow py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
