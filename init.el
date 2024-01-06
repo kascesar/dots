@@ -85,6 +85,11 @@
   :hook (prog-mode . highlight-indent-guides-mode)
   :config
   (setq highlight-indent-guides-character "|"))
+
+;;; add gitflow to magit
+(require 'magit-gitflow)
+(add-hook 'magit-mode-hook 'turn-on-magit-gitflow)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
