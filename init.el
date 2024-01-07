@@ -1,4 +1,7 @@
-;; Add MELPA and GNU ELPA repositories for package installation
+;;; package --- summary
+;;; Commentary:
+;;; Code:
+;;; Add MELPA and GNU ELPA repositories for package installation
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/") t)
@@ -108,7 +111,7 @@
 (setq pulsar-pulse t)
 (setq pulsar-delay 0.07)
 (setq pulsar-iterations 10)
-(setq pulsar-face 'pulsar-yellow)
+(setq pulsar-face 'pulsar-magenta)
 (setq pulsar-highlight-face 'pulsar-cyan)
 
 (pulsar-global-mode 1)
@@ -178,23 +181,7 @@
   :hook (prog-mode . highlight-indent-guides-mode)
   :config
   (setq highlight-indent-guides-character "|"))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ansi-color-faces-vector
-   [default default default italic underline success warning error])
- '(ansi-color-names-vector
-   ["#2e3436" "#a40000" "#4e9a06" "#c4a000" "#204a87" "#5c3566" "#729fcf" "#eeeeec"])
- '(custom-enabled-themes '(tsdh-dark))
- '(highlight-indent-guides-auto-character-face-perc 50)
- '(highlight-indent-guides-auto-odd-face-perc 30)
- '(highlight-indent-guides-character "|")
- '(highlight-indent-guides-method 'bitmap)
- '(ispell-dictionary nil)
- '(package-selected-packages
-   '(visual-fill-column org-bullets calfw-org calfw org-contrib pulsar magit-gitflow py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -302,17 +289,78 @@
   :hook (org-mode . visual-fill-column-mode)
   :custom
   (visual-fill-column-center-text t)
-  (visual-fill-column-mode 1)
-  (visual-fill-column-width 100))
-
-;;;; se necesita instalar grip (pip install grip)
+  (visual-fill-column-width 100)
+  (visual-fill-column-mode 1))
 
 ;;;; se necesita instalar grip (sudo apt install grip)
 ;; Configuración para activar auto-fill-mode y establecer fill-column en archivos Markdown
+
+;; MARKDOWN
 (add-hook 'markdown-mode-hook
           (lambda ()
-            (auto-fill-mode 1) ; Activar auto-fill-mode
+            ;(auto-fill-mode 1) ; Activar auto-fill-mode
             (setq fill-column 80))) ; Establecer fill-column a 80 caracteres
 
 ;; Configuración para activar visual-line-mode en archivos Markdown
 (add-hook 'markdown-mode-hook 'visual-line-mode)
+
+
+;; GIT
+(use-package git-gutter
+  :defer 0.3
+  :delight
+  :init (global-git-gutter-mode))
+
+(use-package git-timemachine
+  :defer 1
+  :delight)
+
+
+;; PARENTESIS
+
+;; Mostrar al padre
+(show-paren-mode 1)
+
+;; auto close bracket insertion.
+(electric-pair-mode 1)
+
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+
+
+;;; THEMES
+(setq ef-themes-mixed-fonts t
+      ef-themes-variable-pitch-ui t)
+
+;; Disable all other themes to avoid awkward blending:
+;(mapc #'disable-theme custom-enabled-themes)
+
+  (use-package ef-themes
+    :config
+    (load-theme 'ef-summer t))
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(ef-themes rainbow-delimiters git-timemachine git-gutter cmake-mode visual-fill-column quelpa-use-package pyvenv python-black py-isort pulsar org-superstar org-bullets magit-gitflow lsp-ui lsp-python-ms lsp-pyright jedi-direx highlight-indent-guides grip-mode flycheck company chatgpt calfw-org calfw)))
+
+(custom-set-variables
+; ;; custom-set-variables was added by Custom.
+; ;; If you edit it by hand, you could mess it up, so be careful.
+; ;; Your init file should contain only one such instance.
+; ;; If there is more than one, they won't work right.
+; '(ansi-color-faces-vector
+;   [default default default italic underline success warning error])
+; '(ansi-color-names-vector
+;   ["#2e3436" "#a40000" "#4e9a06" "#c4a000" "#204a87" "#5c3566" "#729fcf" "#eeeeec"])
+; '(custom-enabled-themes '(tsdh-dark))
+ '(highlight-indent-guides-auto-character-face-perc 50)
+ '(highlight-indent-guides-auto-odd-face-perc 30)
+ '(highlight-indent-guides-character "|")
+ '(highlight-indent-guides-method 'bitmap)
+ '(ispell-dictionary nil)
+ '(package-selected-packages
+   '(visual-fill-column org-bullets calfw-org calfw org-contrib pulsar magit-gitflow py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
