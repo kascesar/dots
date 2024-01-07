@@ -302,8 +302,8 @@
   :hook (org-mode . visual-fill-column-mode)
   :custom
   (visual-fill-column-center-text t)
-  (visual-fill-column-width 100)
-  (visual-fill-column-mode 1))
+  (visual-fill-column-mode 1)
+  (visual-fill-column-width 100))
 
 ;;;; se necesita instalar grip (pip install grip)
 
@@ -311,7 +311,7 @@
 ;; Configuración para activar auto-fill-mode y establecer fill-column en archivos Markdown
 (add-hook 'markdown-mode-hook
           (lambda ()
-            ;(auto-fill-mode 1) ; Activar auto-fill-mode
+            (auto-fill-mode 1) ; Activar auto-fill-mode
             (setq fill-column 80))) ; Establecer fill-column a 80 caracteres
 
 ;; Configuración para activar visual-line-mode en archivos Markdown
