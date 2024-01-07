@@ -22,6 +22,9 @@
     python-black
     py-isort
     magit-gitflow
+    autorevert
+    recentf
+    pulsar
     highlight-indent-guides))
 
 ;; Install packages if not already installed
@@ -59,6 +62,81 @@
 (use-package py-isort
   :ensure t
   :hook (python-mode . py-isort-before-save))
+
+
+;; recarga los archivos al ser modificados
+(use-package autorevert
+  :ensure nil
+  :diminish
+  :hook (after-init . global-auto-revert-mode))
+
+;; archivos visitados recientemente
+(use-package recentf
+  :defer 2
+  :bind ("C-c r" . recentf-open-files)
+  :init (recentf-mode)
+  :custom
+  (recentf-max-menu-items 10)
+  (recentf-max-saved-items 50)
+  (recentf-exclude (list "COMMIT_EDITMSG"
+                         "~$"
+                         "/scp:"
+                         "/ssh:"
+                         "/sudo:"
+                         "diario.*"
+                         "recentf*"
+                         "bookmark*"
+                         "/archivo*"
+                         "birthday*"
+                         "*elpa/*"
+                         "/tmp/"
+                         "drafts/*"
+                         "/.elfeed"
+                         "/.telega"
+                         "/.config"
+                         "~/.emacs.d/s*"))
+    :config (run-at-time nil (* 5 60) 'recentf-save-list))
+
+;; Pulsar
+(require 'pulsar)
+
+;; Check the default value of `pulsar-pulse-functions'.  That is where
+;; you add more commands that should cause a pulse after they are
+;; invoked
+
+(setq pulsar-pulse t)
+(setq pulsar-delay 0.07)
+(setq pulsar-iterations 10)
+(setq pulsar-face 'pulsar-red)
+(setq pulsar-highlight-face 'pulsar-cyan)
+
+(pulsar-global-mode 1)
+
+;; OR use the local mode for select mode hooks
+
+(dolist (hook '(org-mode-hook
+		emacs-lisp-mode-hook))
+  (add-hook hook #'pulsar-mode))
+
+;; pulsar does not define any key bindings.  This is just a sample that
+;; respects the key binding conventions.  Evaluate:
+;;
+;;     (info "(elisp) Key Binding Conventions")
+;;
+;; The author uses C-x l for `pulsar-pulse-line' and C-x L for
+;; `pulsar-highlight-line'.
+;;
+;; You can replace `pulsar-highlight-line' with the command
+;; `pulsar-highlight-dwim'.
+;;(let ((map global-map))
+;; (define-key map (kbd "C-c h p") #'pulsar-pulse-line)
+;; (define-key map (kbd "C-c h h") #'pulsar-highlight-line))
+
+;; pulsar en el minibuffer
+(add-hook 'minibuffer-setup-hook #'pulsar-pulse-line)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;; Additional configurations
 ;; Move between windows using Meta key
@@ -115,7 +193,7 @@
  '(highlight-indent-guides-method 'bitmap)
  '(ispell-dictionary nil)
  '(package-selected-packages
-   '(magit-gitflow py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
+   '(pulsar magit-gitflow py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -123,3 +201,7 @@
  ;; If there is more than one, they won't work right.
  '(highlight-indent-guides-stack-character-face ((t (:foreground "white"))))
  '(highlight-indent-guides-top-character-face ((t (:foreground "white")))))
+
+;; dont ask when kill buffer
+(global-set-key [remap kill-buffer] #'kill-this-buffer)
+  (kill-buffer "*scratch*")
