@@ -25,6 +25,7 @@
     autorevert
     recentf
     pulsar
+    org-superstar
     highlight-indent-guides))
 
 ;; Install packages if not already installed
@@ -107,7 +108,7 @@
 (setq pulsar-pulse t)
 (setq pulsar-delay 0.07)
 (setq pulsar-iterations 10)
-(setq pulsar-face 'pulsar-red)
+(setq pulsar-face 'pulsar-yellow)
 (setq pulsar-highlight-face 'pulsar-cyan)
 
 (pulsar-global-mode 1)
@@ -193,7 +194,7 @@
  '(highlight-indent-guides-method 'bitmap)
  '(ispell-dictionary nil)
  '(package-selected-packages
-   '(pulsar magit-gitflow py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
+   '(visual-fill-column org-bullets calfw-org calfw org-contrib pulsar magit-gitflow py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -205,3 +206,113 @@
 ;; dont ask when kill buffer
 (global-set-key [remap kill-buffer] #'kill-this-buffer)
   (kill-buffer "*scratch*")
+
+
+;; ======================= Org mode ======================
+
+(use-package org
+;  :ensure org-contrib
+  :config
+  (setq org-ellipsis " ▾")
+
+  (setq org-agenda-start-with-log-mode t)
+  (setq org-log-done 'time)
+  (setq org-log-into-drawer t)
+
+  ;(setq org-agenda-files
+  ;      '("~/.personal/agenda/personal.org"
+  ;        "~/.personal/agenda/trabajo.org"
+  ;        "~/.personal/agenda/diario.org"))
+  ;                                      ;"~/.personal/agenda/diario-ibx.org"))
+
+  ;; utilizo mi propio diario para a la agenda, asi que deshabilito el de emacs
+  ;(setq org-agenda-include-diary nil)
+  ;; (setq diary-file "~/.personal/agenda/diario.org")
+  ;(setq org-agenda-diary-file "~/.personal/agenda/diario.org")
+
+  ;; ubicacion de los ficheros cuando son archivados, organizados por fecha
+  ;(setq org-archive-location "~/.personal/archivo/%s_archivo.org::datetree/")
+
+  (setq org-todo-keywords
+        '((sequence "PORHACER(p!)"
+                    "ENPROCESO(e!)"
+                    "BLOQUEADO(b!)"
+                    "|" "HECHO(h!)" "ARCHIVAR(a!)")))
+
+
+  ;; Configuracion de colores (faces) para estados todo
+   (setq org-todo-keyword-faces
+         '(("PORHACER" . "red")
+           ("ENPROCESO" . "yellow")
+           ("BLOQUEADO" . "orange")
+           ("HECHO" . "green")
+           ("PUBLICADO" . "green")
+           ("ARCHIVAR" .  "blue")))
+
+  ;; Estados para el blog
+
+  ;     (setq org-todo-keyword-faces
+  ;       '(("BORRADOR" . "red")
+  ;         ("OCULTO" . "orange")
+  ;         ("PUBLICADO" .  "cyan")));
+
+  ;     (setq org-refile-targets
+  ;       '(("personal.org" :maxlevel . 1)
+  ;        ("trabajo.org" :maxlevel . 1)))
+
+  ;; Save Org buffers after refiling!
+  (advice-add 'org-refile :after 'org-save-all-org-buffers)
+
+  ;; etiquetas que utilizo para mis notas
+  (setq org-tag-alist '(("@nota" . ?n)
+                        ("@casa" . ?c)
+                        ("@finanzas" . ?d)
+                        ("@fecha" . ?f)
+                        ("@salud" . ?s)
+                        ("@tarea" . ?t)
+                        ("@coche" . ?h)
+                        ("@trabajo" . ?b)
+                        ("crypt" . ?C)))
+  (setq org-tags-exclude-from-inheritance '("crypt"))
+
+  ;; Progress Logging
+  ;; When a TODO item enters DONE, add a CLOSED: property with current date-time stamp and into drawer
+  (setq org-log-done 'time)
+  (setq org-log-into-drawer "LOGBOOK")
+  ;;
+  ;; Alinea etiquetas
+  (setq org-tags-column 70))
+
+;; Aspecto mejorado al identar
+(add-hook 'org-mode-hook 'org-indent-mode)
+
+
+;; Finalmente haremos que cuando se visualice un fichero con extensión .org éste se adapte a la ventana y cuando la línea llegue al final de esta, haga un salto de carro.
+;(use-package org-bullets
+;  :after org
+;  :hook (org-mode . org-bullets-mode)
+;  :custom
+;  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+(require 'org-superstar)
+(add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
+
+
+(use-package visual-fill-column
+  :hook (org-mode . visual-fill-column-mode)
+  :custom
+  (visual-fill-column-center-text t)
+  (visual-fill-column-width 100)
+  (visual-fill-column-mode 1))
+
+;;;; se necesita instalar grip (pip install grip)
+
+;;;; se necesita instalar grip (sudo apt install grip)
+;; Configuración para activar auto-fill-mode y establecer fill-column en archivos Markdown
+(add-hook 'markdown-mode-hook
+          (lambda ()
+            ;(auto-fill-mode 1) ; Activar auto-fill-mode
+            (setq fill-column 80))) ; Establecer fill-column a 80 caracteres
+
+;; Configuración para activar visual-line-mode en archivos Markdown
+(add-hook 'markdown-mode-hook 'visual-line-mode)
