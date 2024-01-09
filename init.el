@@ -230,7 +230,7 @@
   ;; Configuracion de colores (faces) para estados todo
    (setq org-todo-keyword-faces
          '(("PORHACER" . "red")
-           ("ENPROCESO" . "yellow")
+           ("ENPROCESO" . "magenta")
            ("BLOQUEADO" . "orange")
            ("HECHO" . "green")
            ("PUBLICADO" . "green")
@@ -275,6 +275,7 @@
 
 
 ;; Finalmente haremos que cuando se visualice un fichero con extensión .org éste se adapte a la ventana y cuando la línea llegue al final de esta, haga un salto de carro.
+(add-hook 'org-mode-hook 'visual-line-mode)
 ;(use-package org-bullets
 ;  :after org
 ;  :hook (org-mode . org-bullets-mode)
@@ -344,23 +345,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(ef-themes rainbow-delimiters git-timemachine git-gutter cmake-mode visual-fill-column quelpa-use-package pyvenv python-black py-isort pulsar org-superstar org-bullets magit-gitflow lsp-ui lsp-python-ms lsp-pyright jedi-direx highlight-indent-guides grip-mode flycheck company chatgpt calfw-org calfw)))
-
-(custom-set-variables
-; ;; custom-set-variables was added by Custom.
-; ;; If you edit it by hand, you could mess it up, so be careful.
-; ;; Your init file should contain only one such instance.
-; ;; If there is more than one, they won't work right.
-; '(ansi-color-faces-vector
-;   [default default default italic underline success warning error])
-; '(ansi-color-names-vector
-;   ["#2e3436" "#a40000" "#4e9a06" "#c4a000" "#204a87" "#5c3566" "#729fcf" "#eeeeec"])
-; '(custom-enabled-themes '(tsdh-dark))
  '(highlight-indent-guides-auto-character-face-perc 50)
  '(highlight-indent-guides-auto-odd-face-perc 30)
  '(highlight-indent-guides-character "|")
  '(highlight-indent-guides-method 'bitmap)
  '(ispell-dictionary nil)
  '(package-selected-packages
-   '(visual-fill-column org-bullets calfw-org calfw org-contrib pulsar magit-gitflow py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
+   '(gnuplot-mode gnuplot visual-fill-column org-bullets calfw-org calfw org-contrib pulsar magit-gitflow py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
