@@ -29,8 +29,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
      KC_LCTL,  KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                         KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_ESC,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                KC_LALT,  LT(1, KC_ENT),  KC_SPC,     KC_SPC,   LT(2, KC_ENT), KC_LGUI
-                            //`------------------------------------'  `---------------------------------'
+                            KC_LALT,  LT(1, KC_ENT),  LT(4, KC_SPC),     LT(4, KC_SPC),  LT(2, KC_ENT),  KC_LGUI
+                            //`------------------------------------'  `--------------------------------------'
 
   ),
 
@@ -40,7 +40,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |----------+--------+---------+--------+-------------+--------|
       KC_LSFT,   KC_6,    KC_7,    KC_8,    KC_9,    KC_0,                        XXXXXXX,  KC_LEFT, KC_DOWN, KC_RIGHT,  XXXXXXX,  XXXXXXX, 
   //|--------+--------+--------+--------+--------+--------|                    |----------+--------+---------+---------+----------+----------|
-     KC_LCTL,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                       XXXXXXX,  XXXXXXX, XXXXXXX, XXXXXXX,   XXXXXXX,   XXXXXXX,
+     KC_LCTL,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                       XXXXXXX,  XXXXXXX, XXXXXXX, XXXXXXX,   XXXXXXX,   KC_ESC,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+----------+--------+---------+---------+----------+----------|
                                           KC_LGUI, _______,  KC_SPC,     KC_ENT,   MO(3), KC_RALT
                                       //`--------------------------'  `--------------------------'
@@ -48,11 +48,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                                                   
     [2] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-       KC_TAB, KC_EXLM,   KC_AT, KC_HASH,  KC_DLR, KC_PERC,                     KC_ASTR, XXXXXXX, KC_CIRC, KC_AMPR, KC_LPRN, KC_RPRN, 
+    KC_TILD, KC_EXLM, KC_AT, KC_HASH,  KC_DLR, KC_PERC,                         KC_ASTR, KC_PLUS, KC_CIRC, KC_LPRN, KC_RPRN,  KC_BSPC,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-    KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                       KC_BSLS,  KC_GRV,  KC_MINS, KC_EQL, KC_LBRC, KC_RBRC,
+    KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                       KC_SLSH,  KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-     KC_LCTL, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      KC_PIPE, KC_TILD, KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR,
+     KC_LCTL, KC_BSLS, KC_PIPE, KC_SLSH, KC_MINS, KC_UNDS,                      KC_AMPR, XXXXXXX, XXXXXXX,  KC_LCBR, KC_RCBR, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI,   MO(3),  KC_SPC,     KC_ENT, _______, KC_RALT
                                       //`--------------------------'  `--------------------------'
@@ -60,13 +60,24 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [3] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
-        QK_BOOT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+      QK_BOOT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_BSPC,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       RGB_TOG, RGB_HUI, RGB_SAI, RGB_VAI, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                           KC_LGUI, _______,  KC_SPC,     KC_ENT, _______, KC_RALT
+                                      //`--------------------------'  `--------------------------'
+  ),
+[4] = LAYOUT_split_3x6_3(
+  //,-----------------------------------------------------.                    ,-----------------------------------------------------.
+      KC_TAB,   LWIN(KC_Y),  LWIN(KC_E), XXXXXXX, XXXXXXX, XXXXXXX,                 LWIN(KC_T),LWIN(KC_S), LWIN(KC_UP),LWIN(KC_O),  XXXXXXX,  LWIN(KC_Q),
+  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+      KC_LSFT, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, LWIN(KC_LEFT), LWIN(KC_DOWN), LWIN(KC_RIGHT), XXXXXXX, XXXXXXX,
+  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+      KC_LCTL, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_ESC,
+  //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
+                                        KC_LALT, _______,  _______,    _______, LWIN(KC_ENT), XXXXXXX
                                       //`--------------------------'  `--------------------------'
   )
 };
