@@ -6,6 +6,9 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/") t)
 (package-initialize)
+;; custom control+z
+(global-unset-key (kbd "C-z"))
+(global-set-key (kbd "C-z") 'undo)
 
 ;; Install use-package if not already installed
 (unless (package-installed-p 'use-package)
