@@ -21,17 +21,80 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include QMK_KEYBOARD_H
 
 /* Macros */
-enum custom_keycodes {EPRM = SAFE_RANGE, MACRO_3, MACRO_1, MACRO_0};
+/* enum custom_keycodes {EPRM = SAFE_RANGE, MACRO_3, MACRO_1, MACRO_0, MACRO_4, MACRO_2};
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (record->event.pressed) {
     switch (keycode) {
     case MACRO_0: SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_0)); return false;
     case MACRO_1: SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_1)); return false;
-    case MACRO_3: SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_3)); return false;}
+    case MACRO_2: SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_2)); return false;
+    case MACRO_3: SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_3)); return false;
+    case MACRO_4: SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_K)); return false;
+    case TMUX_BH: SEND_STRING(SS_LCTL())
+    }
   }
   return true;
 };
+*/
+/* Macros */
+enum custom_keycodes {
+    EPRM = SAFE_RANGE,
+    MACRO_3,
+    MACRO_1,
+    MACRO_0,
+    MACRO_4,
+    MACRO_2,
+    TMUX_SPLIT_VERTICAL,
+    TMUX_SPLIT_HORIZONTAL,
+    TMUX_MOVE_UP,
+    TMUX_MOVE_DOWN,
+    TMUX_MOVE_LEFT,
+    TMUX_MOVE_RIGHT
+};
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (record->event.pressed) {
+        switch (keycode) {
+            case MACRO_0:
+                SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_0));
+                return false;
+            case MACRO_1:
+                SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_1));
+                return false;
+            case MACRO_2:
+                SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_2));
+                return false;
+            case MACRO_3:
+                SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_3));
+                return false;
+            case MACRO_4:
+                SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_K));
+                return false;
+	    case TMUX_SPLIT_VERTICAL:
+	        SEND_STRING(SS_LCTL(SS_TAP(X_B)) SS_TAP(X_0));
+                return false;
+	    case TMUX_SPLIT_HORIZONTAL:
+                SEND_STRING(SS_LCTL(SS_TAP(X_B)) SS_TAP(X_9));
+                return false;
+            case TMUX_MOVE_UP:
+                SEND_STRING(SS_LCTL(SS_TAP(X_B)) SS_TAP(X_UP));
+                return false;
+            case TMUX_MOVE_DOWN:
+                SEND_STRING(SS_LCTL(SS_TAP(X_B)) SS_TAP(X_DOWN));
+                return false;
+            case TMUX_MOVE_LEFT:
+                SEND_STRING(SS_LCTL(SS_TAP(X_B)) SS_TAP(X_LEFT));
+                return false;
+            case TMUX_MOVE_RIGHT:
+                SEND_STRING(SS_LCTL(SS_TAP(X_B)) SS_TAP(X_RIGHT));
+                return false;
+        }
+    }
+    return true;
+}
+
+
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [0] = LAYOUT_split_3x6_3(
@@ -83,12 +146,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                       //`--------------------------'  `--------------------------'
   ),
 [4] = LAYOUT_split_3x6_3(
-  //,-----------------------------------------------------.                  ,-------------------------------------------------------------------------.
-      KC_TAB, MACRO_0,  MACRO_1, MACRO_3, _______, _______,                  LWIN(KC_T), LWIN(KC_S),     LWIN(KC_UP),   LWIN(KC_O),  _______,LWIN(KC_Q),
-  //|--------+--------+--------+--------+--------+--------|                  |---------+--------------+--------------+---------------+-------+--------|
-      KC_LSFT, _______, _______, _______, _______, _______,                  _______, LWIN(KC_LEFT), LWIN(KC_DOWN), LWIN(KC_RIGHT), _______, _______,
+  //,-----------------------------------------------------.                  ,-----------------------------------------------------------------------------.
+      KC_TAB, MACRO_0,  MACRO_1, MACRO_3, MACRO_2, MACRO_4,                   LWIN(KC_T),   LWIN(KC_S),  LWIN(KC_UP),   LWIN(KC_O),     _______, LWIN(KC_Q),
+  //|--------+--------+--------+--------+--------+--------|                  |-----------+-------------+--------------+---------------+---------+-----------|
+      KC_LSFT, TMUX_MOVE_LEFT, TMUX_MOVE_RIGHT, _______, _______, TMUX_MOVE_UP,                    _______  , LWIN(KC_LEFT), LWIN(KC_DOWN), LWIN(KC_RIGHT), _______, _______,
   //|--------+--------+--------+--------+--------+--------|                  |----------+--------------+--------------+---------------+--------+--------|
-      KC_LCTL, _______, _______, _______, _______, _______,                    _______,  _______,  _______, _______, _______, KC_ESC,
+      KC_LCTL, _______, _______, _______, _______, TMUX_MOVE_DOWN,                    _______,  _______,  _______, _______, _______, KC_ESC,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
                                         KC_LALT, _______,  _______,    _______, LWIN(KC_ENT), _______
                                       //`--------------------------'  `--------------------------'
