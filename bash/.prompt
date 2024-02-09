@@ -1,0 +1,111 @@
+# -*- mode: sh; -*-
+
+source ~/.color
+
+color_normal=$normal
+echo_color_normal=$echo_normal
+
+color_dir=$cyan
+echo_color_dir=$echo_cyan
+
+color_par=$bold_purple
+echo_color_par=$echo_bold_purple
+
+color_branch_ok=$yellow
+echo_color_branch_ok=$echo_yellow
+
+color_branch_dirty=$echo_orange
+echo_color_branch_dirty=$echo_orange
+
+color_mod=$echo_yellow
+echo_color_mod=$echo_yellow
+
+color_add=$echo_green
+echo_color_add=$echo_green
+
+color_unt=$echo_orange
+echo_color_unt=$echo_orange
+
+
+if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+    color_par=$bold_red
+    echo_color_par=$echo_bold_red
+fi
+
+repo_branch() {
+    git -C $groot branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
+}
+
+repo_isnot_dirty() {
+    git -C $groot diff --quiet && git diff --cached --quiet
+}
+
+repo_root() {
+
+    if [ "`git rev-parse --is-inside-work-tree 2>/dev/null`" = "true" ]; then
+        git rev-parse --show-toplevel
+    elif [ "`git rev-parse --is-inside-git-dir 2>/dev/null`" = "true" ]; then
+        dirname "$(git rev-parse --absolute-git-dir)"
+    else
+        echo -n ""
+    fi
+}
+
+repo_string() {
+    local groot="`repo_root`"
+    if [ "${groot}" != "" ]; then
+        local branch="$(repo_branch)"
+        if [ -n "$branch" ]; then
+            branch=" $branch"
+        fi
+
+        local gstatus="$(git -C ${groot} status --porcelain --untracked)"
+
+        local nuntack=$(echo "$gstatus" | grep -E '^\?\?' | wc -l)
+        if [ $nuntack -gt 0 ]; then
+            nuntack=" ${nuntack}U"
+        else
+            nuntack=""
+        fi
+
+        if repo_isnot_dirty; then
+            echo -e -n  "${echo_color_par}[${echo_color_branch_ok}${branch}${echo_color_unt}${nuntack} ${echo_color_par}]"
+        else
+
+            local nmod=$(echo "$gstatus" | grep -E '^ M' | wc -l)
+            if [ $nmod -gt 0 ]; then
+                nmod=" ${nmod}M"
+            else
+                nmod=""
+            fi
+
+            local nmods=$(echo "$gstatus" | grep -E '^A' | wc -l)
+            if [ $nmods -gt 0 ]; then
+                nmods=" ${nmods}S"
+            else
+                nmods=""
+            fi
+
+            echo -e -n "${echo_color_par}[${echo_color_branch_dirty}${branch}${echo_color_add}${nmods}${echo_color_mod}${nmod}${echo_color_unt}${nuntack} ${echo_color_par}]"
+        fi
+    else
+        echo -n ""
+    fi
+}
+
+
+## virtualenv
+function virtualenv_info(){
+    # Get Virtual Env
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        # Strip out the path and just leave the env name
+        venv="${VIRTUAL_ENV##*/}"
+    else
+        # In case you don't have one activated
+        venv=''
+    fi
+    [[ -n "$venv" ]] && echo -e -n "${echo_color_par}[ ${echo_bold_green}venv ${echo_green}$venv ${echo_color_par}]"
+}
+
+
+PS1="\n${color_par}┌─[${color_dir} \w ${color_par}]\$(repo_string)\$(virtualenv_info)\n${color_par}└─▪${color_normal} "
