@@ -6,9 +6,6 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/") t)
 (package-initialize)
-;; custom control+z
-(global-unset-key (kbd "C-z"))
-(global-set-key (kbd "C-z") 'undo)
 
 ;; Install use-package if not already installed
 (unless (package-installed-p 'use-package)
@@ -32,6 +29,8 @@
     recentf
     pulsar
     org-superstar
+    tramp
+    counsel-tramp
     highlight-indent-guides))
 
 ;; Install packages if not already installed
@@ -156,17 +155,28 @@
 (global-set-key [C-mouse-4] 'text-scale-increase)
 (global-set-key [C-mouse-5] 'text-scale-decrease)
 
+;; Incrementa el tamaño de la fuente
+(global-set-key (kbd "C-+") 'text-scale-increase)
+;; Disminuye el tamaño de la fuente
+(global-set-key (kbd "C--") 'text-scale-decrease)
+
 ;; Hide hidden files in dired
 (require 'dired-x)
 (setq dired-omit-files "^\\...+$")
 (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1)))
 
 ;; Add color to lines longer than 80 characters in programming modes
-(setq-default
- whitespace-line-column 80
- whitespace-style '(face lines-tail))
-(add-hook 'prog-mode-hook #'whitespace-mode)
+(defun my-enable-whitespace-mode ()
+  "Enable whitespace-mode with custom settings."
+  (setq-local whitespace-line-column 80)
+  (setq-local whitespace-style '(face lines-tail))
+  (whitespace-mode 1))
 
+;; Activar whitespace-mode en todos los modos de programación
+(add-hook 'prog-mode-hook #'my-enable-whitespace-mode)
+
+;; Activar whitespace-mode en markdown-mode
+(add-hook 'markdown-mode-hook #'my-enable-whitespace-mode)
 ;; Add row and column numbers to the mode line
 (column-number-mode)
 
@@ -200,12 +210,27 @@
 
 ;; ======================= Org mode ======================
 
-(use-package org
-;  :ensure org-contrib
-  :config
-  (setq org-ellipsis " ▾")
+(global-set-key (kbd "C-c l") #'org-store-link)
+(global-set-key (kbd "C-c a") #'org-agenda)
+(global-set-key (kbd "C-c c") #'org-capture)
 
-  (setq org-agenda-start-with-log-mode t)
+;; Activar lenguajes Babel
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((shell . t)
+   (python . t)))
+
+
+(setq org-babel-python-command "python3")
+
+
+
+(use-package org
+  ;:ensure org-contrib
+  :config
+  (setq org-ellipsis " ⤵")
+
+  ;(setq org-agenda-start-with-log-mode t)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
 
@@ -227,7 +252,9 @@
         '((sequence "PORHACER(p!)"
                     "ENPROCESO(e!)"
                     "BLOQUEADO(b!)"
-                    "|" "HECHO(h!)" "ARCHIVAR(a!)")))
+                    "|"
+		    "HECHO(h!)"
+		    "ARCHIVAR(a!)")))
 
 
   ;; Configuracion de colores (faces) para estados todo
@@ -235,22 +262,8 @@
          '(("PORHACER" . "red")
            ("ENPROCESO" . "magenta")
            ("BLOQUEADO" . "orange")
-           ("HECHO" . "green")
-           ("PUBLICADO" . "green")
-           ("ARCHIVAR" .  "blue")))
+           ("HECHO" . "green")))
 
-  ;; Estados para el blog
-
-  ;     (setq org-todo-keyword-faces
-  ;       '(("BORRADOR" . "red")
-  ;         ("OCULTO" . "orange")
-  ;         ("PUBLICADO" .  "cyan")));
-
-  ;     (setq org-refile-targets
-  ;       '(("personal.org" :maxlevel . 1)
-  ;        ("trabajo.org" :maxlevel . 1)))
-
-  ;; Save Org buffers after refiling!
   (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
   ;; etiquetas que utilizo para mis notas
@@ -271,7 +284,7 @@
   (setq org-log-into-drawer "LOGBOOK")
   ;;
   ;; Alinea etiquetas
-  (setq org-tags-column 70))
+  (setq org-tags-column 74))
 
 ;; Aspecto mejorado al identar
 (add-hook 'org-mode-hook 'org-indent-mode)
@@ -279,11 +292,11 @@
 
 ;; Finalmente haremos que cuando se visualice un fichero con extensión .org éste se adapte a la ventana y cuando la línea llegue al final de esta, haga un salto de carro.
 (add-hook 'org-mode-hook 'visual-line-mode)
-;(use-package org-bullets
-;  :after org
-;  :hook (org-mode . org-bullets-mode)
-;  :custom
-;  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+(use-package org-bullets
+  :after org
+  :hook (org-mode . org-bullets-mode)
+  :custom
+  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 
 (require 'org-superstar)
 (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
@@ -293,7 +306,7 @@
   :hook (org-mode . visual-fill-column-mode)
   :custom
   (visual-fill-column-center-text t)
-  (visual-fill-column-width 100)
+  (visual-fill-column-width 80)
   (visual-fill-column-mode 1))
 
 ;;;; se necesita instalar grip (sudo apt install grip)
@@ -343,6 +356,34 @@
     :config
     (load-theme 'ef-summer t))
 
+(global-unset-key (kbd "C-z"))
+(global-set-key (kbd "C-z") 'undo)
+
+(setq user-full-name "Cesar M.")
+;;(setq inhibit-startup-message f)
+
+(scroll-bar-mode -1)        ; Disable visible scrollbar
+(tool-bar-mode -1)          ; Disable the toolbar
+;; (tooltip-mode -1)           ; Disable tooltips
+(set-fringe-mode 10)        ; Give some breathing room
+(menu-bar-mode -1)          ; Disable the menu bar
+
+
+;; org-roam
+;(use-package org-roam
+;  :ensure t
+;  :custom
+;  (require org-roam-directory (file-truename "~/org-roam"))
+;  :bind (("C-c n l" . org-roam-buffer-toggle)
+;         ("C-c n f" . org-roam-node-find)
+;         ("C-c n g" . org-roam-graph)
+;         ("C-c n i" . org-roam-node-insert)
+;         ("C-c n c" . org-roam-capture)
+;         ;; Dailies
+;         ("C-c n j" . org-roam-dailies-capture-today))
+;  :config
+;  (org-roam-setup))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -354,4 +395,4 @@
  '(highlight-indent-guides-method 'bitmap)
  '(ispell-dictionary nil)
  '(package-selected-packages
-   '(gnuplot-mode gnuplot visual-fill-column org-bullets calfw-org calfw org-contrib pulsar magit-gitflow py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
+   '(## mugur gnuplot-mode gnuplot visual-fill-column org-bullets calfw-org calfw org-contrib pulsar magit-gitflow py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
