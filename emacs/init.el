@@ -7,6 +7,8 @@
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/") t)
 (package-initialize)
 
+;;(set-face-attribute 'default nil :height 150)
+
 ;; Install use-package if not already installed
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -69,6 +71,21 @@
   :ensure t
   :hook (python-mode . py-isort-before-save))
 
+;; ##### python venvn activate  #####
+(defun python-find-pipenv-venv ()
+  "Find the Pipenv virtual environment associated with the current buffer's project."
+  (let ((project-root (locate-dominating-file default-directory "Pipfile")))
+    (when project-root
+      (expand-file-name ".venv" project-root))))
+
+(defun python-auto-activate-pipenv-venv ()
+  "Automatically activate the Pipenv virtual environment associated with the current buffer's project."
+  (let ((venv-path (python-find-pipenv-venv)))
+    (when venv-path
+      (pyvenv-activate venv-path))))
+
+(add-hook 'python-mode-hook 'my/python-auto-activate-pipenv-venv)
+;; ################################################################3
 
 ;; recarga los archivos al ser modificados
 (use-package autorevert
@@ -201,7 +218,8 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(highlight-indent-guides-stack-character-face ((t (:foreground "white"))))
- '(highlight-indent-guides-top-character-face ((t (:foreground "white")))))
+ '(highlight-indent-guides-top-character-face ((t (:foreground "white"))))
+ '(italic ((t (:slant italic)))))
 
 ;; dont ask when kill buffer
 (global-set-key [remap kill-buffer] #'kill-this-buffer)
@@ -219,11 +237,14 @@
  'org-babel-load-languages
  '((shell . t)
    (python . t)))
-
-
 (setq org-babel-python-command "python3")
 
+;; hide emphasis markers
+;; (setq org-hide-emphasis-markers t)
 
+;; word wrap
+;; (with-eval-after-load 'org       
+;;  (add-hook 'org-mode-hook #'visual-line-mode))
 
 (use-package org
   ;:ensure org-contrib
@@ -312,7 +333,7 @@
 ;;;; se necesita instalar grip (sudo apt install grip)
 ;; Configuración para activar auto-fill-mode y establecer fill-column en archivos Markdown
 
-;; MARKDOWN
+;; ================================= MARKDOWN =========================0
 (add-hook 'markdown-mode-hook
           (lambda ()
             ;(auto-fill-mode 1) ; Activar auto-fill-mode
@@ -326,7 +347,7 @@
 (use-package git-gutter
   :defer 0.3
   :delight
-  :init (global-git-gutter-mode))
+  :init (global-git-gutter-mode +1))
 
 (use-package git-timemachine
   :defer 1
