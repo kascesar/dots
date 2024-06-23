@@ -33,7 +33,8 @@
     org-superstar
     tramp
     counsel-tramp
-    highlight-indent-guides))
+    highlight-indent-guides
+    quarto-mode))
 
 ;; Install packages if not already installed
 (dolist (package needed-packages)
@@ -85,6 +86,10 @@
       (pyvenv-activate venv-path))))
 
 (add-hook 'python-mode-hook 'my/python-auto-activate-pipenv-venv)
+
+;; quarto
+(require 'quarto-mode)
+
 ;; ################################################################3
 
 ;; recarga los archivos al ser modificados
