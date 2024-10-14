@@ -33,8 +33,7 @@
     org-superstar
     tramp
     counsel-tramp
-    highlight-indent-guides
-    quarto-mode))
+    highlight-indent-guides))
 
 ;; Install packages if not already installed
 (dolist (package needed-packages)
@@ -71,26 +70,6 @@
 (use-package py-isort
   :ensure t
   :hook (python-mode . py-isort-before-save))
-
-;; ##### python venvn activate  #####
-(defun python-find-pipenv-venv ()
-  "Find the Pipenv virtual environment associated with the current buffer's project."
-  (let ((project-root (locate-dominating-file default-directory "Pipfile")))
-    (when project-root
-      (expand-file-name ".venv" project-root))))
-
-(defun python-auto-activate-pipenv-venv ()
-  "Automatically activate the Pipenv virtual environment associated with the current buffer's project."
-  (let ((venv-path (python-find-pipenv-venv)))
-    (when venv-path
-      (pyvenv-activate venv-path))))
-
-(add-hook 'python-mode-hook 'my/python-auto-activate-pipenv-venv)
-
-;; quarto
-(require 'quarto-mode)
-
-;; ################################################################3
 
 ;; recarga los archivos al ser modificados
 (use-package autorevert
@@ -244,13 +223,6 @@
    (python . t)))
 (setq org-babel-python-command "python3")
 
-;; hide emphasis markers
-;; (setq org-hide-emphasis-markers t)
-
-;; word wrap
-;; (with-eval-after-load 'org       
-;;  (add-hook 'org-mode-hook #'visual-line-mode))
-
 (use-package org
   ;:ensure org-contrib
   :config
@@ -260,20 +232,6 @@
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
 
-  ;(setq org-agenda-files
-  ;      '("~/.personal/agenda/personal.org"
-  ;        "~/.personal/agenda/trabajo.org"
-  ;        "~/.personal/agenda/diario.org"))
-  ;                                      ;"~/.personal/agenda/diario-ibx.org"))
-
-  ;; utilizo mi propio diario para a la agenda, asi que deshabilito el de emacs
-  ;(setq org-agenda-include-diary nil)
-  ;; (setq diary-file "~/.personal/agenda/diario.org")
-  ;(setq org-agenda-diary-file "~/.personal/agenda/diario.org")
-
-  ;; ubicacion de los ficheros cuando son archivados, organizados por fecha
-  ;(setq org-archive-location "~/.personal/archivo/%s_archivo.org::datetree/")
-
   (setq org-todo-keywords
         '((sequence "PORHACER(p!)"
                     "ENPROCESO(e!)"
@@ -282,13 +240,14 @@
 		    "HECHO(h!)"
 		    "ARCHIVAR(a!)")))
 
-
-  ;; Configuracion de colores (faces) para estados todo
    (setq org-todo-keyword-faces
          '(("PORHACER" . "red")
            ("ENPROCESO" . "magenta")
            ("BLOQUEADO" . "orange")
            ("HECHO" . "green")))
+
+(setq org-file-apps
+      '(("\\.html\\'" . browse-url-firefox)))
 
   (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
@@ -310,7 +269,7 @@
   (setq org-log-into-drawer "LOGBOOK")
   ;;
   ;; Alinea etiquetas
-  (setq org-tags-column 74))
+  (setq org-tags-column 70))
 
 ;; Aspecto mejorado al identar
 (add-hook 'org-mode-hook 'org-indent-mode)
@@ -337,17 +296,6 @@
 
 ;;;; se necesita instalar grip (sudo apt install grip)
 ;; Configuración para activar auto-fill-mode y establecer fill-column en archivos Markdown
-
-;; ================================= MARKDOWN =========================0
-(add-hook 'markdown-mode-hook
-          (lambda ()
-            ;(auto-fill-mode 1) ; Activar auto-fill-mode
-            (setq fill-column 80))) ; Establecer fill-column a 80 caracteres
-
-;; Configuración para activar visual-line-mode en archivos Markdown
-(add-hook 'markdown-mode-hook 'visual-line-mode)
-
-
 ;; GIT
 (use-package git-gutter
   :defer 0.3
@@ -409,6 +357,11 @@
 ;         ("C-c n j" . org-roam-dailies-capture-today))
 ;  :config
 ;  (org-roam-setup))
+(set-frame-font "DejaVu Sans Mono-13" nil t)
+
+;; Configuración para usar una sola ventana con Ediff
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+(setq ediff-split-window-function 'split-window-horizontally)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
