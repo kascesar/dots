@@ -153,7 +153,7 @@
   (defun my-beacon-periodic-blink ()
     "Muestra el resplandor si el cursor ha estado quieto por más de 0.8 segundos."
     (let ((idle-time (- (float-time) my-last-cursor-move-time)))
-      (when (>= idle-time 0.8)  ;; Verificar si el cursor ha estado inactivo por 0.8 segundos
+      (when (>= idle-time 1)  ;; Verificar si el cursor ha estado inactivo por 1 segundos
         (beacon-blink))))
 
   ;; Función para manejar el movimiento del cursor y el resplandor inmediato
@@ -165,7 +165,7 @@
     (beacon-blink))
 
   ;; Ejecutar el resplandor periódico cada 0.8 segundos
-  (run-with-timer 0 0.8 'my-beacon-periodic-blink)
+  (run-with-timer 0 1 'my-beacon-periodic-blink)
 
   ;; Hook para mostrar el resplandor inmediatamente al mover el cursor
   (add-hook 'post-command-hook 'my-beacon-on-cursor-move)
