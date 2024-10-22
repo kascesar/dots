@@ -1,4 +1,4 @@
-/*
+ /*
 Copyright 2019 @foostan         
 
  i  
@@ -40,58 +40,73 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 /* Macros */
 enum custom_keycodes {
     EPRM = SAFE_RANGE,
-    MACRO_3,
-    MACRO_1,
-    MACRO_0,
-    MACRO_4,
-    MACRO_2,
-    TMUX_SPLIT_VERTICAL,
-    TMUX_SPLIT_HORIZONTAL,
-    TMUX_MOVE_UP,
-    TMUX_MOVE_DOWN,
-    TMUX_MOVE_LEFT,
-    TMUX_MOVE_RIGHT
+    EMACS_X0,    // cierra la ventana actual
+    EMACS_X1,    // cierra las otras ventanas
+    EMACS_X2,    // parte la ventana horizontalmente
+    EMACS_X3,    // parte la ventana verticalmente
+    EMACS_XK,    // cierra el buffer actual
+    EMACS_XLEFT, // agranda la ventana hacia la izquierda
+    EMACS_XRIGHT // agranda la ventana hacia la derecha
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
         switch (keycode) {
-            case MACRO_0:
-                SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_0));
+            case EMACS_X0: // cierra la ventana actual
+                register_code(KC_LCTL);
+                tap_code(KC_X);
+                unregister_code(KC_LCTL);
+                tap_code(KC_0);
                 return false;
-            case MACRO_1:
-                SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_1));
+
+            case EMACS_X1: // cierra las otras ventanas
+                register_code(KC_LCTL);
+                tap_code(KC_X);
+                unregister_code(KC_LCTL);
+                tap_code(KC_1);
                 return false;
-            case MACRO_2:
-                SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_2));
+
+            case EMACS_X2: // parte la ventana horizontalmente
+                register_code(KC_LCTL);
+                tap_code(KC_X);
+                unregister_code(KC_LCTL);
+                tap_code(KC_2);
                 return false;
-            case MACRO_3:
-                SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_3));
+
+            case EMACS_X3: // parte la ventana verticalmente
+                register_code(KC_LCTL);
+                tap_code(KC_X);
+                unregister_code(KC_LCTL);
+                tap_code(KC_3);
                 return false;
-            case MACRO_4:
-                SEND_STRING(SS_LCTL(SS_TAP(X_X)) SS_TAP(X_K));
+
+            case EMACS_XK: // cierra el buffer actual
+                register_code(KC_LCTL);
+                tap_code(KC_X);
+                unregister_code(KC_LCTL);
+                tap_code(KC_K);
                 return false;
-	    case TMUX_SPLIT_VERTICAL:
-	        SEND_STRING(SS_LCTL(SS_TAP(X_B)) SS_TAP(X_0));
+
+            case EMACS_XLEFT: // agranda la ventana hacia la izquierda
+                register_code(KC_LCTL);
+                tap_code(KC_X);
+                unregister_code(KC_LCTL);
+                register_code(KC_LSFT);
+                tap_code(KC_LBRC); // Shift + [
+                unregister_code(KC_LSFT);
                 return false;
-	    case TMUX_SPLIT_HORIZONTAL:
-                SEND_STRING(SS_LCTL(SS_TAP(X_B)) SS_TAP(X_9));
-                return false;
-            case TMUX_MOVE_UP:
-                SEND_STRING(SS_LCTL(SS_TAP(X_B)) SS_TAP(X_UP));
-                return false;
-            case TMUX_MOVE_DOWN:
-                SEND_STRING(SS_LCTL(SS_TAP(X_B)) SS_TAP(X_DOWN));
-                return false;
-            case TMUX_MOVE_LEFT:
-                SEND_STRING(SS_LCTL(SS_TAP(X_B)) SS_TAP(X_LEFT));
-                return false;
-            case TMUX_MOVE_RIGHT:
-                SEND_STRING(SS_LCTL(SS_TAP(X_B)) SS_TAP(X_RIGHT));
+
+            case EMACS_XRIGHT: // agranda la ventana hacia la derecha
+                register_code(KC_LCTL);
+                tap_code(KC_X);
+                unregister_code(KC_LCTL);
+                register_code(KC_LSFT);
+                tap_code(KC_RBRC); // Shift + ]
+                unregister_code(KC_LSFT);
                 return false;
         }
     }
-    return true;
+    return true; // permitir el procesamiento de otros keycodes
 }
 
 
@@ -145,15 +160,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                           KC_LGUI, _______,  KC_SPC,     KC_ENT, _______, KC_RALT
                                       //`--------------------------'  `--------------------------'
   ),
-[4] = LAYOUT_split_3x6_3(
-  //,-----------------------------------------------------.                  ,-----------------------------------------------------------------------------.
-      KC_TAB, MACRO_0,  MACRO_1, MACRO_3, MACRO_2, MACRO_4,                   LWIN(KC_T),   LWIN(KC_S),  LWIN(KC_UP),   LWIN(KC_O),     _______, LWIN(KC_Q),
-  //|--------+--------+--------+--------+--------+--------|                  |-----------+-------------+--------------+---------------+---------+-----------|
-      KC_LSFT, TMUX_MOVE_LEFT, TMUX_MOVE_RIGHT, TMUX_SPLIT_VERTICAL, TMUX_SPLIT_HORIZONTAL, TMUX_MOVE_UP,                    _______  , LWIN(KC_LEFT), LWIN(KC_DOWN), LWIN(KC_RIGHT), _______, _______,
-  //|--------+--------+--------+--------+--------+--------|                  |----------+--------------+--------------+---------------+--------+--------|
-      KC_LCTL, _______, _______, _______, _______, TMUX_MOVE_DOWN,                    _______,  _______,  _______, _______, _______, KC_ESC,
-  //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
+    [4] = LAYOUT_split_3x6_3(
+        //,-----------------------------------------------------.                 ,-----------------------------------------------------------------------------.
+        KC_TAB, EMACS_X0, EMACS_X1, EMACS_X3, EMACS_X2, EMACS_XK,               LWIN(KC_T), LWIN(KC_S),  LWIN(KC_UP),   LWIN(KC_O),    LWIN(KC_ENTER), LWIN(KC_Q),
+        //|--------+--------+--------+--------+--------+--------|                 |-----------+-------------+--------------+---------------+---------+-----------|
+        KC_LSFT,_______,   KC_F7,  KC_F8, EMACS_XLEFT, EMACS_XRIGHT,             LWIN(KC_LEFT), LWIN(KC_DOWN), LWIN(KC_RIGHT), _______, _______, _______,
+        //|--------+--------+--------+--------+--------+--------|                 |----------+--------------+--------------+---------------+--------+--------|
+        KC_LCTL, _______, _______, _______, _______, _______,                    _______,  _______,  _______, _______, _______, KC_ESC,
+        //|--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------|--------|
                                         KC_LALT, _______,  _______,    _______, LWIN(KC_ENT), _______
                                       //`--------------------------'  `--------------------------'
-  )
+ ),
 };
