@@ -6,7 +6,11 @@
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/") t)
 (package-initialize)
-
+(setq-default
+  truncate-lines t
+  truncate-partial-width-windows nil
+  auto-hscroll-mode 'current-line
+)
 
 
 ;; Install use-package if not already installed
@@ -128,6 +132,48 @@
 (require 'eaf-browser)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;; BEACON ;;;;;;;;;;;;;;;;;;;;;
+(blink-cursor-mode 0)
+(setq-default cursor-type 'bar)
+
+(use-package beacon
+  :ensure t
+  :config
+  ;; Configurar el color del resplandor a un rozado muy fuerte
+  (setq beacon-color "#FF69B4")
+
+  ;; Reducir el tamaño del resplandor
+  (setq beacon-size 20)
+
+  ;; Variable para almacenar el tiempo desde el último movimiento del cursor
+  (defvar my-last-cursor-move-time 0)
+
+  ;; Función para mostrar el resplandor periódicamente cuando el cursor está quieto
+  (defun my-beacon-periodic-blink ()
+    "Muestra el resplandor si el cursor ha estado quieto por más de 0.8 segundos."
+    (let ((idle-time (- (float-time) my-last-cursor-move-time)))
+      (when (>= idle-time 0.8)  ;; Verificar si el cursor ha estado inactivo por 0.8 segundos
+        (beacon-blink))))
+
+  ;; Función para manejar el movimiento del cursor y el resplandor inmediato
+  (defun my-beacon-on-cursor-move ()
+    "Muestra el resplandor inmediatamente al mover el cursor y actualiza el tiempo."
+    ;; Actualizar el tiempo del último movimiento del cursor
+    (setq my-last-cursor-move-time (float-time))
+    ;; Mostrar el resplandor inmediatamente
+    (beacon-blink))
+
+  ;; Ejecutar el resplandor periódico cada 0.8 segundos
+  (run-with-timer 0 0.8 'my-beacon-periodic-blink)
+
+  ;; Hook para mostrar el resplandor inmediatamente al mover el cursor
+  (add-hook 'post-command-hook 'my-beacon-on-cursor-move)
+
+  ;; Habilitar el modo beacon
+  (beacon-mode 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;; DASHBOARD ;;;;;;;;;;;;;;;;;;
 (use-package all-the-icons)
 
@@ -177,29 +223,6 @@
   (dashboard-insert-startupify-lists)
   (switch-to-buffer dashboard-buffer-name))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;; Pulsar ;;;;;;;;;;;;
-(require 'pulsar)
-
-;; Check the default value of `pulsar-pulse-functions'.  That is where
-;; you add more commands that should cause a pulse after they are
-;; invoked
-
-(setq pulsar-pulse t)
-(setq pulsar-delay 0.07)
-(setq pulsar-iterations 10)
-(setq pulsar-face 'pulsar-magenta)
-(setq pulsar-highlight-face 'pulsar-cyan)
-
-(pulsar-global-mode 1)
-
-;; OR use the local mode for select mode hooks
-(dolist (hook '(org-mode-hook
-		emacs-lisp-mode-hook))
-  (add-hook hook #'pulsar-mode))
-(add-hook 'minibuffer-setup-hook #'pulsar-pulse-line)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;; MARKDOWN ;;;;;;;;;;;;;;
 (use-package markdown-mode
