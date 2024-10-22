@@ -3,11 +3,11 @@
 ;;; Code:
 ;;; Add MELPA and GNU ELPA repositories for package installation
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/") t)
 (package-initialize)
 
-;;(set-face-attribute 'default nil :height 150)
+
 
 ;; Install use-package if not already installed
 (unless (package-installed-p 'use-package)
@@ -39,6 +39,7 @@
 (dolist (package needed-packages)
   (unless (package-installed-p package)
     (package-install package)))
+
 ;; Python development setup
 (use-package lsp-pyright
   :ensure t
@@ -104,7 +105,80 @@
                          "~/.emacs.d/s*"))
     :config (run-at-time nil (* 5 60) 'recentf-save-list))
 
-;; Pulsar
+;;;;;;;;;;;;; EAF ;;;;;;;;;;;;;;;;;;;;;;;;
+;; Clona el repo antes de
+;; git clone --depth=1 -b master https://github.com/emacs-eaf/emacs-application-framework.git ~/.emacs.d/site-lisp/emacs-application-framework/
+(add-to-list 'load-path "~/.emacs.d/site-lisp/emacs-application-framework/")
+(require 'eaf)
+(require 'eaf-org-previewer)
+(require 'eaf-system-monitor)
+(require 'eaf-jupyter)
+(require 'eaf-music-player)
+(require 'eaf-org-previewer)
+(require 'eaf-js-video-player)
+(require 'eaf-pyqterminal)
+(require 'eaf-image-viewer)
+(require 'eaf-mindmap)
+(require 'eaf-markdown-previewer)
+(require 'eaf-pdf-viewer)
+(require 'eaf-camera)
+(require 'eaf-terminal)
+(require 'eaf-markmap)
+(require 'eaf-video-player)
+(require 'eaf-browser)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;; DASHBOARD ;;;;;;;;;;;;;;;;;;
+(use-package all-the-icons)
+
+(setq dashboard-icon-type 'all-the-icons) ;; use `all-the-icons' package
+(use-package dashboard
+  :custom
+  (dashboard-startup-banner "~/Imágenes/deep-human.jpeg")
+  (dashboard-banner-logo-title (format "Buen día %s" user-full-name))
+  (dashboard-items '((recents . 4)
+                     (bookmarks . 5)
+                     (agenda . 2)))
+  :config
+  (dashboard-setup-startup-hook)
+  (setq dashboard-set-heading-icons t
+        dashboard-set-file-icons t
+        dashboard-set-init-info t
+        dashboard-set-navigator t)
+  (setq dashboard-navigator-buttons
+        `((
+           (,(when (display-graphic-p)
+               (all-the-icons-octicon "tools" :height 1.0 :v-adjust 0.0))
+            "Configuración" "Abrir configuración de emacs (.el)"
+            (lambda (&rest _) (find-file (expand-file-name  "~/.emacs.d/init.el"))))
+           (,(when (display-graphic-p)
+               (all-the-icons-octicon "calendar" :height 1.0 :v-adjust 0.0))
+            "Agenda" "Agenda personal"
+            (lambda (&rest _)
+              (interactive)
+              (if (get-buffer "*Org Agenda*")
+                  (progn
+                    (switch-to-buffer-other-window "*Org Agenda*")
+                    (kill-buffer "*Org Agenda*")
+                    (org-agenda-list))
+                (split-window-right)
+                (org-agenda-list))))
+           ))))
+;; F10 para ir al Dashboard
+(global-set-key (kbd "<f10>") 'open-dashboard)
+
+(defun open-dashboard ()
+  "Open the *dashboard* buffer and jump to the first widget."
+  (interactive)
+
+  (delete-other-windows)
+  (if (get-buffer dashboard-buffer-name)
+      (kill-buffer dashboard-buffer-name))
+  (dashboard-insert-startupify-lists)
+  (switch-to-buffer dashboard-buffer-name))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;; Pulsar ;;;;;;;;;;;;
 (require 'pulsar)
 
 ;; Check the default value of `pulsar-pulse-functions'.  That is where
@@ -120,29 +194,25 @@
 (pulsar-global-mode 1)
 
 ;; OR use the local mode for select mode hooks
-
 (dolist (hook '(org-mode-hook
 		emacs-lisp-mode-hook))
   (add-hook hook #'pulsar-mode))
-
-;; pulsar does not define any key bindings.  This is just a sample that
-;; respects the key binding conventions.  Evaluate:
-;;
-;;     (info "(elisp) Key Binding Conventions")
-;;
-;; The author uses C-x l for `pulsar-pulse-line' and C-x L for
-;; `pulsar-highlight-line'.
-;;
-;; You can replace `pulsar-highlight-line' with the command
-;; `pulsar-highlight-dwim'.
-;;(let ((map global-map))
-;; (define-key map (kbd "C-c h p") #'pulsar-pulse-line)
-;; (define-key map (kbd "C-c h h") #'pulsar-highlight-line))
-
-;; pulsar en el minibuffer
 (add-hook 'minibuffer-setup-hook #'pulsar-pulse-line)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;; MARKDOWN ;;;;;;;;;;;;;;
+(use-package markdown-mode
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . gfm-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "pandoc")
+  :config
+  (setq visual-line-column 80)
+  (setq markdown-fontify-code-blocks-natively t)
+  (setq markdown-enable-math t))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;; Additional configurations
@@ -176,8 +246,6 @@
 ;; Activar whitespace-mode en todos los modos de programación
 (add-hook 'prog-mode-hook #'my-enable-whitespace-mode)
 
-;; Activar whitespace-mode en markdown-mode
-(add-hook 'markdown-mode-hook #'my-enable-whitespace-mode)
 ;; Add row and column numbers to the mode line
 (column-number-mode)
 
@@ -260,6 +328,7 @@
                         ("@tarea" . ?t)
                         ("@coche" . ?h)
                         ("@trabajo" . ?b)
+			("@personal" . ?p)
                         ("crypt" . ?C)))
   (setq org-tags-exclude-from-inheritance '("crypt"))
 
@@ -293,6 +362,113 @@
   (visual-fill-column-center-text t)
   (visual-fill-column-width 80)
   (visual-fill-column-mode 1))
+
+
+;;;;;;;;  ORG-AGENDA  ;;;;;;;;
+(global-set-key (kbd "<f7>") 'org-agenda)
+
+(use-package org-super-agenda
+  :config
+  (org-super-agenda-mode))
+
+(setq org-agenda-skip-scheduled-if-done t
+      org-agenda-skip-deadline-if-done t
+      org-agenda-compact-blocks t
+      org-agenda-window-setup 'current-window
+      org-agenda-start-on-weekday 1
+      org-deadline-warning-days 7
+      org-agenda-time-grid '((daily today require-timed))
+      org-agenda-custom-commands
+      '(
+        ("x" "Vista trabajo"
+         ((agenda "" ((org-agenda-span 3)
+                      (org-super-agenda-groups
+                       '((:name "Hoy"
+                                :discard (:tag "personal")
+                                :time-grid t
+                                :scheduled past
+                                :deadline past
+                                :date today
+                                :order 1)))))
+          (alltodo "" ((org-agenda-overriding-header "")
+                       (org-super-agenda-groups
+                        '((:discard (:tag "personal" ))
+                          (:name "Vencimiento hoy"
+                                 :deadline today
+                                 :order 5)
+                          (:name "Próximamente"
+                                 :deadline future
+                                 :order 11)
+                          (:name "Atrasado"
+                                 :scheduled past
+                                 :deadline past
+                                 :order 12)
+                          (:name "Por hacer"
+                                  ;:discard (:scheduled future :deadline future)
+                                 :todo "PORHACER"
+                                 :order 12)
+                          (:name "Esperando"
+                                 :todo "BLOQUEADO"
+                                 :order 14)))))
+          (tags "trabajo/HECHO"
+                ((org-agenda-overriding-header " Tareas Hechas")))))
+
+        ("z" "Vista personal"
+         ((agenda "" ((org-agenda-span 3)
+                      (org-super-agenda-groups
+                       '((:name "Hoy"
+                                :discard (:tag "trabajo" :scheduled past :deadline past)
+                                :time-grid t
+                                :date today
+                                :scheduled today
+                                :order 1)
+                         (:name ""
+                                :tag "agenda"
+                                :todo "Aniversarios")))))
+          (alltodo "" ((org-agenda-overriding-header "")
+                       (org-super-agenda-groups
+                        '((:discard (:tag "trabajo" ))
+                          (:name "Vencimiento hoy"
+                                 :deadline today
+                                 :order 5)
+                          (:name "Atrasado"
+                                 :scheduled past
+                                 :deadline past
+                                 :order 11)
+                          (:name "Por hacer"
+                                 :discard (:scheduled future :deadline future)
+                                 :todo "PORHACER"
+                                 :order 12)
+                          (:name "Esperando"
+                                 :todo "BLOQUEADO"
+                                 :order 14)))))
+          (tags "personal/HECHO"
+                ((org-agenda-overriding-header " Tareas Hechas")))))
+        ))
+
+(use-package calfw
+    :config
+  (setq cfw:org-overwrite-default-keybinding t)) ;; atajos de teclado de la agenda org-mode
+
+(use-package calfw-org
+    :ensure t
+    :config
+    (setq cfw:org-overwrite-default-keybinding t)
+    :bind ([f8] . cfw:open-org-calendar))
+
+(setq calendar-month-name-array
+      ["Enero" "Febrero" "Marzo" "Abril" "Mayo" "Junio"
+       "Julio"    "Agosto"   "Septiembre" "Octubre" "Noviembre" "Diciembre"])
+
+(setq calendar-day-name-array
+      ["Domingo" "Lunes" "Martes" "Miércoles" "Jueves" "Viernes" "Sábado"])
+
+(setq org-icalendar-timezone "America/Santiago") ;; timezone
+(setq calendar-week-start-day 1) ;; la semana empieza el lunes
+(setq european-calendar-style t) ;; estilo europeo
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;;; se necesita instalar grip (sudo apt install grip)
 ;; Configuración para activar auto-fill-mode y establecer fill-column en archivos Markdown
@@ -373,5 +549,7 @@
  '(highlight-indent-guides-character "|")
  '(highlight-indent-guides-method 'bitmap)
  '(ispell-dictionary nil)
+ '(org-agenda-files
+   '("~/develop/agenda/qmk.org" "/home/cesar/develop/agenda/artificial-inteligence-template.org"))
  '(package-selected-packages
    '(## mugur gnuplot-mode gnuplot visual-fill-column org-bullets calfw-org calfw org-contrib pulsar magit-gitflow py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
