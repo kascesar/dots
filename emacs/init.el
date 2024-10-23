@@ -11,7 +11,9 @@
   truncate-partial-width-windows nil
   auto-hscroll-mode 'current-line
 )
-
+;;;;;;;;; CODE FOLDING ;;;;;;;;;;;;;;;;;;;;
+(add-hook 'prog-mode-hook 'hs-minor-mode)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Install use-package if not already installed
 (unless (package-installed-p 'use-package)
@@ -44,7 +46,8 @@
   (unless (package-installed-p package)
     (package-install package)))
 
-;; Python development setup
+;;;;;;;;;;;;;;;;; Python development setup ;;;;;;;;;;;;;;;;;;
+
 (use-package lsp-pyright
   :ensure t
   :hook (python-mode . (lambda ()
@@ -75,7 +78,7 @@
 (use-package py-isort
   :ensure t
   :hook (python-mode . py-isort-before-save))
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; recarga los archivos al ser modificados
 (use-package autorevert
   :ensure nil
@@ -110,27 +113,35 @@
     :config (run-at-time nil (* 5 60) 'recentf-save-list))
 
 ;;;;;;;;;;;;; EAF ;;;;;;;;;;;;;;;;;;;;;;;;
-;; Clona el repo antes de
-;; git clone --depth=1 -b master https://github.com/emacs-eaf/emacs-application-framework.git ~/.emacs.d/site-lisp/emacs-application-framework/
+(use-package quelpa-use-package)
+;; Don't forget to run M-x eaf-install-dependencies
+(use-package eaf
+  :demand t
+  :quelpa (eaf :fetcher github
+              :repo  "manateelazycat/emacs-application-framework"
+              :files ("*"))
+  :load-path "~/.emacs.d/site-lisp/emacs-application-framework" ; Set to "/usr/share/emacs/site-lisp/eaf" if installed from AUR
+  :init
+  (use-package epc      :defer t :ensure t)
+  (use-package ctable   :defer t :ensure t)
+  (use-package deferred :defer t :ensure t)
+  (use-package s        :defer t :ensure t)
+  (setq browse-url-browser-function 'eaf-open-browser))
+
 (add-to-list 'load-path "~/.emacs.d/site-lisp/emacs-application-framework/")
 (require 'eaf)
+(require 'eaf-git)
 (require 'eaf-org-previewer)
 (require 'eaf-system-monitor)
 (require 'eaf-jupyter)
-(require 'eaf-music-player)
 (require 'eaf-org-previewer)
-(require 'eaf-js-video-player)
 (require 'eaf-pyqterminal)
-(require 'eaf-image-viewer)
 (require 'eaf-mindmap)
 (require 'eaf-markdown-previewer)
 (require 'eaf-pdf-viewer)
-(require 'eaf-camera)
 (require 'eaf-terminal)
 (require 'eaf-markmap)
-(require 'eaf-video-player)
 (require 'eaf-browser)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;; BEACON ;;;;;;;;;;;;;;;;;;;;;
@@ -144,7 +155,7 @@
   (setq beacon-color "#FF69B4")
 
   ;; Reducir el tamaño del resplandor
-  (setq beacon-size 20)
+  (setq beacon-size 10)
 
   ;; Variable para almacenar el tiempo desde el último movimiento del cursor
   (defvar my-last-cursor-move-time 0)
@@ -517,18 +528,28 @@
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
+;;;;;;;;;;;; EF-THEMES ;;;;;;;;;
 
-;;; THEMES
+(quelpa 
+  '(ef-themes 
+    :repo "protesilaos/ef-themes" 
+    :fetcher github))
+
 (setq ef-themes-mixed-fonts t
       ef-themes-variable-pitch-ui t)
 
 ;; Disable all other themes to avoid awkward blending:
 ;(mapc #'disable-theme custom-enabled-themes)
 
-  (use-package ef-themes
-    :config
-    (load-theme 'ef-summer t))
+(use-package ef-themes
+  :config
+  (load-theme 'ef-arbutus t))
 
+;; Establece el nivel de transparencia del fondo
+;;(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+;;(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (global-unset-key (kbd "C-z"))
 (global-set-key (kbd "C-z") 'undo)
 
@@ -573,6 +594,6 @@
  '(highlight-indent-guides-method 'bitmap)
  '(ispell-dictionary nil)
  '(org-agenda-files
-   '("~/develop/agenda/qmk.org" "/home/cesar/develop/agenda/artificial-inteligence-template.org"))
+   '("~/develop/agenda/frd.org" "/home/cesar/develop/agenda/qmk.org" "/home/cesar/develop/agenda/artificial-inteligence-template.org"))
  '(package-selected-packages
    '(## mugur gnuplot-mode gnuplot visual-fill-column org-bullets calfw-org calfw org-contrib pulsar magit-gitflow py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
