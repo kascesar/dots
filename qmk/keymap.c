@@ -86,24 +86,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 unregister_code(KC_LCTL);
                 tap_code(KC_K);
                 return false;
+	    case EMACS_XLEFT: // agranda la ventana hacia la izquierda
+	      // Enviakkr C-C
+	      register_code(KC_LCTL);
+	      tap_code(KC_C);
+	      unregister_code(KC_LCTL);
+    
+	      tap_code(KC_LBRC); // [
+	      return false;
 
-            case EMACS_XLEFT: // agranda la ventana hacia la izquierda
-                register_code(KC_LCTL);
-                tap_code(KC_X);
-                unregister_code(KC_LCTL);
-                register_code(KC_LSFT);
-                tap_code(KC_LBRC); // Shift + [
-                unregister_code(KC_LSFT);
-                return false;
+	case EMACS_XRIGHT: // agranda la ventana hacia la derecha
+	     // Enviakkr C-C
+	      register_code(KC_LCTL);
+	      tap_code(KC_C);
+	      unregister_code(KC_LCTL);
+    
+	      tap_code(KC_RBRC); //  ]
+	      return false;
 
-            case EMACS_XRIGHT: // agranda la ventana hacia la derecha
-                register_code(KC_LCTL);
-                tap_code(KC_X);
-                unregister_code(KC_LCTL);
-                register_code(KC_LSFT);
-                tap_code(KC_RBRC); // Shift + ]
-                unregister_code(KC_LSFT);
-                return false;
         }
     }
     return true; // permitir el procesamiento de otros keycodes
@@ -141,7 +141,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
     KC_TILD, KC_EXLM, KC_AT, KC_HASH,  KC_DLR, KC_PERC,                         KC_ASTR, KC_PLUS, KC_CIRC, KC_LPRN, KC_RPRN,  KC_BSPC,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-    KC_LSFT, _______, _______, _______, _______, _______,                       KC_SLSH,  KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, _______,
+    KC_LSFT, KC_GRAVE, _______, _______, _______, _______,                       KC_SLSH,  KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, _______,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
      KC_LCTL, KC_BSLS, KC_PIPE, KC_SLSH, KC_MINS, KC_UNDS,                      KC_AMPR, _______, _______,  KC_LCBR, KC_RCBR, _______,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -164,7 +164,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         //,-----------------------------------------------------.                 ,-----------------------------------------------------------------------------.
         KC_TAB, EMACS_X0, EMACS_X1, EMACS_X3, EMACS_X2, EMACS_XK,               LWIN(KC_T), LWIN(KC_S),  LWIN(KC_UP),   LWIN(KC_O),    LWIN(KC_ENTER), LWIN(KC_Q),
         //|--------+--------+--------+--------+--------+--------|                 |-----------+-------------+--------------+---------------+---------+-----------|
-        KC_LSFT,_______,   KC_F7,  KC_F8, EMACS_XLEFT, EMACS_XRIGHT,             LWIN(KC_LEFT), LWIN(KC_DOWN), LWIN(KC_RIGHT), _______, _______, _______,
+        KC_LSFT,_______,   KC_F7,  KC_F8, EMACS_XLEFT, EMACS_XRIGHT,              _______, LWIN(KC_LEFT), LWIN(KC_DOWN), LWIN(KC_RIGHT), _______, _______,
         //|--------+--------+--------+--------+--------+--------|                 |----------+--------------+--------------+---------------+--------+--------|
         KC_LCTL, _______, _______, _______, _______, _______,                    _______,  _______,  _______, _______, _______, KC_ESC,
         //|--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------|--------|
