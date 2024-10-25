@@ -2,9 +2,12 @@
 ;;; Commentary:
 ;;; Code:
 ;;; Add MELPA and GNU ELPA repositories for package installation
+(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/") t)
+(setq package-archives
+      '(("melpa" . "https://melpa.org/packages/")
+        ("melpa-stable" . "https://stable.melpa.org/packages/")
+        ("gnu" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
 (setq-default
   truncate-lines t
@@ -13,6 +16,8 @@
 )
 ;;;;;;;;; CODE FOLDING ;;;;;;;;;;;;;;;;;;;;
 (add-hook 'prog-mode-hook 'hs-minor-mode)
+(global-set-key (kbd "C-c h") 'hs-hide-block)
+(global-set-key (kbd "C-c s") 'hs-show-block)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Install use-package if not already installed
@@ -155,7 +160,7 @@
   (setq beacon-color "#FF69B4")
 
   ;; Reducir el tamaño del resplandor
-  (setq beacon-size 10)
+  (setq beacon-size 20)
 
   ;; Variable para almacenar el tiempo desde el último movimiento del cursor
   (defvar my-last-cursor-move-time 0)
@@ -397,6 +402,22 @@
   (visual-fill-column-width 80)
   (visual-fill-column-mode 1))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ORG-MODERN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; requeriment for org-modern
+(use-package compat
+  :quelpa (compat :fetcher github :repo "emacs-compat/compat"))
+(use-package org-modern
+  :ensure t)
+;; Configuración de org-modern
+(setq org-modern-star '("◉" "○" "✸" "✿")
+      org-modern-list '((43 . "➤") (45 . "–") (42 . "•"))
+      org-modern-block-fringe t
+      org-modern-table t
+      org-modern-checkbox '((?X . "✓") (?- . "✗") (?\s . "⬚")))
+
+;; Activa org-modern en org-mode
+(add-hook 'org-mode-hook #'org-modern-mode)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;  ORG-AGENDA  ;;;;;;;;
 (global-set-key (kbd "<f7>") 'org-agenda)
@@ -543,7 +564,8 @@
 
 (use-package ef-themes
   :config
-  (load-theme 'ef-arbutus t))
+  (setq ef-themes-to-toggle '(ef-summer ef-rosa))
+  (load-theme 'ef-summer t))
 
 ;; Establece el nivel de transparencia del fondo
 ;;(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
@@ -594,6 +616,6 @@
  '(highlight-indent-guides-method 'bitmap)
  '(ispell-dictionary nil)
  '(org-agenda-files
-   '("~/develop/agenda/frd.org" "/home/cesar/develop/agenda/qmk.org" "/home/cesar/develop/agenda/artificial-inteligence-template.org"))
+   '("/home/cesar/develop/agenda/artificial-inteligence-template.org" "/home/cesar/develop/agenda/frd.org" "/home/cesar/develop/agenda/qmk.org"))
  '(package-selected-packages
    '(## mugur gnuplot-mode gnuplot visual-fill-column org-bullets calfw-org calfw org-contrib pulsar magit-gitflow py-isort use-package pyvenv python-black pylint magit lsp-ui lsp-python-ms lsp-pyright lsp-docker jedi-direx highlight-indent-guides grip-mode flycheck dired-sidebar company)))
