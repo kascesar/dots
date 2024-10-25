@@ -2,6 +2,7 @@
 ;;; Commentary:
 ;;; Code:
 ;;; Add MELPA and GNU ELPA repositories for package installation
+(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 (require 'package)
 (setq package-archives
       '(("melpa" . "https://melpa.org/packages/")
@@ -136,11 +137,8 @@
 (require 'eaf)
 (require 'eaf-git)
 (require 'eaf-org-previewer)
-(require 'eaf-system-monitor)
-(require 'eaf-jupyter)
 (require 'eaf-org-previewer)
 (require 'eaf-pyqterminal)
-(require 'eaf-mindmap)
 (require 'eaf-markdown-previewer)
 (require 'eaf-pdf-viewer)
 (require 'eaf-terminal)
