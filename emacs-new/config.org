@@ -3,7 +3,8 @@
 #+AUTHOR: Cesar Munoz
 
 * Table of contents                                                   :TOC_4:
-- [[#common-configs][common configs]]
+- [[#common-configs][Common configs]]
+  - [[#babel-lenguajes][Babel lenguajes]]
   - [[#hide-useless-interface-items][Hide useless interface items]]
   - [[#dired-and-columnsrow][Dired and columns/row]]
   - [[#tempo][Tempo]]
@@ -17,15 +18,27 @@
   - [[#highlight-indent-guide][Highlight-indent-guide]]
   - [[#all-the-icons][All-the-icons]]
   - [[#dashboard][Dashboard]]
-  - [[#magit][Magit]]
   - [[#org][ORG]]
     - [[#org-elipsis][org-elipsis]]
     - [[#org-toc-table-of-contents][org-toc (table of contents)]]
-    - [[#org-bullets][org-bullets]]
     - [[#org-agenda--super-agenda][org-agenda & super-agenda]]
+    - [[#org-modern-indent][org-modern-indent]]
     - [[#org-modern][org-modern]]
+    - [[#org-bullets][org-bullets]]
+  - [[#python][Python]]
+  - [[#git][git]]
+    - [[#magit][Magit]]
+    - [[#git-gutter][git-gutter]]
+    - [[#git-timemachine][git-timemachine]]
+- [[#end][end]]
 
-* common configs
+* Common configs
+** Babel lenguajes
+#+BEGIN_SRC emacs-lisp
+(org-babel-do-load-languages
+'org-babel-load-languages
+'((shell . t)))
+#+END_SRC
 ** Hide useless interface items
 #+BEGIN_SRC emacs-lisp
   (menu-bar-mode -1)
@@ -57,7 +70,6 @@
 
   ;; dont ask when kill buffer
   (global-set-key [remap kill-buffer] #'kill-this-buffer)
-  (kill-buffer "*scratch*")
 #+END_SRC
 ** Tempo
 | Typing the below + TAB | Expands to ...                          |
@@ -74,10 +86,7 @@
 | <v                     | '#+BEGIN_VERSE' … '#+END_VERSE'         |
 
 #+BEGIN_SRC emacs-lisp
-
   (require 'org-tempo)
-  (with-eval-after-load 'org-tempo
-  (define-key org-mode-map (kbd "C-c TAB") 'org-tempo-expand))
 #+END_SRC
 
 #+RESULTS:
@@ -154,53 +163,61 @@
 * Package Manager -elpacak-
 #+BEGIN_SRC emacs-lisp
   (defvar elpaca-installer-version 0.7)
-(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
-(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
-(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
-(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                              :ref nil :depth 1
-                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
-                              :build (:not elpaca--activate-package)))
-(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-       (build (expand-file-name "elpaca/" elpaca-builds-directory))
-       (order (cdr elpaca-order))
-       (default-directory repo))
-  (add-to-list 'load-path (if (file-exists-p build) build repo))
-  (unless (file-exists-p repo)
-    (make-directory repo t)
-    (when (< emacs-major-version 28) (require 'subr-x))
-    (condition-case-unless-debug err
-        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                 ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-                                                 ,@(when-let ((depth (plist-get order :depth)))
-                                                     (list (format "--depth=%d" depth) "--no-single-branch"))
-                                                 ,(plist-get order :repo) ,repo))))
-                 ((zerop (call-process "git" nil buffer t "checkout"
-                                       (or (plist-get order :ref) "--"))))
-                 (emacs (concat invocation-directory invocation-name))
-                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-                 ((require 'elpaca))
-                 ((elpaca-generate-autoloads "elpaca" repo)))
-            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-          (error "%s" (with-current-buffer buffer (buffer-string))))
-      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
-  (unless (require 'elpaca-autoloads nil t)
-    (require 'elpaca)
-    (elpaca-generate-autoloads "elpaca" repo)
-    (load "./elpaca-autoloads")))
-(add-hook 'after-init-hook #'elpaca-process-queues)
-(elpaca `(,@elpaca-order))
+  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+				:ref nil :depth 1
+				:files (:defaults "elpaca-test.el" (:exclude "extensions"))
+				:build (:not elpaca--activate-package)))
+  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+	 (build (expand-file-name "elpaca/" elpaca-builds-directory))
+	 (order (cdr elpaca-order))
+	 (default-directory repo))
+    (add-to-list 'load-path (if (file-exists-p build) build repo))
+    (unless (file-exists-p repo)
+      (make-directory repo t)
+      (when (< emacs-major-version 28) (require 'subr-x))
+      (condition-case-unless-debug err
+	  (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+		   ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+						   ,@(when-let ((depth (plist-get order :depth)))
+						       (list (format "--depth=%d" depth) "--no-single-branch"))
+						   ,(plist-get order :repo) ,repo))))
+		   ((zerop (call-process "git" nil buffer t "checkout"
+					 (or (plist-get order :ref) "--"))))
+		   (emacs (concat invocation-directory invocation-name))
+		   ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+					 "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+		   ((require 'elpaca))
+		   ((elpaca-generate-autoloads "elpaca" repo)))
+	      (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+	    (error "%s" (with-current-buffer buffer (buffer-string))))
+	((error) (warn "%s" err) (delete-directory repo 'recursive))))
+    (unless (require 'elpaca-autoloads nil t)
+      (require 'elpaca)
+      (elpaca-generate-autoloads "elpaca" repo)
+      (load "./elpaca-autoloads")))
+  (add-hook 'after-init-hook #'elpaca-process-queues)
+  (elpaca `(,@elpaca-order))
+  (elpaca elpaca-use-package
+  ;; Enable use-package :ensure support for Elpaca.
+  (elpaca-use-package-mode))
+
 #+END_SRC
 
 ** Ef-themes
+
+Estos son los /ef-themes/, esta configuracion setea el /theme/ que mas me gusta por defecto /-summer-./
+Ademas, gracias a las cualidades de /ef-themes/ puedes seleccionar mas de un tema con el cual cambiar.
+
+Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escuro.
 #+BEGIN_SRC emacs-lisp
-  (elpaca ef-themes
   (use-package ef-themes
     :ensure t
     :demand t
     :config
-    (load-theme 'ef-summer :no-confirm)))
+    (load-theme 'ef-summer :no-confirm))
   (setq ef-themes-to-toggle '(ef-summer ef-cherie))
 #+END_SRC
 
@@ -329,33 +346,39 @@
   (dashboard-insert-startupify-lists)
   (switch-to-buffer dashboard-buffer-name))
 #+END_SRC
-** Magit
-#+BEGIN_SRC emacs-lisp
-  (elpaca magit
-    :ensure t
-    :demand t)
-#+END_SRC
+
 ** ORG
+
+configuraciones /globales/ para /org-mode/
+#+BEGIN_SRC emacs-lisp
+  ;; Aspecto mejorado al identar
+  ;(add-hook 'org-mode-hook 'org-indent-mode)
+  ;; recomendacion de codigo en org-mode
+  (defun org-mode-setup ()
+  (set (make-local-variable 'company-backends)
+       '((company-dabbrev company-yasnippet)))) ;; Para sugerencias de palabras y snippets
+
+  (add-hook 'org-mode-hook #'company-mode)
+  (add-hook 'org-mode-hook #'org-mode-setup)
+  (setq company-dabbrev-other-buffers t)
+
+  ;; ocultamos los caracteres especiales
+  (setq org-hide-emphasis-markers t)
+#+END_SRC
+
 *** org-elipsis
 #+BEGIN_SRC emacs-lisp
   (use-package org
   :config
   (setq org-ellipsis  "⤵"))
 #+END_SRC
+
 *** org-toc (table of contents)
 #+BEGIN_SRC emacs-lisp
-  (elpaca toc-org)
-  (use-package toc-org
-    :commands toc-org-enable
-    :init (add-hook 'org-mode-hook 'toc-org-enable))
-#+END_SRC
-*** org-bullets
-#+BEGIN_SRC emacs-lisp
-  (elpaca org-bullets
-    :ensure t  ;; Asegúrate de que se instale correctamente
-    :config
-    (setq org-bullets-bullet-list '("●" "○" "◆" "▶" "▷" "❖" "✦")))
-  (add-hook 'org-mode-hook 'org-bullets-mode)
+  (elpaca toc-org
+    :ensure t
+    :demand t)
+  (add-hook 'org-mode-hook 'toc-org-mode)
 #+END_SRC
 *** org-agenda & super-agenda
 #+begin_src emacs-lisp
@@ -450,32 +473,112 @@
   (setq calendar-week-start-day 1) ;; la semana empieza el lunes
   (setq european-calendar-style t) ;; estilo europeo
 #+end_src
+*** org-modern-indent
+#+begin_src emacs-lisp
+  (add-hook 'org-mode-hook 'org-indent-mode)
+  (use-package compat
+  :ensure (:wait t)
+  :demand t)
+  (use-package org-modern-indent
+  :load-path "~/.emacs.d/org-modern-indent/"
+  :config
+  (add-hook 'org-mode-hook #'org-modern-indent-mode 90)) 
+#+end_src
 
 *** org-modern
 #+begin_src emacs-lisp
-  (elpaca org-modern
-    :ensure t)
-
-  ;; Add frame borders and window dividers
-  (modify-all-frames-parameters
-   '((right-divider-width . 10)
-     (internal-border-width . 10)))
-
-  (setq org-modern-star '("●" " ■" "   ▲" "    ▼")  ;; Usar símbolos negros
-	org-modern-list '((43 . "➤") (45 . "–") (42 . "•"))
-	org-modern-block-fringe t
-	org-modern-table t
-	org-modern-checkbox '((?X . "✓") (?- . "✗") (?\s . "⬚")))
-  (add-hook 'org-modern-mode-hook
-	    (lambda ()
-	      (set-face-attribute 'org-modern-star-1 nil :foreground "black")   ;; Nivel 1
-	      (set-face-attribute 'org-modern-star-2 nil :foreground "red")     ;; Nivel 2
-	      (set-face-attribute 'org-modern-star-3 nil :foreground "green")   ;; Nivel 3
-	      (set-face-attribute 'org-modern-star-4 nil :foreground "blue")))   ;; Nivel 4
-  ;; Activa org-modern-mode automáticamente al abrir un archivo org
-  (add-hook 'org-mode-hook 'org-modern-mode)
-  (setq org-indent-mode-turns-on-hiding-stars nil) ;; Para mantener visibles los asteriscos
-  (setq org-indent-indentation-per-level 2) ;; Ajustar el tamaño de indentación por nivel
-  (setq org-modern-block nil) 
+(use-package org-modern
+  :ensure t
+  :custom
+  (org-modern-hide-stars nil)		; adds extra indentation
+  (org-modern-table nil)
+  (org-modern-list 
+   '(;; (?- . "-")
+     (?* . "•")
+     (?+ . "‣")))
+  (org-modern-block-name '("" . "")) ; or other chars; so top bracket is drawn promptly
+  :hook
+  (org-mode . org-modern-mode)
+  (org-agenda-finalize . org-modern-agenda))
 #+end_src
 
+*** org-bullets
+#+BEGIN_SRC emacs-lisp
+  ;(elpaca org-bullets
+  ;  :ensure t  ;; Asegúrate de que se instale correctamente
+  ;  :config
+  ;  (setq org-bullets-bullet-list '("●" "○" "◆" "▶" "▷" "❖" "✦")))
+  ;(add-hook 'org-mode-hook 'org-bullets-mode)
+  (use-package org-bullets-mode
+  :ensure org-bullets
+  :config
+  :hook org-mode)
+#+END_SRC
+** Python
+Aqui configuro LSP de tal forma que quede preparado para desarrollo en *Emacs*.
+
+/Pylsp/ Servidor de python de microsoft
+#+BEGIN_SRC sh
+  pip install 'python-lsp-server[all]' black isort
+#+END_SRC
+
+Ahora, configuramos el entorno de desarrollo de emacs para python
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode
+  :ensure t
+  :commands (lsp lsp-deferred)
+  :hook (python-mode . lsp-deferred)
+  :config
+  ;; Configura el servidor para usar pylsp
+  (setq lsp-pylsp-server-command "pylsp")
+  (setq lsp-prefer-flymake nil))
+
+  ;; herramientas adicionales
+  (use-package python-black
+  :ensure t
+  :hook (python-mode . python-black-on-save-mode))
+
+  (use-package py-isort
+  :ensure t
+  :hook (python-mode . py-isort-before-save))
+
+  ;; company
+  (use-package company
+  :ensure t
+  :config
+  (setq company-idle-delay 0.5                      ;; Muestra las sugerencias inmediatamente
+	company-minimum-prefix-length 1)            ;; Sugiere con solo 1 carácter
+  (add-hook 'after-init-hook 'global-company-mode)) ;; Actívalo globalmente
+  (add-hook 'python-mode-hook #'company-mode)
+#+END_SRC
+** git
+Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
+*** Magit
+#+BEGIN_SRC emacs-lisp
+(use-package transient :ensure (:wait t) :demand t)
+(use-package magit :ensure (:wait t) :demand t)
+#+END_SRC
+*** git-gutter
+Esta herramienta agrega indicadores para identificar los cambios miesntras programo
+#+BEGIN_SRC emacs-lisp
+  (use-package git-gutter
+    :ensure (:wait t)
+    :demand t
+    )
+  (global-git-gutter-mode +1)
+  (custom-set-variables
+   '(git-gutter:modified-sign "mod")
+   '(git-gutter:added-sign " + ")
+   '(git-gutter:deleted-sign " - "))
+#+END_SRC
+*** git-timemachine
+Herramienta que me permite observar un archivo de manera interactiva para ver sus versiones en tiempo real
+#+BEGIN_SRC emacs-lisp
+  (elpaca git-timemachine
+  :ensure t)
+#+END_SRC
+
+* end
+#+BEGIN_SRC emacs-lisp
+(use-package emacs :ensure nil :config (setq ring-bell-function #'ignore))
+#+END_SRC
