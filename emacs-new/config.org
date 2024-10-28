@@ -555,7 +555,7 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
 Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
 *** Magit
 #+BEGIN_SRC emacs-lisp
-(use-package transient :ensure (:wait t) :demand t)
+(elpaca transient :ensure t :demand t)
 (use-package magit :ensure (:wait t) :demand t)
 #+END_SRC
 *** git-gutter
