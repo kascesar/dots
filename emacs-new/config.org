@@ -217,7 +217,7 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
     :ensure t
     :demand t
     :config
-    (load-theme 'ef-summer :no-confirm))
+    (load-theme 'ef-cherie :no-confirm))
   (setq ef-themes-to-toggle '(ef-summer ef-cherie))
 #+END_SRC
 
