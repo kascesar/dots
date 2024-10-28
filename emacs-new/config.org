@@ -18,7 +18,7 @@
   - [[#highlight-indent-guide][Highlight-indent-guide]]
   - [[#all-the-icons][All-the-icons]]
   - [[#dashboard][Dashboard]]
-  - [[#org][ORG]]
+  - [[#org-56][ORG]]
     - [[#org-elipsis][org-elipsis]]
     - [[#org-toc-table-of-contents][org-toc (table of contents)]]
     - [[#org-agenda--super-agenda][org-agenda & super-agenda]]
@@ -26,7 +26,7 @@
     - [[#org-modern][org-modern]]
     - [[#org-bullets][org-bullets]]
   - [[#python][Python]]
-  - [[#git][git]]
+  - [[#git-33][git]]
     - [[#magit][Magit]]
     - [[#git-gutter][git-gutter]]
     - [[#git-timemachine][git-timemachine]]
@@ -347,8 +347,13 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
   (switch-to-buffer dashboard-buffer-name))
 #+END_SRC
 
-** ORG
-
+** ORG [5/6]
+- [X] elipsis icono para identificar que parte del archivo ha sido contraido
+- [X] toc permite crear un indice interactivo en el archivo org
+- [X] agenda y super-agenda gestores y mejoras de agenda de org-mode
+- [X] modern agrega muchas mejoras visuales que emjoran la apariencia de los archivos org 
+- [ ] modern-ident mejora la identacion de los bloques de codigo (no me funciona)
+- [X] bullets son unos cambios para las stars en org-mode
 configuraciones /globales/ para /org-mode/
 #+BEGIN_SRC emacs-lisp
   ;; Aspecto mejorado al identar
@@ -551,8 +556,11 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
   (add-hook 'after-init-hook 'global-company-mode)) ;; Actívalo globalmente
   (add-hook 'python-mode-hook #'company-mode)
 #+END_SRC
-** git
+** git [3/3]
 Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
+- [X] magit es un gestor de repositorios git interactivo y muy poderoso
+- [X] git-gutter muestra en los archivos que lineas se agregan, elimina y modifica
+- [X] git-timemachine permite interactivamente las modificaciones se hicieron
 *** Magit
 #+BEGIN_SRC emacs-lisp
 (elpaca transient :ensure t :demand t)
