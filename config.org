@@ -2,7 +2,8 @@
 #+DESCRIPTION: Emacs configs
 #+AUTHOR: Cesar Munoz
 
-* Table of contents                                                   :TOC_4:
+* Table of coqntents                                                  :TOC_4:
+- [[#app-launcher][App launcher]]
 - [[#common-configs][Common configs]]
   - [[#babel-lenguajes][Babel lenguajes]]
   - [[#hide-useless-interface-items][Hide useless interface items]]
@@ -18,6 +19,11 @@
   - [[#highlight-indent-guide][Highlight-indent-guide]]
   - [[#all-the-icons][All-the-icons]]
   - [[#dashboard][Dashboard]]
+  - [[#ivy][Ivy]]
+  - [[#eshel][eshel]]
+  - [[#vterm][vterm]]
+  - [[#rainbow][rainbow]]
+  - [[#projectile][projectile]]
   - [[#org-56][ORG]]
     - [[#org-elipsis][org-elipsis]]
     - [[#org-toc-table-of-contents][org-toc (table of contents)]]
@@ -26,11 +32,34 @@
     - [[#org-modern][org-modern]]
     - [[#org-bullets][org-bullets]]
   - [[#python][Python]]
+  - [[#company][company]]
   - [[#git-33][git]]
     - [[#magit][Magit]]
     - [[#git-gutter][git-gutter]]
     - [[#git-timemachine][git-timemachine]]
 - [[#end][end]]
+
+* App launcher
+Esto crea una ventana flotante que sumula un lanzador de aplicaciones hecho con emacs consul
+#+begin_src emacs-lisp
+(defun emacs-counsel-launcher ()
+  "Create and select a frame called emacs-counsel-launcher which consists only of a minibuffer and has specific dimensions. Runs counsel-linux-app on that frame, which is an emacs command that prompts you to select an app and open it in a dmenu like behaviour. Delete the frame after that command has exited"
+  (interactive)
+  (with-selected-frame 
+    (make-frame '((name . "emacs-run-launcher")
+                  (minibuffer . only)
+                  (fullscreen . 0) ; no fullscreen
+                  (undecorated . t) ; remove title bar
+                  ;;(auto-raise . t) ; focus on this frame
+                  ;;(tool-bar-lines . 0)
+                  ;;(menu-bar-lines . 0)
+                  (internal-border-width . 10)
+                  (width . 80)
+                  (height . 11)))
+                  (unwind-protect
+                    (counsel-linux-app)
+                    (delete-frame))))
+#+end_src
 
 * Common configs
 ** Babel lenguajes
@@ -107,7 +136,7 @@
 #+BEGIN_SRC emacs-lisp
 (use-package recentf
   :defer 2
-  :bind ("C-c r" . recentf-open-files)
+  :bind ("C-c C-r" . recentf-open-files)
   :init (recentf-mode)
   :custom
   (recentf-max-menu-items 10)
@@ -158,6 +187,9 @@
   (global-set-key (kbd "<f7>") 'org-agenda)
   ;; F10 para ir al Dashboard
   (global-set-key (kbd "<f10>") 'open-dashboard)
+
+  ;; recen files
+  (global-set-key (kbd "C-c r") 'counsel-recentf)
 #+END_SRC
 
 * Package Manager -elpacak-
@@ -217,7 +249,7 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
     :ensure t
     :demand t
     :config
-    (load-theme 'ef-summer :no-confirm))
+    (load-theme 'ef-cherie :no-confirm))
   (setq ef-themes-to-toggle '(ef-summer ef-cherie))
 #+END_SRC
 
@@ -283,7 +315,14 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
 #+END_SRC
 ** All-the-icons
 #+BEGIN_SRC emacs-lisp
-  (elpaca all-the-icons)
+  (use-package all-the-icons
+   :ensure t
+   :if (display-graphic-p))
+
+  (use-package all-the-icons-dired
+  :ensure t
+  :if (display-graphic-p))
+  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 #+END_SRC
 ** Dashboard
 #+BEGIN_SRC emacs-lisp
@@ -298,33 +337,35 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
     (setq dashboard-startup-banner "~/.emacs.d/dh.jpeg")
     (setq dashboard-banner-logo-title (format "Buen día %s" user-full-name))
     (setq dashboard-items '((recents . 4)
-			    (bookmarks . 5)
-			    (agenda . 2)))
+                            (bookmarks . 5)
+                            (projects . 3)
+                            (registers . 3)
+                            (agenda . 2)))
     ;; Activar el hook de inicio de dashboard
     (dashboard-setup-startup-hook)
     ;; Configuración de íconos y navegación
     (setq dashboard-set-heading-icons t
-	  dashboard-set-file-icons t
-	  dashboard-set-init-info t
-	  dashboard-set-navigator t)
+          dashboard-set-file-icons t
+          dashboard-set-init-info t
+          dashboard-set-navigator t)
     ;; Definir botones de navegación personalizados
     (setq dashboard-navigator-buttons
-	  `((,(when (display-graphic-p)
-		 (all-the-icons-octicon "tools" :height 1.0 :v-adjust 0.0))
-	     "Configuración" "Abrir configuración de emacs (.el)"
-	     (lambda (&rest _) (find-file (expand-file-name  "~/.emacs.d/init.el"))))
-	    (,(when (display-graphic-p)
-		 (all-the-icons-octicon "calendar" :height 1.0 :v-adjust 0.0))
-	     "Agenda" "Agenda personal"
-	     (lambda (&rest _)
-	       (interactive)
-	       (if (get-buffer "*Org Agenda*")
-		   (progn
-		     (switch-to-buffer-other-window "*Org Agenda*")
-		     (kill-buffer "*Org Agenda*")
-		     (org-agenda-list))
-		 (split-window-right)
-		 (org-agenda-list)))))))
+          `((,(when (display-graphic-p)
+                 (all-the-icons-octicon "tools" :height 1.0 :v-adjust 0.0))
+             "Configuración" "Abrir configuración de emacs (.el)"
+             (lambda (&rest _) (find-file (expand-file-name  "~/.emacs.d/init.el"))))
+            (,(when (display-graphic-p)
+                 (all-the-icons-octicon "calendar" :height 1.0 :v-adjust 0.0))
+             "Agenda" "Agenda personal"
+             (lambda (&rest _)
+               (interactive)
+               (if (get-buffer "*Org Agenda*")
+                   (progn
+                     (switch-to-buffer-other-window "*Org Agenda*")
+                     (kill-buffer "*Org Agenda*")
+                     (org-agenda-list))
+                 (split-window-right)
+                 (org-agenda-list)))))))
 
   ;; Función para abrir el dashboard con la tecla F10
   ;(defun open-dashboard ()
@@ -347,6 +388,115 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
   (switch-to-buffer dashboard-buffer-name))
 #+END_SRC
 
+** Ivy
+
+Segun la documentación de es necesario tener instalado elpa-counsel en el sistema
+
+#+begin_src sh :outputs silent
+sudo apt install elpa-counsel
+#+end_src
+
+#+RESULTS:
+
+Luego activamos las demas cosas
+#+begin_src emacs-lisp
+  (elpaca counsel
+    :config (counsel-mode))
+
+  (use-package ivy
+    :bind
+    ;; ivy-resume resumes the last Ivy-based completion.
+    (("C-c C-r" . ivy-resume)
+     ("C-x B" . ivy-switch-buffer-other-window))
+    :custom
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-count-format "(%d/%d) ")
+    (setq enable-recursive-minibuffers t)
+    :config
+    (ivy-mode))
+
+  (use-package all-the-icons-ivy-rich
+    :ensure t
+    :init (all-the-icons-ivy-rich-mode 1))
+
+  (use-package ivy-rich
+    :after ivy
+    :ensure t
+    :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
+    :custom
+    (ivy-virtual-abbreviate 'full
+     ivy-rich-switch-buffer-align-virtual-buffer t
+     ivy-rich-path-style 'abbrev)
+    :config
+    (ivy-set-display-transformer 'ivy-switch-buffer
+                                 'ivy-rich-switch-buffer-transformer))
+
+#+end_src
+** eshel
+#+begin_src emacs-lisp
+(elpaca eshell-syntax-highlighting
+  ;; :after eshell-mode
+  :config
+  (eshell-syntax-highlighting-global-mode +1))
+
+;; eshell-syntax-highlighting -- adds fish/zsh-like syntax highlighting.
+;; eshell-rc-script -- your profile for eshell; like a bashrc for eshell.
+;; eshell-aliases-file -- sets an aliases file for the eshell.
+  
+(setq eshell-rc-script (concat user-emacs-directory "eshell/profile")
+      eshell-aliases-file (concat user-emacs-directory "eshell/aliases")
+      eshell-history-size 5000
+      eshell-buffer-maximum-lines 5000
+      eshell-hist-ignoredups t
+      eshell-scroll-to-bottom-on-input t
+      eshell-destroy-buffer-when-process-dies t
+      eshell-visual-commands'("bash" "fish" "htop" "ssh" "top" "zsh"))
+#+end_src 
+
+#+RESULTS:
+
+** vterm
+#+begin_src emacs-lisp
+    (use-package vterm
+      :ensure t
+      :demand t)
+#+end_src
+#+begin_src emacs-lisp
+(elpaca vterm-toggle
+  ;;:after vterm
+  :config
+  (setq vterm-toggle-fullscreen-p nil)
+  (setq vterm-toggle-scope 'develop)
+  (add-to-list 'display-buffer-alist
+               '((lambda (buffer-or-name _)
+                     (let ((buffer (get-buffer buffer-or-name)))
+                       (with-current-buffer buffer
+                         (or (equal major-mode 'vterm-mode)
+                             (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
+                  (display-buffer-reuse-window display-buffer-at-bottom)
+                  ;;(display-buffer-reuse-window display-buffer-in-direction)
+                  ;;display-buffer-in-direction/direction/dedicated is added in emacs27
+                  ;;(direction . bottom)
+                  ;;(dedicated . t) ;dedicated is supported in emacs27
+                  (reusable-frames . visible)
+                  (window-height . 0.3))))
+#+end_src
+** rainbow
+#+begin_src emacs-lisp
+    (elpaca rainbow-mode
+    :ensure t
+    :demand t)
+    (add-hook 'org-mode-hook 'rainbow-mode)
+    (add-hook 'prog-mode-hook 'rainbow-mode)
+#+end_src
+** projectile
+#+begin_src emacs-lisp
+  (elpaca projectile
+  :config
+  (projectile-mode +1))
+  
+  (setq projectile-project-search-path '("~/develop/"))
+#+end_src
 ** ORG [5/6]
 
 - [X] elipsis icono para identificar que parte del archivo ha sido contraido
@@ -487,6 +637,7 @@ configuraciones /globales/ para /org-mode/
   :demand t)
   (use-package org-modern-indent
   :load-path "~/.emacs.d/org-modern-indent/"
+  :after org-modern 
   :config
   (add-hook 'org-mode-hook #'org-modern-indent-mode 90)) 
 #+end_src
@@ -542,16 +693,19 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
   (use-package py-isort
   :ensure t
   :hook (python-mode . py-isort-before-save))
-
-  ;; company
-  (use-package company
-  :ensure t
-  :config
-  (setq company-idle-delay 0.5                      ;; Muestra las sugerencias inmediatamente
-	company-minimum-prefix-length 1)            ;; Sugiere con solo 1 carácter
-  (add-hook 'after-init-hook 'global-company-mode)) ;; Actívalo globalmente
-  (add-hook 'python-mode-hook #'company-mode)
 #+END_SRC
+** company
+#+begin_src emacs-lisp
+(use-package company
+  :defer 2
+  :custom
+  (company-begin-commands '(self-insert-command))
+  (company-idle-delay .1)
+  (company-minimum-prefix-length 2)
+  (company-show-numbers t)
+  (company-tooltip-align-annotations 't)
+  (global-company-mode t))
+#+end_src
 ** git [3/3]
 Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
 - [X] magit es un gestor de repositorios git interactivo y muy poderoso
@@ -559,7 +713,7 @@ Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
 - [X] git-timemachine permite interactivamente las modificaciones se hicieron
 *** Magit
 #+BEGIN_SRC emacs-lisp
-(use-package transient :ensure (:wait t) :demand t)
+(elpaca transient :ensure t :demand t)
 (use-package magit :ensure (:wait t) :demand t)
 #+END_SRC
 *** git-gutter
@@ -581,7 +735,6 @@ Herramienta que me permite observar un archivo de manera interactiva para ver su
   (elpaca git-timemachine
   :ensure t)
 #+END_SRC
-
 * end
 #+BEGIN_SRC emacs-lisp
 (use-package emacs :ensure nil :config (setq ring-bell-function #'ignore))
