@@ -2,10 +2,9 @@
 #+DESCRIPTION: Emacs configs
 #+AUTHOR: Cesar Munoz
 
-
-<s
 * Table of coqntents                                                  :TOC_4:
 - [[#common-configs][Common configs]]
+  - [[#transparencia][Transparencia]]
   - [[#babel-lenguajes][Babel lenguajes]]
   - [[#hide-useless-interface-items][Hide useless interface items]]
   - [[#dired-and-columnsrow][Dired and columns/row]]
@@ -40,6 +39,10 @@
 - [[#end][end]]
 
 * Common configs
+** Transparencia
+#+begin_src emacs-lisp
+  (add-to-list 'default-frame-alist '(alpha . 90))
+#+end_src
 ** Babel lenguajes
 #+BEGIN_SRC emacs-lisp
 (org-babel-do-load-languages
@@ -149,6 +152,7 @@
 
   ;; recen files
   (global-set-key (kbd "C-c r") 'counsel-recentf)
+  
 #+END_SRC
 
 * Package Manager -elpaca-
@@ -207,8 +211,8 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
     :ensure t
     :demand t
     :config
-    (load-theme 'ef-cherie :no-confirm))
-  (setq ef-themes-to-toggle '(ef-summer ef-cherie))
+    (load-theme 'ef-reverie :no-confirm))
+  (setq ef-themes-to-toggle '(ef-reverie ef-rosa))
 #+END_SRC
 
 ** Beacon
@@ -345,45 +349,57 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
 
 Segun la documentación de es necesario tener instalado elpa-counsel en el sistema
 
-#+begin_src sh :outputs silent
+#+begin_src sh :results silent
 sudo apt install elpa-counsel
 #+end_src
 
 
 Luego activamos las demas cosas
 #+begin_src emacs-lisp
-  (elpaca counsel
-    :emsure t
-    :config (counsel-mode))
+    (elpaca counsel
+      :emsure t
+      :config (counsel-mode))
 
-  (use-package ivy
-    :ensure t
-    :bind
-    ;; ivy-resume resumes the last Ivy-based completion.
-    (("C-c C-r" . ivy-resume)
-     ("C-x B" . ivy-switch-buffer-other-window))
-    :custom
-    (setq ivy-use-virtual-buffers t)
-    (setq ivy-count-format "(%d/%d) ")
-    (setq enable-recursive-minibuffers t)
-    :config
-    (ivy-mode))
+    (use-package ivy
+      :ensure t
+      :bind
+      ;; ivy-resume resumes the last Ivy-based completion.
+      (("C-c C-r" . ivy-resume)
+       ("C-x B" . ivy-switch-buffer-other-window))
+      :custom
+      (setq ivy-use-virtual-buffers t)
+      (setq ivy-count-format "(%d/%d) ")
+      (setq enable-recursive-minibuffers t)
+      :config
+      (ivy-mode))
 
-  (use-package all-the-icons-ivy-rich
-    :ensure t
-    :init (all-the-icons-ivy-rich-mode 1))
+    (use-package all-the-icons-ivy-rich
+      :ensure t
+      :init (all-the-icons-ivy-rich-mode 1))
 
-  (use-package ivy-rich
-    :after ivy
-    :ensure t
-    :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
-    :custom
-    (ivy-virtual-abbreviate 'full
-     ivy-rich-switch-buffer-align-virtual-buffer t
-     ivy-rich-path-style 'abbrev)
-    :config
-    (ivy-set-display-transformer 'ivy-switch-buffer
-                                 'ivy-rich-switch-buffer-transformer))
+  ;  (use-package ivy-rich
+  ;    :after ivy
+  ;    :ensure t
+  ;    :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
+  ;    :custom
+  ;    (ivy-virtual-abbreviate 'full
+  ;     ivy-rich-switch-buffer-align-virtual-buffer t
+  ;     ivy-rich-path-style 'abbrev)
+  ;    :config
+  ;    (ivy-set-display-transformer 'ivy-switch-buffer
+  ;                                 'ivy-rich-switch-buffer-transformer))
+    (use-package ivy-rich
+      :after ivy
+      :ensure t
+      :init (setq ivy-rich-path-style 'abbrev
+                  ivy-virtual-abbreviate 'full
+                  ivy-rich-switch-buffer-align-virtual-buffer t)
+      :config (ivy-rich-mode 1))
+    (use-package ivy-rich
+      :after counsel
+      :init (setq ivy-rich-path-style 'abbrev
+                ivy-virtual-abbreviate 'full)
+      :config (ivy-rich-mode))
 
 #+end_src
 
@@ -608,14 +624,14 @@ Luego activamos las demas cosas
 *** org-modern-indent
 #+begin_src emacs-lisp
   (add-hook 'org-mode-hook 'org-indent-mode)
-  (use-package compat
-  :ensure (:wait t)
-  :demand t)
+    (use-package compat
+      :ensure (:wait t)
+      :demand t)
   (use-package org-modern-indent
-  :load-path "~/.emacs.d/org-modern-indent/"
-  :after org-modern 
-  :config
-  (add-hook 'org-mode-hook #'org-modern-indent-mode 90)) 
+    :load-path "~/.emacs.d/org-modern-indent/"
+    :after org-modern 
+    :config
+    (add-hook 'org-mode-hook #'org-modern-indent-mode 90)) 
 #+end_src
 
 *** org-modern
@@ -679,18 +695,31 @@ Aqui configuro LSP de tal forma que quede preparado para desarrollo en *Emacs*.
 
 /Pylsp/ Servidor de python de microsoft
 #+BEGIN_SRC sh :results silent
-  pip install 'python-lsp-server[all]' black isort
+  pip install -U 'python-lsp-server[all]' black isort pyright
 #+END_SRC
 Ahora, configuramos el entorno de desarrollo de emacs para python
 #+BEGIN_SRC emacs-lisp
-  (use-package lsp-mode
-  :ensure t
-  :commands (lsp lsp-deferred)
-  :hook (python-mode . lsp-deferred)
-  :config
+  ;(use-package lsp-mode
+  ;:ensure t
+  ;:commands (lsp lsp-deferred)
+  ;:hook (python-mode . lsp-deferred)
+  ;:config
   ;; Configura el servidor para usar pylsp
-  (setq lsp-pylsp-server-command "pylsp")
-  (setq lsp-prefer-flymake nil))
+  ;(setq lsp-pylsp-server-command "pylsp")
+  ;(setq lsp-prefer-flymake nil))
+
+  (use-package lsp-pyright
+  :ensure t
+  :custom (lsp-pyright-langserver-command "pyright")
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp))))
+  (use-package lsp-mode
+    :ensure t
+    :commands (lsp lsp-deferred)
+    :hook (python-mode . lsp-deferred)
+    :config
+    (require 'lsp-pyright))
 
   ;; herramientas adicionales
   (use-package python-black
@@ -701,17 +730,22 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
   :ensure t
   :hook (python-mode . py-isort-before-save))
 #+END_SRC
+
+#+RESULTS:
+: [nil 26401 21944 243380 nil elpaca-process-queues nil nil 921000 nil]
+
 ** company
 #+begin_src emacs-lisp
-(use-package company
-  :defer 2
-  :custom
-  (company-begin-commands '(self-insert-command))
-  (company-idle-delay .1)
-  (company-minimum-prefix-length 2)
-  (company-show-numbers t)
-  (company-tooltip-align-annotations 't)
-  (global-company-mode t))
+  (use-package company
+    :ensure t
+    :defer 2
+    :custom
+    (company-begin-commands '(self-insert-command))
+    (company-idle-delay .1)
+    (company-minimum-prefix-length 2)
+    (company-show-numbers t)
+    (company-tooltip-align-annotations 't)
+    (global-company-mode t))
 #+end_src
 ** git [3/3]
 Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
@@ -733,16 +767,20 @@ Esta herramienta agrega indicadores para identificar los cambios miesntras progr
     )
   (global-git-gutter-mode +1)
   (custom-set-variables
-   '(git-gutter:modified-sign "mod")
-   '(git-gutter:added-sign " + ")
-   '(git-gutter:deleted-sign " - "))
+   '(git-gutter:modified-sign "M")
+   '(git-gutter:added-sign "+")
+   '(git-gutter:deleted-sign "-"))
 #+END_SRC
+
+#+RESULTS:
+
 *** git-timemachine
 Herramienta que me permite observar un archivo de manera interactiva para ver sus versiones en tiempo real
 #+BEGIN_SRC emacs-lisp
   (elpaca git-timemachine
   :ensure t)
 #+END_SRC
+  
 * Tempo
 | Typing the below + TAB | Expands to ...                          |
 |------------------------+-----------------------------------------|
