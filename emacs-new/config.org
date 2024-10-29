@@ -2,22 +2,26 @@
 #+DESCRIPTION: Emacs configs
 #+AUTHOR: Cesar Munoz
 
-* Table of contents                                                   :TOC_4:
+
+<s
+* Table of coqntents                                                  :TOC_4:
 - [[#common-configs][Common configs]]
   - [[#babel-lenguajes][Babel lenguajes]]
   - [[#hide-useless-interface-items][Hide useless interface items]]
   - [[#dired-and-columnsrow][Dired and columns/row]]
-  - [[#tempo][Tempo]]
   - [[#reload-config][Reload config]]
   - [[#font][Font]]
   - [[#recent-files][Recent files]]
 - [[#keybindings][keybindings]]
-- [[#package-manager--elpacak-][Package Manager -elpacak-]]
+- [[#package-manager--elpaca-][Package Manager -elpaca-]]
   - [[#ef-themes][Ef-themes]]
   - [[#beacon][Beacon]]
   - [[#highlight-indent-guide][Highlight-indent-guide]]
   - [[#all-the-icons][All-the-icons]]
   - [[#dashboard][Dashboard]]
+  - [[#ivy][Ivy]]
+  - [[#rainbow][rainbow]]
+  - [[#projectile][projectile]]
   - [[#org-56][ORG]]
     - [[#org-elipsis][org-elipsis]]
     - [[#org-toc-table-of-contents][org-toc (table of contents)]]
@@ -25,11 +29,14 @@
     - [[#org-modern-indent][org-modern-indent]]
     - [[#org-modern][org-modern]]
     - [[#org-bullets][org-bullets]]
+  - [[#calendar][Calendar]]
   - [[#python][Python]]
+  - [[#company][company]]
   - [[#git-33][git]]
     - [[#magit][Magit]]
     - [[#git-gutter][git-gutter]]
     - [[#git-timemachine][git-timemachine]]
+- [[#tempo][Tempo]]
 - [[#end][end]]
 
 * Common configs
@@ -39,6 +46,7 @@
 'org-babel-load-languages
 '((shell . t)))
 #+END_SRC
+
 ** Hide useless interface items
 #+BEGIN_SRC emacs-lisp
   (menu-bar-mode -1)
@@ -71,26 +79,6 @@
   ;; dont ask when kill buffer
   (global-set-key [remap kill-buffer] #'kill-this-buffer)
 #+END_SRC
-** Tempo
-| Typing the below + TAB | Expands to ...                          |
-|------------------------+-----------------------------------------|
-| <a                     | '#+BEGIN_EXPORT ascii' … '#+END_EXPORT  |
-| <c                     | '#+BEGIN_CENTER' … '#+END_CENTER'       |
-| <C                     | '#+BEGIN_COMMENT' … '#+END_COMMENT'     |
-| <e                     | '#+BEGIN_EXAMPLE' … '#+END_EXAMPLE'     |
-| <E                     | '#+BEGIN_EXPORT' … '#+END_EXPORT'       |
-| <h                     | '#+BEGIN_EXPORT html' … '#+END_EXPORT'  |
-| <l                     | '#+BEGIN_EXPORT latex' … '#+END_EXPORT' |
-| <q                     | '#+BEGIN_QUOTE' … '#+END_QUOTE'         |
-| <s                     | '#+BEGIN_SRC' … '#+END_SRC'             |
-| <v                     | '#+BEGIN_VERSE' … '#+END_VERSE'         |
-
-#+BEGIN_SRC emacs-lisp
-  (require 'org-tempo)
-#+END_SRC
-
-#+RESULTS:
-: org-tempo
 
 ** Reload config
 #+begin_src emacs-lisp
@@ -107,7 +95,7 @@
 #+BEGIN_SRC emacs-lisp
 (use-package recentf
   :defer 2
-  :bind ("C-c r" . recentf-open-files)
+  :bind ("C-c C-r" . recentf-open-files)
   :init (recentf-mode)
   :custom
   (recentf-max-menu-items 10)
@@ -158,9 +146,12 @@
   (global-set-key (kbd "<f7>") 'org-agenda)
   ;; F10 para ir al Dashboard
   (global-set-key (kbd "<f10>") 'open-dashboard)
+
+  ;; recen files
+  (global-set-key (kbd "C-c r") 'counsel-recentf)
 #+END_SRC
 
-* Package Manager -elpacak-
+* Package Manager -elpaca-
 #+BEGIN_SRC emacs-lisp
   (defvar elpaca-installer-version 0.7)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
@@ -201,9 +192,8 @@
   (add-hook 'after-init-hook #'elpaca-process-queues)
   (elpaca `(,@elpaca-order))
   (elpaca elpaca-use-package
-  ;; Enable use-package :ensure support for Elpaca.
+  :ensure t
   (elpaca-use-package-mode))
-
 #+END_SRC
 
 ** Ef-themes
@@ -229,6 +219,7 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
 
   ;; Configuración de beacon usando elpaca
   (elpaca beacon
+    :ensure t
   ;; Configurar el color del resplandor a un rozado muy fuerte
   (setq beacon-color "#FF69B4")
 
@@ -242,8 +233,8 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
   (defun my-beacon-periodic-blink ()
   "Muestra el resplandor si el cursor ha estado quieto por más de 1 segundo."
   (let ((idle-time (- (float-time) my-last-cursor-move-time)))
-	(when (>= idle-time 1)  ;; Verificar si el cursor ha estado inactivo por 1 segundo
-	  (beacon-blink))))
+        (when (>= idle-time 1)  ;; Verificar si el cursor ha estado inactivo por 1 segundo
+          (beacon-blink))))
 
     ;; Función para manejar el movimiento del cursor y el resplandor inmediato
     (defun my-beacon-on-cursor-move ()
@@ -263,98 +254,166 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
     (beacon-mode 1))
 #+END_SRC
 
+#+RESULTS:
+: [nil 26400 5251 675211 nil elpaca-process-queues nil nil 524000 nil]
+
 ** Highlight-indent-guide
 
 #+BEGIN_SRC emacs-lisp
-  (elpaca highlight-indent-guides
-    (use-package highlight-indent-guides
-      :hook (prog-mode . highlight-indent-guides-mode)
-      :config
-      ;; Configurar el método de guía de indentación a 'bitmap
-      (setq highlight-indent-guides-method 'bitmap)
-      ;; (setq highlight-indent-guides-character "|")
-      ;; Configurar el color de los guías de indentación
-      (custom-set-faces
-       '(highlight-indent-guides-stack-odd-face ((t (:background "gray20"))))
-       '(highlight-indent-guides-stack-even-face ((t (:background "gray40"))))
-       '(highlight-indent-guides-character-face ((t (:foreground "dim gray"))))
-       '(italic ((t (:slant italic))))))
-  )
+  (use-package highlight-indent-guides
+    :ensure t
+    :hook (prog-mode . highlight-indent-guides-mode)
+    :config
+    ;; Configurar el método de guía de indentación a 'bitmap
+    (setq highlight-indent-guides-method 'bitmap)
+    ;; (setq highlight-indent-guides-character "|")
+    ;; Configurar el color de los guías de indentación
+    (custom-set-faces
+     '(highlight-indent-guides-stack-odd-face ((t (:background "gray20"))))
+     '(highlight-indent-guides-stack-even-face ((t (:background "gray40"))))
+     '(highlight-indent-guides-character-face ((t (:foreground "dim gray"))))
+     '(italic ((t (:slant italic))))))
 #+END_SRC
 ** All-the-icons
 #+BEGIN_SRC emacs-lisp
-  (elpaca all-the-icons)
+  (use-package all-the-icons
+   :ensure t
+   :if (display-graphic-p))
+
+  (use-package all-the-icons-dired
+  :ensure t
+  :if (display-graphic-p))
+  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 #+END_SRC
 ** Dashboard
 #+BEGIN_SRC emacs-lisp
+    ;; Configuración del `dashboard` en Emacs usando `elpaca`
   (setq user-full-name "Cesar M.")
-  (setq dashboard-icon-type 'all-the-icons) ;; usar `all-the-icons`
+  (setq dashboard-icon-type 'all-the-icons) ;; Usa `all-the-icons` para íconos personalizados.
 
-  ;; Configuración de `dashboard` usando `elpaca`
-  (elpaca dashboard
+  (use-package dashboard
     :ensure t
     :config
-    ;; Configurar banner y título
-    (setq dashboard-startup-banner "~/.emacs.d/dh.jpeg")
+    ;; Configuración básica de banner y título
+    ;(global-page-break-lines-mode 1) ;; Habilita líneas de página a nivel global (requiere `page-break-lines`)
+
+    ;; Configuración de banner
+    (setq dashboard-startup-banner 'logo) ;; Usa el logo de Emacs
     (setq dashboard-banner-logo-title (format "Buen día %s" user-full-name))
-    (setq dashboard-items '((recents . 4)
-			    (bookmarks . 5)
-			    (agenda . 2)))
-    ;; Activar el hook de inicio de dashboard
+    (setq dashboard-center-content t)
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-file-icons t)
+
+    ;; Configura los elementos a mostrar en el dashboard
+    (setq dashboard-items '((recents   . 5)
+                            (bookmarks . 5)
+                            (agenda    . 5)
+                            (projects  . 5)
+                            (registers . 5)))
+
+    ;; Habilita el dashboard en el inicio
     (dashboard-setup-startup-hook)
+
     ;; Configuración de íconos y navegación
-    (setq dashboard-set-heading-icons t
-	  dashboard-set-file-icons t
-	  dashboard-set-init-info t
-	  dashboard-set-navigator t)
-    ;; Definir botones de navegación personalizados
+    (setq dashboard-set-init-info t)
+    (setq dashboard-set-navigator t)
     (setq dashboard-navigator-buttons
-	  `((,(when (display-graphic-p)
-		 (all-the-icons-octicon "tools" :height 1.0 :v-adjust 0.0))
-	     "Configuración" "Abrir configuración de emacs (.el)"
-	     (lambda (&rest _) (find-file (expand-file-name  "~/.emacs.d/init.el"))))
-	    (,(when (display-graphic-p)
-		 (all-the-icons-octicon "calendar" :height 1.0 :v-adjust 0.0))
-	     "Agenda" "Agenda personal"
-	     (lambda (&rest _)
-	       (interactive)
-	       (if (get-buffer "*Org Agenda*")
-		   (progn
-		     (switch-to-buffer-other-window "*Org Agenda*")
-		     (kill-buffer "*Org Agenda*")
-		     (org-agenda-list))
-		 (split-window-right)
-		 (org-agenda-list)))))))
+          `(
+            ((,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0)
+              "GitHub" "Visitar mi GitHub" (lambda (&rest _) (browse-url "https://github.com/kascesar")))
+             (,(all-the-icons-faicon "linkedin" :height 1.1 :v-adjust 0.0)
+              "LinkedIn" "Visitar mi LinkedIn" (lambda (&rest _) (browse-url "https://linkedin.com/in/csarmaraya")))
+             (,(all-the-icons-faicon "envelope" :height 1.1 :v-adjust 0.0)
+              "Email" "Enviar un correo" (lambda (&rest _) (compose-mail))))))
 
-  ;; Función para abrir el dashboard con la tecla F10
-  ;(defun open-dashboard ()
-  ;  "Abre el buffer *dashboard* y salta al primer widget."
-  ;  (interactive)
-  ;  (delete-other-windows)
-  ;  (if (get-buffer dashboard-buffer-name)
-  ;	(kill-buffer dashboard-buffer-name))
-  ;  (dashboard-insert-startupify-lists)
-  ;  (switch-to-buffer dashboard-buffer-name))
-
-  (defun open-dashboard ()
-  "Open the *dashboard* buffer and jump to the first widget."
-  (interactive)
-
-  (delete-other-windows)
-  (if (get-buffer dashboard-buffer-name)
-      (kill-buffer dashboard-buffer-name))
-  (dashboard-insert-startupify-lists)
-  (switch-to-buffer dashboard-buffer-name))
+    ;; Personaliza el orden de widgets
+    (setq dashboard-startupify-list
+          '(dashboard-insert-banner
+            dashboard-insert-newline
+            dashboard-insert-banner-title
+            dashboard-insert-navigator
+            dashboard-insert-init-info
+            dashboard-insert-items
+            dashboard-insert-footer))
+  )
 #+END_SRC
 
+#+RESULTS:
+: [nil 26400 1981 776364 nil elpaca-process-queues nil nil 323000 nil]
+
+** Ivy
+
+Segun la documentación de es necesario tener instalado elpa-counsel en el sistema
+
+#+begin_src sh :outputs silent
+sudo apt install elpa-counsel
+#+end_src
+
+
+Luego activamos las demas cosas
+#+begin_src emacs-lisp
+  (elpaca counsel
+    :emsure t
+    :config (counsel-mode))
+
+  (use-package ivy
+    :ensure t
+    :bind
+    ;; ivy-resume resumes the last Ivy-based completion.
+    (("C-c C-r" . ivy-resume)
+     ("C-x B" . ivy-switch-buffer-other-window))
+    :custom
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-count-format "(%d/%d) ")
+    (setq enable-recursive-minibuffers t)
+    :config
+    (ivy-mode))
+
+  (use-package all-the-icons-ivy-rich
+    :ensure t
+    :init (all-the-icons-ivy-rich-mode 1))
+
+  (use-package ivy-rich
+    :after ivy
+    :ensure t
+    :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
+    :custom
+    (ivy-virtual-abbreviate 'full
+     ivy-rich-switch-buffer-align-virtual-buffer t
+     ivy-rich-path-style 'abbrev)
+    :config
+    (ivy-set-display-transformer 'ivy-switch-buffer
+                                 'ivy-rich-switch-buffer-transformer))
+
+#+end_src
+
+#+RESULTS:
+: [nil 26400 5195 300190 nil elpaca-process-queues nil nil 458000 nil]
+
+** rainbow
+#+begin_src emacs-lisp
+    (elpaca rainbow-mode
+    :ensure t
+    :demand t)
+    (add-hook 'org-mode-hook 'rainbow-mode)
+    (add-hook 'prog-mode-hook 'rainbow-mode)
+#+end_src
+** projectile
+#+begin_src emacs-lisp
+  (elpaca projectile
+  :config
+  (projectile-mode +1))
+  
+  (setq projectile-project-search-path '("~/develop/"))
+#+end_src
 ** ORG [5/6]
+
 - [X] elipsis icono para identificar que parte del archivo ha sido contraido
 - [X] toc permite crear un indice interactivo en el archivo org
 - [X] agenda y super-agenda gestores y mejoras de agenda de org-mode
 - [X] modern agrega muchas mejoras visuales que emjoran la apariencia de los archivos org 
 - [ ] modern-ident mejora la identacion de los bloques de codigo (no me funciona)
 - [X] bullets son unos cambios para las stars en org-mode
-configuraciones /globales/ para /org-mode/
 #+BEGIN_SRC emacs-lisp
   ;; Aspecto mejorado al identar
   ;(add-hook 'org-mode-hook 'org-indent-mode)
@@ -371,6 +430,74 @@ configuraciones /globales/ para /org-mode/
   (setq org-hide-emphasis-markers t)
 #+END_SRC
 
+#+begin_src emacs-lisp
+      ;; Aspecto mejorado al identar
+      ;(add-hook 'org-mode-hook 'org-indent-mode)
+      ;; recomendacion de codigo en org-mode
+      (defun org-mode-setup ()
+      (set (make-local-variable 'company-backends)
+           '((company-dabbrev company-yasnippet))))
+
+      (add-hook 'org-mode-hook #'company-mode)
+      (add-hook 'org-mode-hook #'org-mode-setup)
+      (setq company-dabbrev-other-buffers t)
+
+      ;; ocultamos los caracteres especiales
+      (setq org-hide-emphasis-markers t)
+
+      ;; configuraciones de tags y estado de las tareas
+
+      (global-set-key (kbd "C-c l") #'org-store-link)
+      (global-set-key (kbd "C-c a") #'org-agenda)
+      (global-set-key (kbd "C-c c") #'org-capture)
+
+      (use-package org
+      :config
+      (setq org-log-done 'time)
+      (setq org-log-into-drawer t)
+
+      (setq org-todo-keywords
+            '((sequence "PORHACER(p!)"
+                        "ENPROCESO(e!)"
+                        "BLOQUEADO(b!)"
+                        "DETENIDO(d!)"
+                        "|"
+                        "HECHO(h!)"
+                        "ARCHIVAR(a!)")))
+
+       (setq org-todo-keyword-faces
+             '(("PORHACER" . "red")
+               ("ENPROCESO" . "magenta")
+               ("BLOQUEADO" . "orange")
+               ("HECHO" . "green")))
+
+      (setq org-file-apps
+          '(("\\.html\\'" . browse-url-firefox)))
+
+      (advice-add 'org-refile :after 'org-save-all-org-buffers)
+
+
+      (setq org-tag-alist '(("@nota" . ?n)
+                            ("@casa" . ?c)
+                            ("@finanzas" . ?d)
+                            ("@fecha" . ?f)
+                            ("@salud" . ?s)
+                            ("@tarea" . ?t)
+                            ("@coche" . ?h)
+                            ("@trabajo" . ?b)
+                            ("@personal" . ?p)
+                            ("crypt" . ?C)
+                            ("TOC_4" . ?i))
+            )
+      (setq org-tags-exclude-from-inheritance '("crypt"))
+
+      ;; Progress Logging
+      ;; When a TODO item enters DONE, add a CLOSED: property with current date-time stamp and into drawer
+      (setq org-log-done 'time)
+      (setq org-log-into-drawer "state-book")
+      (setq org-tags-column 81))
+
+#+end_src
 *** org-elipsis
 #+BEGIN_SRC emacs-lisp
   (use-package org
@@ -486,47 +613,74 @@ configuraciones /globales/ para /org-mode/
   :demand t)
   (use-package org-modern-indent
   :load-path "~/.emacs.d/org-modern-indent/"
+  :after org-modern 
   :config
   (add-hook 'org-mode-hook #'org-modern-indent-mode 90)) 
 #+end_src
 
 *** org-modern
 #+begin_src emacs-lisp
-(use-package org-modern
-  :ensure t
-  :custom
-  (org-modern-hide-stars nil)		; adds extra indentation
-  (org-modern-table nil)
-  (org-modern-list 
-   '(;; (?- . "-")
-     (?* . "•")
-     (?+ . "‣")))
-  (org-modern-block-name '("" . "")) ; or other chars; so top bracket is drawn promptly
-  :hook
-  (org-mode . org-modern-mode)
-  (org-agenda-finalize . org-modern-agenda))
+
+  (use-package org-modern
+   :ensure '(org-modern :host github :repo "minad/org-modern")
+   :custom
+   (org-modern-hide-stars nil)               ; Mantiene las estrellas visibles para evitar indentación adicional
+   (org-modern-table t)                      ; Activa la modernización de tablas
+   (org-modern-list '((?* . "•") (?+ . "‣"))) ; Define símbolos para listas de Org
+   (org-modern-checkbox '((?X . "✓") (?- . "✗") (?\s . "⬚"))) ; Define símbolos para checkboxes
+   (org-modern-star '("◉" "○" "✸" "✿"))     ; Define símbolos para encabezados
+   (org-modern-block-name '("" . ""))        ; Personaliza los bloques de código (para alinear mejor los bordes superiores)
+   :hook
+   (org-mode . org-modern-mode)
+   (org-agenda-finalize . org-modern-agenda))
 #+end_src
+
+#+RESULTS:
+: [nil 26400 4186 175622 nil elpaca-process-queues nil nil 562000 nil]
 
 *** org-bullets
 #+BEGIN_SRC emacs-lisp
-  ;(elpaca org-bullets
-  ;  :ensure t  ;; Asegúrate de que se instale correctamente
-  ;  :config
-  ;  (setq org-bullets-bullet-list '("●" "○" "◆" "▶" "▷" "❖" "✦")))
-  ;(add-hook 'org-mode-hook 'org-bullets-mode)
+
   (use-package org-bullets-mode
   :ensure org-bullets
   :config
   :hook org-mode)
 #+END_SRC
+** Calendar
+
+#+BEGIN_SRC emacs-lisp
+    (use-package calfw
+    :ensure t
+    (calfw
+      :host github
+      :repo "kiwanami/emacs-calfw")
+    :config
+    (setq cfw:org-overwrite-default-keybinding t))
+
+  (use-package calfw-org
+      :ensure t
+      :config
+      (setq cfw:org-overwrite-default-keybinding t)
+      :bind ([f8] . cfw:open-org-calendar))
+
+  (setq calendar-month-name-array
+        ["Enero" "Febrero" "Marzo" "Abril" "Mayo" "Junio"
+         "Julio"    "Agosto"   "Septiembre" "Octubre" "Noviembre" "Diciembre"])
+
+  (setq calendar-day-name-array
+        ["Domingo" "Lunes" "Martes" "Miércoles" "Jueves" "Viernes" "Sábado"])
+
+  (setq org-icalendar-timezone "America/Santiago")
+  (setq calendar-week-start-day 1)
+  (setq european-calendar-style t)
+#+END_SRC
 ** Python
 Aqui configuro LSP de tal forma que quede preparado para desarrollo en *Emacs*.
 
 /Pylsp/ Servidor de python de microsoft
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :results silent
   pip install 'python-lsp-server[all]' black isort
 #+END_SRC
-
 Ahora, configuramos el entorno de desarrollo de emacs para python
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-mode
@@ -546,16 +700,19 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
   (use-package py-isort
   :ensure t
   :hook (python-mode . py-isort-before-save))
-
-  ;; company
-  (use-package company
-  :ensure t
-  :config
-  (setq company-idle-delay 0.5                      ;; Muestra las sugerencias inmediatamente
-	company-minimum-prefix-length 1)            ;; Sugiere con solo 1 carácter
-  (add-hook 'after-init-hook 'global-company-mode)) ;; Actívalo globalmente
-  (add-hook 'python-mode-hook #'company-mode)
 #+END_SRC
+** company
+#+begin_src emacs-lisp
+(use-package company
+  :defer 2
+  :custom
+  (company-begin-commands '(self-insert-command))
+  (company-idle-delay .1)
+  (company-minimum-prefix-length 2)
+  (company-show-numbers t)
+  (company-tooltip-align-annotations 't)
+  (global-company-mode t))
+#+end_src
 ** git [3/3]
 Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
 - [X] magit es un gestor de repositorios git interactivo y muy poderoso
@@ -563,9 +720,10 @@ Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
 - [X] git-timemachine permite interactivamente las modificaciones se hicieron
 *** Magit
 #+BEGIN_SRC emacs-lisp
-(elpaca transient :ensure t :demand t)
+(use-package transient :ensure t :demand t)
 (use-package magit :ensure (:wait t) :demand t)
 #+END_SRC
+
 *** git-gutter
 Esta herramienta agrega indicadores para identificar los cambios miesntras programo
 #+BEGIN_SRC emacs-lisp
@@ -585,6 +743,25 @@ Herramienta que me permite observar un archivo de manera interactiva para ver su
   (elpaca git-timemachine
   :ensure t)
 #+END_SRC
+* Tempo
+| Typing the below + TAB | Expands to ...                          |
+|------------------------+-----------------------------------------|
+| <a                     | '#+BEGIN_EXPORT ascii' … '#+END_EXPORT  |
+| <c                     | '#+BEGIN_CENTER' … '#+END_CENTER'       |
+| <C                     | '#+BEGIN_COMMENT' … '#+END_COMMENT'     |
+| <e                     | '#+BEGIN_EXAMPLE' … '#+END_EXAMPLE'     |
+| <E                     | '#+BEGIN_EXPORT' … '#+END_EXPORT'       |
+| <h                     | '#+BEGIN_EXPORT html' … '#+END_EXPORT'  |
+| <l                     | '#+BEGIN_EXPORT latex' … '#+END_EXPORT' |
+| <q                     | '#+BEGIN_QUOTE' … '#+END_QUOTE'         |
+| <s                     | '#+BEGIN_SRC' … '#+END_SRC'             |
+| <v                     | '#+BEGIN_VERSE' … '#+END_VERSE'         |
+
+#+BEGIN_SRC emacs-lisp
+  (require 'org-tempo)
+#+END_SRC
+
+#+RESULTS
 
 * end
 #+BEGIN_SRC emacs-lisp
