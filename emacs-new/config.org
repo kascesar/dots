@@ -6,7 +6,8 @@
 - [[#common-configs][Common configs]]
   - [[#transparencia][Transparencia]]
   - [[#babel-lenguajes][Babel lenguajes]]
-  - [[#hide-useless-interface-items][Hide useless interface items]]
+  - [[#interfza][Interfza]]
+  - [[#ajuste-de-lineas][Ajuste de lineas]]
   - [[#dired-and-columnsrow][Dired and columns/row]]
   - [[#reload-config][Reload config]]
   - [[#font][Font]]
@@ -50,16 +51,24 @@
 '((shell . t)))
 #+END_SRC
 
-** Hide useless interface items
+** Interfza
 #+BEGIN_SRC emacs-lisp
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
-  (global-visual-line-mode t)
+  (global-visual-line-mode nil)
 
   (setq inhibit-startup-screen t)    ;; Desactiva la pantalla de inicio
   (setq inhibit-startup-message t)   ;; Desactiva el mensaje de inicio
 #+END_SRC
+** Ajuste de lineas
+#+begin_src emacs-lisp :results silent
+  ;; hace que las lineas se extiendan mas aya del editor si es necesario
+  (global-visual-line-mode -1)
+  (setq-default truncate-lines t)
+  (setq-default truncate-string-ellipsis "…")
+#+end_src
+
 ** Dired and columns/row
 #+BEGIN_SRC emacs-lisp
   ;; Mostrar el número de columna en el modo de línea
@@ -547,7 +556,7 @@ Luego activamos las demas cosas
 		   ((agenda "" ((org-agenda-span 3)
 				(org-super-agenda-groups
 				 '((:name "Hoy"
-					  :discard (:tag "personal")
+					  :discard (:tag "@personal")
 					  :time-grid t
 					  :scheduled past
 					  :deadline past
@@ -580,7 +589,7 @@ Luego activamos las demas cosas
 		   ((agenda "" ((org-agenda-span 3)
 				(org-super-agenda-groups
 				 '((:name "Hoy"
-					  :discard (:tag "trabajo" :scheduled past :deadline past)
+					  :discard (:tag "@trabajo" :scheduled past :deadline past)
 					  :time-grid t
 					  :date today
 					  :scheduled today
@@ -621,6 +630,9 @@ Luego activamos las demas cosas
   (setq calendar-week-start-day 1) ;; la semana empieza el lunes
   (setq european-calendar-style t) ;; estilo europeo
 #+end_src
+
+
+
 *** org-modern-indent
 #+begin_src emacs-lisp
   (add-hook 'org-mode-hook 'org-indent-mode)
@@ -730,9 +742,15 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
   :ensure t
   :hook (python-mode . py-isort-before-save))
 #+END_SRC
+marcar las columnas mas largas que 80 caracteres
+#+begin_src emacs-lisp :results silent
 
-#+RESULTS:
-: [nil 26401 21944 243380 nil elpaca-process-queues nil nil 921000 nil]
+  (add-to-list 'load-path "~/.emacs.d/column-marker/")
+  (require 'column-marker)
+
+  ;; Corrige el lambda en el hook
+  (add-hook 'python-mode-hook (lambda () (column-marker-1 80)))
+#+end_src
 
 ** company
 #+begin_src emacs-lisp
@@ -795,11 +813,9 @@ Herramienta que me permite observar un archivo de manera interactiva para ver su
 | <s                     | '#+BEGIN_SRC' … '#+END_SRC'             |
 | <v                     | '#+BEGIN_VERSE' … '#+END_VERSE'         |
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :results silent
   (require 'org-tempo)
 #+END_SRC
-
-#+RESULTS
 
 * end
 #+BEGIN_SRC emacs-lisp
