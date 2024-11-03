@@ -14,14 +14,17 @@
   - [[#recent-files][Recent files]]
 - [[#keybindings][keybindings]]
 - [[#package-manager--elpaca-][Package Manager -elpaca-]]
+  - [[#flycheck][Flycheck]]
+  - [[#imenu-list][imenu-list]]
   - [[#ef-themes][Ef-themes]]
   - [[#beacon][Beacon]]
   - [[#highlight-indent-guide][Highlight-indent-guide]]
   - [[#all-the-icons][All-the-icons]]
   - [[#dashboard][Dashboard]]
-  - [[#ivy][Ivy]]
+  - [[#vertico][Vertico]]
+  - [[#majrginalia][Majrginalia]]
+  - [[#consult][Consult]]
   - [[#rainbow][rainbow]]
-  - [[#projectile][projectile]]
   - [[#org-56][ORG]]
     - [[#org-elipsis][org-elipsis]]
     - [[#org-toc-table-of-contents][org-toc (table of contents)]]
@@ -42,7 +45,7 @@
 * Common configs
 ** Transparencia
 #+begin_src emacs-lisp
-  (add-to-list 'default-frame-alist '(alpha . 90))
+  (add-to-list 'default-frame-alist '(alpha . 95))
 #+end_src
 ** Babel lenguajes
 #+BEGIN_SRC emacs-lisp
@@ -208,6 +211,22 @@
   :ensure t
   (elpaca-use-package-mode))
 #+END_SRC
+** Flycheck
+#+begin_src emacs-lisp :results silent
+  (elpaca flycheck
+    :ensure t
+    :init(global-flycheck-mode))
+#+end_src
+** imenu-list
+Esto permite explorar mis programas de manera mas rapida e inteligente
+#+begin_src emacs-lisp :results silent
+  (elpaca imenu-list
+    :ensure t)
+  ;(setq imenu-list-focus-after-activation t)
+  (setq imenu-list-auto-resize t)
+  ;; seteamos los shortcuts
+  (global-set-key (kbd "C-c i") #'imenu-list-smart-toggle)
+#+end_src
 
 ** Ef-themes
 
@@ -354,66 +373,58 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
 #+RESULTS:
 : [nil 26400 1981 776364 nil elpaca-process-queues nil nil 323000 nil]
 
-** Ivy
-
-Segun la documentación de es necesario tener instalado elpa-counsel en el sistema
-
-#+begin_src sh :results silent
-sudo apt install elpa-counsel
+** Vertico
+#+begin_src emacs-lisp :results silent
+  (elpaca vertico
+   :ensure t
+   :config
+   (setq vertico-cycle t)
+   (setq vertico-resize nil)
+   (vertico-mode 1))
 #+end_src
-
-
-Luego activamos las demas cosas
-#+begin_src emacs-lisp
-    (elpaca counsel
-      :emsure t
-      :config (counsel-mode))
-
-    (use-package ivy
-      :ensure t
-      :bind
-      ;; ivy-resume resumes the last Ivy-based completion.
-      (("C-c C-r" . ivy-resume)
-       ("C-x B" . ivy-switch-buffer-other-window))
-      :custom
-      (setq ivy-use-virtual-buffers t)
-      (setq ivy-count-format "(%d/%d) ")
-      (setq enable-recursive-minibuffers t)
-      :config
-      (ivy-mode))
-
-    (use-package all-the-icons-ivy-rich
-      :ensure t
-      :init (all-the-icons-ivy-rich-mode 1))
-
-  ;  (use-package ivy-rich
-  ;    :after ivy
-  ;    :ensure t
-  ;    :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
-  ;    :custom
-  ;    (ivy-virtual-abbreviate 'full
-  ;     ivy-rich-switch-buffer-align-virtual-buffer t
-  ;     ivy-rich-path-style 'abbrev)
-  ;    :config
-  ;    (ivy-set-display-transformer 'ivy-switch-buffer
-  ;                                 'ivy-rich-switch-buffer-transformer))
-    (use-package ivy-rich
-      :after ivy
-      :ensure t
-      :init (setq ivy-rich-path-style 'abbrev
-                  ivy-virtual-abbreviate 'full
-                  ivy-rich-switch-buffer-align-virtual-buffer t)
-      :config (ivy-rich-mode 1))
-    (use-package ivy-rich
-      :after counsel
-      :init (setq ivy-rich-path-style 'abbrev
-                ivy-virtual-abbreviate 'full)
-      :config (ivy-rich-mode))
-
+** Majrginalia
+#+begin_src emacs-lisp :results silent
+  (elpaca marginalia
+    :ensure t
+    :config
+    (marginalia-mode 1))
 #+end_src
-
-#+RESULTS:
-: [nil 26400 5195 300190 nil elpaca-process-queues nil nil 458000 nil]
+** Consult
+|---------+------------------+-----------------------|
+| keys    | order            | desc                  |
+|---------+------------------+-----------------------|
+| C-f     | counsult-grep    | buscar recursivamente |
+| M-s M-f | counsult-find    |                       |
+| M-s M-o | counsult-outline | buscar en el header   |
+| C-s M-l | counsult-line    | buscar en el bufer    |
+| C-x b   | counsult-bufer   | buscar bufers         |
+|         |                  |                       |
+|---------+------------------+-----------------------|
+En el bufer puedes hacer las siguientes cosas
+ + b SPC para /bufers/
+ + SPC hiden /bufers/
+ + * modified /bufers/
+ + f Files
+ + f Files registers
+ + m SPC bookmarks
+ + p Project
+ + add custom for more
+   
+#+begin_src emacs-lisp :results silent
+  (use-package consult
+    :ensure t
+    :bind (;; A recursive grep
+           ("C-s" . consult-grep)
+           ;; Search for files names recursively
+           ("M-s M-f" . consult-find)
+           ;; Search through the outline (headings) of the file
+           ("M-s M-o" . consult-outline)
+           ;; Search the current buffer
+           ("M-s M-l" . consult-line)
+           ;; Switch to another buffer, or bookmarked file, or recently
+           ;; opened file.
+           ("C-x b" . consult-buffer)))
+#+end_src
 
 ** rainbow
 #+begin_src emacs-lisp
@@ -422,14 +433,6 @@ Luego activamos las demas cosas
     :demand t)
     (add-hook 'org-mode-hook 'rainbow-mode)
     (add-hook 'prog-mode-hook 'rainbow-mode)
-#+end_src
-** projectile
-#+begin_src emacs-lisp
-  (elpaca projectile
-  :config
-  (projectile-mode +1))
-  
-  (setq projectile-project-search-path '("~/develop/"))
 #+end_src
 ** ORG [5/6]
 
@@ -631,8 +634,6 @@ Luego activamos las demas cosas
   (setq european-calendar-style t) ;; estilo europeo
 #+end_src
 
-
-
 *** org-modern-indent
 #+begin_src emacs-lisp
   (add-hook 'org-mode-hook 'org-indent-mode)
@@ -707,25 +708,22 @@ Aqui configuro LSP de tal forma que quede preparado para desarrollo en *Emacs*.
 
 /Pylsp/ Servidor de python de microsoft
 #+BEGIN_SRC sh :results silent
-  pip install -U 'python-lsp-server[all]' black isort pyright
+  pip install -U 'python-lsp-server[all]' black isort pyright ruff
 #+END_SRC
 Ahora, configuramos el entorno de desarrollo de emacs para python
-#+BEGIN_SRC emacs-lisp
-  ;(use-package lsp-mode
-  ;:ensure t
-  ;:commands (lsp lsp-deferred)
-  ;:hook (python-mode . lsp-deferred)
-  ;:config
-  ;; Configura el servidor para usar pylsp
-  ;(setq lsp-pylsp-server-command "pylsp")
-  ;(setq lsp-prefer-flymake nil))
-
+#+BEGIN_SRC emacs-lisp :results silent
   (use-package lsp-pyright
   :ensure t
   :custom (lsp-pyright-langserver-command "pyright")
   :hook (python-mode . (lambda ()
                           (require 'lsp-pyright)
                           (lsp))))
+
+  (add-to-list 'load-path "~/.emacs.d/flymake-ruff")
+  (elpaca flymake-ruff
+    :ensure t)
+  (add-hook 'python-mode-hook #'flymake-ruff-load)
+
   (use-package lsp-mode
     :ensure t
     :commands (lsp lsp-deferred)
@@ -744,7 +742,6 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
 #+END_SRC
 marcar las columnas mas largas que 80 caracteres
 #+begin_src emacs-lisp :results silent
-
   (add-to-list 'load-path "~/.emacs.d/column-marker/")
   (require 'column-marker)
 
