@@ -3,27 +3,28 @@
 #+AUTHOR: Cesar Munoz
 
 * Table of coqntents                                                  :TOC_4:
-- [[#app-launcher][App launcher]]
 - [[#common-configs][Common configs]]
+  - [[#transparencia][Transparencia]]
   - [[#babel-lenguajes][Babel lenguajes]]
-  - [[#hide-useless-interface-items][Hide useless interface items]]
+  - [[#interfza][Interfza]]
+  - [[#ajuste-de-lineas][Ajuste de lineas]]
   - [[#dired-and-columnsrow][Dired and columns/row]]
-  - [[#tempo][Tempo]]
   - [[#reload-config][Reload config]]
   - [[#font][Font]]
   - [[#recent-files][Recent files]]
 - [[#keybindings][keybindings]]
-- [[#package-manager--elpacak-][Package Manager -elpacak-]]
+- [[#package-manager--elpaca-][Package Manager -elpaca-]]
+  - [[#flycheck][Flycheck]]
+  - [[#imenu-list][imenu-list]]
   - [[#ef-themes][Ef-themes]]
   - [[#beacon][Beacon]]
   - [[#highlight-indent-guide][Highlight-indent-guide]]
   - [[#all-the-icons][All-the-icons]]
   - [[#dashboard][Dashboard]]
-  - [[#ivy][Ivy]]
-  - [[#eshel][eshel]]
-  - [[#vterm][vterm]]
+  - [[#vertico][Vertico]]
+  - [[#marginalia][Marginalia]]
+  - [[#consult][Consult]]
   - [[#rainbow][rainbow]]
-  - [[#projectile][projectile]]
   - [[#org-56][ORG]]
     - [[#org-elipsis][org-elipsis]]
     - [[#org-toc-table-of-contents][org-toc (table of contents)]]
@@ -31,53 +32,46 @@
     - [[#org-modern-indent][org-modern-indent]]
     - [[#org-modern][org-modern]]
     - [[#org-bullets][org-bullets]]
+  - [[#calendar][Calendar]]
   - [[#python][Python]]
   - [[#company][company]]
   - [[#git-33][git]]
     - [[#magit][Magit]]
     - [[#git-gutter][git-gutter]]
     - [[#git-timemachine][git-timemachine]]
+- [[#tempo][Tempo]]
 - [[#end][end]]
 
-* App launcher
-Esto crea una ventana flotante que sumula un lanzador de aplicaciones hecho con emacs consul
-#+begin_src emacs-lisp
-(defun emacs-counsel-launcher ()
-  "Create and select a frame called emacs-counsel-launcher which consists only of a minibuffer and has specific dimensions. Runs counsel-linux-app on that frame, which is an emacs command that prompts you to select an app and open it in a dmenu like behaviour. Delete the frame after that command has exited"
-  (interactive)
-  (with-selected-frame 
-    (make-frame '((name . "emacs-run-launcher")
-                  (minibuffer . only)
-                  (fullscreen . 0) ; no fullscreen
-                  (undecorated . t) ; remove title bar
-                  ;;(auto-raise . t) ; focus on this frame
-                  ;;(tool-bar-lines . 0)
-                  ;;(menu-bar-lines . 0)
-                  (internal-border-width . 10)
-                  (width . 80)
-                  (height . 11)))
-                  (unwind-protect
-                    (counsel-linux-app)
-                    (delete-frame))))
-#+end_src
-
 * Common configs
+** Transparencia
+#+begin_src emacs-lisp
+  (add-to-list 'default-frame-alist '(alpha . 95))
+#+end_src
 ** Babel lenguajes
 #+BEGIN_SRC emacs-lisp
 (org-babel-do-load-languages
 'org-babel-load-languages
 '((shell . t)))
 #+END_SRC
-** Hide useless interface items
+
+** Interfza
 #+BEGIN_SRC emacs-lisp
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
-  (global-visual-line-mode t)
+  (global-visual-line-mode nil)
 
   (setq inhibit-startup-screen t)    ;; Desactiva la pantalla de inicio
   (setq inhibit-startup-message t)   ;; Desactiva el mensaje de inicio
 #+END_SRC
+** Ajuste de lineas
+#+begin_src emacs-lisp :results silent
+  ;; hace que las lineas se extiendan mas aya del editor si es necesario
+  (global-visual-line-mode -1)
+  (setq-default truncate-lines t)
+  (setq-default truncate-string-ellipsis "…")
+#+end_src
+
 ** Dired and columns/row
 #+BEGIN_SRC emacs-lisp
   ;; Mostrar el número de columna en el modo de línea
@@ -100,26 +94,6 @@ Esto crea una ventana flotante que sumula un lanzador de aplicaciones hecho con 
   ;; dont ask when kill buffer
   (global-set-key [remap kill-buffer] #'kill-this-buffer)
 #+END_SRC
-** Tempo
-| Typing the below + TAB | Expands to ...                          |
-|------------------------+-----------------------------------------|
-| <a                     | '#+BEGIN_EXPORT ascii' … '#+END_EXPORT  |
-| <c                     | '#+BEGIN_CENTER' … '#+END_CENTER'       |
-| <C                     | '#+BEGIN_COMMENT' … '#+END_COMMENT'     |
-| <e                     | '#+BEGIN_EXAMPLE' … '#+END_EXAMPLE'     |
-| <E                     | '#+BEGIN_EXPORT' … '#+END_EXPORT'       |
-| <h                     | '#+BEGIN_EXPORT html' … '#+END_EXPORT'  |
-| <l                     | '#+BEGIN_EXPORT latex' … '#+END_EXPORT' |
-| <q                     | '#+BEGIN_QUOTE' … '#+END_QUOTE'         |
-| <s                     | '#+BEGIN_SRC' … '#+END_SRC'             |
-| <v                     | '#+BEGIN_VERSE' … '#+END_VERSE'         |
-
-#+BEGIN_SRC emacs-lisp
-  (require 'org-tempo)
-#+END_SRC
-
-#+RESULTS:
-: org-tempo
 
 ** Reload config
 #+begin_src emacs-lisp
@@ -190,9 +164,10 @@ Esto crea una ventana flotante que sumula un lanzador de aplicaciones hecho con 
 
   ;; recen files
   (global-set-key (kbd "C-c r") 'counsel-recentf)
+  
 #+END_SRC
 
-* Package Manager -elpacak-
+* Package Manager -elpaca-
 #+BEGIN_SRC emacs-lisp
   (defvar elpaca-installer-version 0.7)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
@@ -233,10 +208,25 @@ Esto crea una ventana flotante que sumula un lanzador de aplicaciones hecho con 
   (add-hook 'after-init-hook #'elpaca-process-queues)
   (elpaca `(,@elpaca-order))
   (elpaca elpaca-use-package
-  ;; Enable use-package :ensure support for Elpaca.
+  :ensure t
   (elpaca-use-package-mode))
-
 #+END_SRC
+** Flycheck
+#+begin_src emacs-lisp :results silent
+  (elpaca flycheck
+    :ensure t
+    :init(global-flycheck-mode))
+#+end_src
+** imenu-list
+Esto permite explorar mis programas de manera mas rapida e inteligente
+#+begin_src emacs-lisp :results silent
+  (elpaca imenu-list
+    :ensure t)
+  ;(setq imenu-list-focus-after-activation t)
+  (setq imenu-list-auto-resize t)
+  ;; seteamos los shortcuts
+  (global-set-key (kbd "C-c i") #'imenu-list-smart-toggle)
+#+end_src
 
 ** Ef-themes
 
@@ -249,8 +239,8 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
     :ensure t
     :demand t
     :config
-    (load-theme 'ef-cherie :no-confirm))
-  (setq ef-themes-to-toggle '(ef-summer ef-cherie))
+    (load-theme 'ef-reverie :no-confirm))
+  (setq ef-themes-to-toggle '(ef-reverie ef-rosa))
 #+END_SRC
 
 ** Beacon
@@ -261,6 +251,7 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
 
   ;; Configuración de beacon usando elpaca
   (elpaca beacon
+    :ensure t
   ;; Configurar el color del resplandor a un rozado muy fuerte
   (setq beacon-color "#FF69B4")
 
@@ -274,8 +265,8 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
   (defun my-beacon-periodic-blink ()
   "Muestra el resplandor si el cursor ha estado quieto por más de 1 segundo."
   (let ((idle-time (- (float-time) my-last-cursor-move-time)))
-	(when (>= idle-time 1)  ;; Verificar si el cursor ha estado inactivo por 1 segundo
-	  (beacon-blink))))
+        (when (>= idle-time 1)  ;; Verificar si el cursor ha estado inactivo por 1 segundo
+          (beacon-blink))))
 
     ;; Función para manejar el movimiento del cursor y el resplandor inmediato
     (defun my-beacon-on-cursor-move ()
@@ -295,23 +286,25 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
     (beacon-mode 1))
 #+END_SRC
 
+#+RESULTS:
+: [nil 26400 5251 675211 nil elpaca-process-queues nil nil 524000 nil]
+
 ** Highlight-indent-guide
 
 #+BEGIN_SRC emacs-lisp
-  (elpaca highlight-indent-guides
-    (use-package highlight-indent-guides
-      :hook (prog-mode . highlight-indent-guides-mode)
-      :config
-      ;; Configurar el método de guía de indentación a 'bitmap
-      (setq highlight-indent-guides-method 'bitmap)
-      ;; (setq highlight-indent-guides-character "|")
-      ;; Configurar el color de los guías de indentación
-      (custom-set-faces
-       '(highlight-indent-guides-stack-odd-face ((t (:background "gray20"))))
-       '(highlight-indent-guides-stack-even-face ((t (:background "gray40"))))
-       '(highlight-indent-guides-character-face ((t (:foreground "dim gray"))))
-       '(italic ((t (:slant italic))))))
-  )
+  (use-package highlight-indent-guides
+    :ensure t
+    :hook (prog-mode . highlight-indent-guides-mode)
+    :config
+    ;; Configurar el método de guía de indentación a 'bitmap
+    (setq highlight-indent-guides-method 'bitmap)
+    ;; (setq highlight-indent-guides-character "|")
+    ;; Configurar el color de los guías de indentación
+    (custom-set-faces
+     '(highlight-indent-guides-stack-odd-face ((t (:background "gray20"))))
+     '(highlight-indent-guides-stack-even-face ((t (:background "gray40"))))
+     '(highlight-indent-guides-character-face ((t (:foreground "dim gray"))))
+     '(italic ((t (:slant italic))))))
 #+END_SRC
 ** All-the-icons
 #+BEGIN_SRC emacs-lisp
@@ -326,161 +319,114 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
 #+END_SRC
 ** Dashboard
 #+BEGIN_SRC emacs-lisp
+    ;; Configuración del `dashboard` en Emacs usando `elpaca`
   (setq user-full-name "Cesar M.")
-  (setq dashboard-icon-type 'all-the-icons) ;; usar `all-the-icons`
+  (setq dashboard-icon-type 'all-the-icons) ;; Usa `all-the-icons` para íconos personalizados.
 
-  ;; Configuración de `dashboard` usando `elpaca`
-  (elpaca dashboard
+  (use-package dashboard
     :ensure t
     :config
-    ;; Configurar banner y título
-    (setq dashboard-startup-banner "~/.emacs.d/dh.jpeg")
+    ;; Configuración básica de banner y título
+    ;(global-page-break-lines-mode 1) ;; Habilita líneas de página a nivel global (requiere `page-break-lines`)
+
+    ;; Configuración de banner
+    (setq dashboard-startup-banner 'logo) ;; Usa el logo de Emacs
     (setq dashboard-banner-logo-title (format "Buen día %s" user-full-name))
-    (setq dashboard-items '((recents . 4)
+    (setq dashboard-center-content t)
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-file-icons t)
+
+    ;; Configura los elementos a mostrar en el dashboard
+    (setq dashboard-items '((recents   . 5)
                             (bookmarks . 5)
-                            (projects . 3)
-                            (registers . 3)
-                            (agenda . 2)))
-    ;; Activar el hook de inicio de dashboard
+                            (agenda    . 5)
+                            (projects  . 5)
+                            (registers . 5)))
+
+    ;; Habilita el dashboard en el inicio
     (dashboard-setup-startup-hook)
+
     ;; Configuración de íconos y navegación
-    (setq dashboard-set-heading-icons t
-          dashboard-set-file-icons t
-          dashboard-set-init-info t
-          dashboard-set-navigator t)
-    ;; Definir botones de navegación personalizados
+    (setq dashboard-set-init-info t)
+    (setq dashboard-set-navigator t)
     (setq dashboard-navigator-buttons
-          `((,(when (display-graphic-p)
-                 (all-the-icons-octicon "tools" :height 1.0 :v-adjust 0.0))
-             "Configuración" "Abrir configuración de emacs (.el)"
-             (lambda (&rest _) (find-file (expand-file-name  "~/.emacs.d/init.el"))))
-            (,(when (display-graphic-p)
-                 (all-the-icons-octicon "calendar" :height 1.0 :v-adjust 0.0))
-             "Agenda" "Agenda personal"
-             (lambda (&rest _)
-               (interactive)
-               (if (get-buffer "*Org Agenda*")
-                   (progn
-                     (switch-to-buffer-other-window "*Org Agenda*")
-                     (kill-buffer "*Org Agenda*")
-                     (org-agenda-list))
-                 (split-window-right)
-                 (org-agenda-list)))))))
+          `(
+            ((,(all-the-icons-octicon "mark-github" :height 1.1 :v-adjust 0.0)
+              "GitHub" "Visitar mi GitHub" (lambda (&rest _) (browse-url "https://github.com/kascesar")))
+             (,(all-the-icons-faicon "linkedin" :height 1.1 :v-adjust 0.0)
+              "LinkedIn" "Visitar mi LinkedIn" (lambda (&rest _) (browse-url "https://linkedin.com/in/csarmaraya")))
+             (,(all-the-icons-faicon "envelope" :height 1.1 :v-adjust 0.0)
+              "Email" "Enviar un correo" (lambda (&rest _) (compose-mail))))))
 
-  ;; Función para abrir el dashboard con la tecla F10
-  ;(defun open-dashboard ()
-  ;  "Abre el buffer *dashboard* y salta al primer widget."
-  ;  (interactive)
-  ;  (delete-other-windows)
-  ;  (if (get-buffer dashboard-buffer-name)
-  ;	(kill-buffer dashboard-buffer-name))
-  ;  (dashboard-insert-startupify-lists)
-  ;  (switch-to-buffer dashboard-buffer-name))
-
-  (defun open-dashboard ()
-  "Open the *dashboard* buffer and jump to the first widget."
-  (interactive)
-
-  (delete-other-windows)
-  (if (get-buffer dashboard-buffer-name)
-      (kill-buffer dashboard-buffer-name))
-  (dashboard-insert-startupify-lists)
-  (switch-to-buffer dashboard-buffer-name))
+    ;; Personaliza el orden de widgets
+    (setq dashboard-startupify-list
+          '(dashboard-insert-banner
+            dashboard-insert-newline
+            dashboard-insert-banner-title
+            dashboard-insert-navigator
+            dashboard-insert-init-info
+            dashboard-insert-items
+            dashboard-insert-footer))
+  )
 #+END_SRC
 
-** Ivy
-
-Segun la documentación de es necesario tener instalado elpa-counsel en el sistema
-
-#+begin_src sh :outputs silent
-sudo apt install elpa-counsel
-#+end_src
-
 #+RESULTS:
+: [nil 26400 1981 776364 nil elpaca-process-queues nil nil 323000 nil]
 
-Luego activamos las demas cosas
-#+begin_src emacs-lisp
-  (elpaca counsel
-    :config (counsel-mode))
-
-  (use-package ivy
-    :bind
-    ;; ivy-resume resumes the last Ivy-based completion.
-    (("C-c C-r" . ivy-resume)
-     ("C-x B" . ivy-switch-buffer-other-window))
-    :custom
-    (setq ivy-use-virtual-buffers t)
-    (setq ivy-count-format "(%d/%d) ")
-    (setq enable-recursive-minibuffers t)
-    :config
-    (ivy-mode))
-
-  (use-package all-the-icons-ivy-rich
-    :ensure t
-    :init (all-the-icons-ivy-rich-mode 1))
-
-  (use-package ivy-rich
-    :after ivy
-    :ensure t
-    :init (ivy-rich-mode 1) ;; this gets us descriptions in M-x.
-    :custom
-    (ivy-virtual-abbreviate 'full
-     ivy-rich-switch-buffer-align-virtual-buffer t
-     ivy-rich-path-style 'abbrev)
-    :config
-    (ivy-set-display-transformer 'ivy-switch-buffer
-                                 'ivy-rich-switch-buffer-transformer))
-
+** Vertico
+#+begin_src emacs-lisp :results silent
+  (elpaca vertico
+   :ensure t
+   :config
+   (setq vertico-cycle t)
+   (setq vertico-resize nil)
+   (vertico-mode 1))
 #+end_src
-** eshel
-#+begin_src emacs-lisp
-(elpaca eshell-syntax-highlighting
-  ;; :after eshell-mode
-  :config
-  (eshell-syntax-highlighting-global-mode +1))
-
-;; eshell-syntax-highlighting -- adds fish/zsh-like syntax highlighting.
-;; eshell-rc-script -- your profile for eshell; like a bashrc for eshell.
-;; eshell-aliases-file -- sets an aliases file for the eshell.
-  
-(setq eshell-rc-script (concat user-emacs-directory "eshell/profile")
-      eshell-aliases-file (concat user-emacs-directory "eshell/aliases")
-      eshell-history-size 5000
-      eshell-buffer-maximum-lines 5000
-      eshell-hist-ignoredups t
-      eshell-scroll-to-bottom-on-input t
-      eshell-destroy-buffer-when-process-dies t
-      eshell-visual-commands'("bash" "fish" "htop" "ssh" "top" "zsh"))
-#+end_src 
-
-#+RESULTS:
-
-** vterm
-#+begin_src emacs-lisp
-    (use-package vterm
+** Marginalia
+#+begin_src emacs-lisp :results silent
+  (elpaca marginalia
+    :ensure t
+    :config
+    (marginalia-mode 1))
+#+end_src
+** Consult
+|---------+---------------------+---------------------------|
+| keys    | order               | desc                      |
+|---------+---------------------+---------------------------|
+| M-s M-g | counsult-grep       | buscar recursivamente     |
+| M-s M-f | counsult-find       |                           |
+| M-s M-o | counsult-outline    | buscar en el header       |
+| C-f     | counsult-line       | buscar en el bufer        |
+| C-F     | counsult-line-multi | buscar en todos los bufer |
+| C-x b   | counsult-bufer      | buscar bufers             |
+|---------+---------------------+---------------------------|
+En el bufer puedes hacer las siguientes cosas
+ + b SPC para /bufers/
+ + SPC hiden /bufers/
+ + * modified /bufers/
+ + f Files
+ + f Files registers
+ + m SPC bookmarks
+ + p Project
+ + add custom for more
+   
+#+begin_src emacs-lisp :results silent
+    (use-package consult
       :ensure t
-      :demand t)
+      :bind (;; A recursive grep
+             ("C-f" . consult-grep)
+             ;; Search for files names recursively
+             ("M-s M-f" . consult-find)
+             ;; Search through the outline (headings) of the file
+             ("M-s M-o" . consult-outline)
+             ;; Search the current buffer
+             ("C-S" . consult-line)
+             ;; Switch to another buffer, or bookmarked file, or recently
+             ;; opened file.
+             ("C-x b" . consult-buffer)
+             ("C-s" . consult-line-multi)))
 #+end_src
-#+begin_src emacs-lisp
-(elpaca vterm-toggle
-  ;;:after vterm
-  :config
-  (setq vterm-toggle-fullscreen-p nil)
-  (setq vterm-toggle-scope 'develop)
-  (add-to-list 'display-buffer-alist
-               '((lambda (buffer-or-name _)
-                     (let ((buffer (get-buffer buffer-or-name)))
-                       (with-current-buffer buffer
-                         (or (equal major-mode 'vterm-mode)
-                             (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
-                  (display-buffer-reuse-window display-buffer-at-bottom)
-                  ;;(display-buffer-reuse-window display-buffer-in-direction)
-                  ;;display-buffer-in-direction/direction/dedicated is added in emacs27
-                  ;;(direction . bottom)
-                  ;;(dedicated . t) ;dedicated is supported in emacs27
-                  (reusable-frames . visible)
-                  (window-height . 0.3))))
-#+end_src
+
 ** rainbow
 #+begin_src emacs-lisp
     (elpaca rainbow-mode
@@ -488,14 +434,6 @@ Luego activamos las demas cosas
     :demand t)
     (add-hook 'org-mode-hook 'rainbow-mode)
     (add-hook 'prog-mode-hook 'rainbow-mode)
-#+end_src
-** projectile
-#+begin_src emacs-lisp
-  (elpaca projectile
-  :config
-  (projectile-mode +1))
-  
-  (setq projectile-project-search-path '("~/develop/"))
 #+end_src
 ** ORG [5/6]
 
@@ -505,7 +443,6 @@ Luego activamos las demas cosas
 - [X] modern agrega muchas mejoras visuales que emjoran la apariencia de los archivos org 
 - [ ] modern-ident mejora la identacion de los bloques de codigo (no me funciona)
 - [X] bullets son unos cambios para las stars en org-mode
-configuraciones /globales/ para /org-mode/
 #+BEGIN_SRC emacs-lisp
   ;; Aspecto mejorado al identar
   ;(add-hook 'org-mode-hook 'org-indent-mode)
@@ -522,6 +459,74 @@ configuraciones /globales/ para /org-mode/
   (setq org-hide-emphasis-markers t)
 #+END_SRC
 
+#+begin_src emacs-lisp
+      ;; Aspecto mejorado al identar
+      ;(add-hook 'org-mode-hook 'org-indent-mode)
+      ;; recomendacion de codigo en org-mode
+      (defun org-mode-setup ()
+      (set (make-local-variable 'company-backends)
+           '((company-dabbrev company-yasnippet))))
+
+      (add-hook 'org-mode-hook #'company-mode)
+      (add-hook 'org-mode-hook #'org-mode-setup)
+      (setq company-dabbrev-other-buffers t)
+
+      ;; ocultamos los caracteres especiales
+      (setq org-hide-emphasis-markers t)
+
+      ;; configuraciones de tags y estado de las tareas
+
+      (global-set-key (kbd "C-c l") #'org-store-link)
+      (global-set-key (kbd "C-c a") #'org-agenda)
+      (global-set-key (kbd "C-c c") #'org-capture)
+
+      (use-package org
+      :config
+      (setq org-log-done 'time)
+      (setq org-log-into-drawer t)
+
+      (setq org-todo-keywords
+            '((sequence "PORHACER(p!)"
+                        "ENPROCESO(e!)"
+                        "BLOQUEADO(b!)"
+                        "DETENIDO(d!)"
+                        "|"
+                        "HECHO(h!)"
+                        "ARCHIVAR(a!)")))
+
+       (setq org-todo-keyword-faces
+             '(("PORHACER" . "red")
+               ("ENPROCESO" . "magenta")
+               ("BLOQUEADO" . "orange")
+               ("HECHO" . "green")))
+
+      (setq org-file-apps
+          '(("\\.html\\'" . browse-url-firefox)))
+
+      (advice-add 'org-refile :after 'org-save-all-org-buffers)
+
+
+      (setq org-tag-alist '(("@nota" . ?n)
+                            ("@casa" . ?c)
+                            ("@finanzas" . ?d)
+                            ("@fecha" . ?f)
+                            ("@salud" . ?s)
+                            ("@tarea" . ?t)
+                            ("@coche" . ?h)
+                            ("@trabajo" . ?b)
+                            ("@personal" . ?p)
+                            ("crypt" . ?C)
+                            ("TOC_4" . ?i))
+            )
+      (setq org-tags-exclude-from-inheritance '("crypt"))
+
+      ;; Progress Logging
+      ;; When a TODO item enters DONE, add a CLOSED: property with current date-time stamp and into drawer
+      (setq org-log-done 'time)
+      (setq org-log-into-drawer "state-book")
+      (setq org-tags-column 81))
+
+#+end_src
 *** org-elipsis
 #+BEGIN_SRC emacs-lisp
   (use-package org
@@ -555,7 +560,7 @@ configuraciones /globales/ para /org-mode/
 		   ((agenda "" ((org-agenda-span 3)
 				(org-super-agenda-groups
 				 '((:name "Hoy"
-					  :discard (:tag "personal")
+					  :discard (:tag "@personal")
 					  :time-grid t
 					  :scheduled past
 					  :deadline past
@@ -588,7 +593,7 @@ configuraciones /globales/ para /org-mode/
 		   ((agenda "" ((org-agenda-span 3)
 				(org-super-agenda-groups
 				 '((:name "Hoy"
-					  :discard (:tag "trabajo" :scheduled past :deadline past)
+					  :discard (:tag "@trabajo" :scheduled past :deadline past)
 					  :time-grid t
 					  :date today
 					  :scheduled today
@@ -629,35 +634,39 @@ configuraciones /globales/ para /org-mode/
   (setq calendar-week-start-day 1) ;; la semana empieza el lunes
   (setq european-calendar-style t) ;; estilo europeo
 #+end_src
+
 *** org-modern-indent
 #+begin_src emacs-lisp
   (add-hook 'org-mode-hook 'org-indent-mode)
-  (use-package compat
-  :ensure (:wait t)
-  :demand t)
+    (use-package compat
+      :ensure (:wait t)
+      :demand t)
   (use-package org-modern-indent
-  :load-path "~/.emacs.d/org-modern-indent/"
-  :after org-modern 
-  :config
-  (add-hook 'org-mode-hook #'org-modern-indent-mode 90)) 
+    :load-path "~/.emacs.d/org-modern-indent/"
+    :after org-modern 
+    :config
+    (add-hook 'org-mode-hook #'org-modern-indent-mode 90)) 
 #+end_src
 
 *** org-modern
 #+begin_src emacs-lisp
-(use-package org-modern
-  :ensure t
-  :custom
-  (org-modern-hide-stars nil)		; adds extra indentation
-  (org-modern-table t)
-  (org-modern-list 
-   '(;; (?- . "-")
-     (?* . "•")
-     (?+ . "‣")))
-  (org-modern-block-name '("" . "")) ; or other chars; so top bracket is drawn promptly
-  :hook
-  (org-mode . org-modern-mode)
-  (org-agenda-finalize . org-modern-agenda))
+
+  (use-package org-modern
+   :ensure '(org-modern :host github :repo "minad/org-modern")
+   :custom
+   (org-modern-hide-stars nil)               ; Mantiene las estrellas visibles para evitar indentación adicional
+   (org-modern-table t)                      ; Activa la modernización de tablas
+   (org-modern-list '((?* . "•") (?+ . "‣"))) ; Define símbolos para listas de Org
+   (org-modern-checkbox '((?X . "✓") (?- . "✗") (?\s . "⬚"))) ; Define símbolos para checkboxes
+   (org-modern-star '("◉" "○" "✸" "✿"))     ; Define símbolos para encabezados
+   (org-modern-block-name '("" . ""))        ; Personaliza los bloques de código (para alinear mejor los bordes superiores)
+   :hook
+   (org-mode . org-modern-mode)
+   (org-agenda-finalize . org-modern-agenda))
 #+end_src
+
+#+RESULTS:
+: [nil 26400 4186 175622 nil elpaca-process-queues nil nil 562000 nil]
 
 *** org-bullets
 #+BEGIN_SRC emacs-lisp
@@ -667,23 +676,61 @@ configuraciones /globales/ para /org-mode/
   :config
   :hook org-mode)
 #+END_SRC
+** Calendar
+
+#+BEGIN_SRC emacs-lisp
+    (use-package calfw
+    :ensure t
+    (calfw
+      :host github
+      :repo "kiwanami/emacs-calfw")
+    :config
+    (setq cfw:org-overwrite-default-keybinding t))
+
+  (use-package calfw-org
+      :ensure t
+      :config
+      (setq cfw:org-overwrite-default-keybinding t)
+      :bind ([f8] . cfw:open-org-calendar))
+
+  (setq calendar-month-name-array
+        ["Enero" "Febrero" "Marzo" "Abril" "Mayo" "Junio"
+         "Julio"    "Agosto"   "Septiembre" "Octubre" "Noviembre" "Diciembre"])
+
+  (setq calendar-day-name-array
+        ["Domingo" "Lunes" "Martes" "Miércoles" "Jueves" "Viernes" "Sábado"])
+
+  (setq org-icalendar-timezone "America/Santiago")
+  (setq calendar-week-start-day 1)
+  (setq european-calendar-style t)
+#+END_SRC
 ** Python
 Aqui configuro LSP de tal forma que quede preparado para desarrollo en *Emacs*.
 
 /Pylsp/ Servidor de python de microsoft
 #+BEGIN_SRC sh :results silent
-  pip install 'python-lsp-server[all]' black isort
+  pip install -U 'python-lsp-server[all]' black isort pyright ruff
 #+END_SRC
 Ahora, configuramos el entorno de desarrollo de emacs para python
-#+BEGIN_SRC emacs-lisp
-  (use-package lsp-mode
+#+BEGIN_SRC emacs-lisp :results silent
+  (use-package lsp-pyright
   :ensure t
-  :commands (lsp lsp-deferred)
-  :hook (python-mode . lsp-deferred)
-  :config
-  ;; Configura el servidor para usar pylsp
-  (setq lsp-pylsp-server-command "pylsp")
-  (setq lsp-prefer-flymake nil))
+  :custom (lsp-pyright-langserver-command "pyright")
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp))))
+
+  (add-to-list 'load-path "~/.emacs.d/flymake-ruff")
+  (elpaca flymake-ruff
+    :ensure t)
+  (add-hook 'python-mode-hook #'flymake-ruff-load)
+
+  (use-package lsp-mode
+    :ensure t
+    :commands (lsp lsp-deferred)
+    :hook (python-mode . lsp-deferred)
+    :config
+    (require 'lsp-pyright))
 
   ;; herramientas adicionales
   (use-package python-black
@@ -694,17 +741,27 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
   :ensure t
   :hook (python-mode . py-isort-before-save))
 #+END_SRC
+marcar las columnas mas largas que 80 caracteres
+#+begin_src emacs-lisp :results silent
+  (add-to-list 'load-path "~/.emacs.d/column-marker/")
+  (require 'column-marker)
+
+  ;; Corrige el lambda en el hook
+  (add-hook 'python-mode-hook (lambda () (column-marker-1 80)))
+#+end_src
+
 ** company
 #+begin_src emacs-lisp
-(use-package company
-  :defer 2
-  :custom
-  (company-begin-commands '(self-insert-command))
-  (company-idle-delay .1)
-  (company-minimum-prefix-length 2)
-  (company-show-numbers t)
-  (company-tooltip-align-annotations 't)
-  (global-company-mode t))
+  (use-package company
+    :ensure t
+    :defer 2
+    :custom
+    (company-begin-commands '(self-insert-command))
+    (company-idle-delay .1)
+    (company-minimum-prefix-length 2)
+    (company-show-numbers t)
+    (company-tooltip-align-annotations 't)
+    (global-company-mode t))
 #+end_src
 ** git [3/3]
 Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
@@ -713,9 +770,10 @@ Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
 - [X] git-timemachine permite interactivamente las modificaciones se hicieron
 *** Magit
 #+BEGIN_SRC emacs-lisp
-(elpaca transient :ensure t :demand t)
+(use-package transient :ensure t :demand t)
 (use-package magit :ensure (:wait t) :demand t)
 #+END_SRC
+
 *** git-gutter
 Esta herramienta agrega indicadores para identificar los cambios miesntras programo
 #+BEGIN_SRC emacs-lisp
@@ -725,16 +783,38 @@ Esta herramienta agrega indicadores para identificar los cambios miesntras progr
     )
   (global-git-gutter-mode +1)
   (custom-set-variables
-   '(git-gutter:modified-sign "mod")
-   '(git-gutter:added-sign " + ")
-   '(git-gutter:deleted-sign " - "))
+   '(git-gutter:modified-sign "M")
+   '(git-gutter:added-sign "+")
+   '(git-gutter:deleted-sign "-"))
 #+END_SRC
+
+#+RESULTS:
+
 *** git-timemachine
 Herramienta que me permite observar un archivo de manera interactiva para ver sus versiones en tiempo real
 #+BEGIN_SRC emacs-lisp
   (elpaca git-timemachine
   :ensure t)
 #+END_SRC
+  
+* Tempo
+| Typing the below + TAB | Expands to ...                          |
+|------------------------+-----------------------------------------|
+| <a                     | '#+BEGIN_EXPORT ascii' … '#+END_EXPORT  |
+| <c                     | '#+BEGIN_CENTER' … '#+END_CENTER'       |
+| <C                     | '#+BEGIN_COMMENT' … '#+END_COMMENT'     |
+| <e                     | '#+BEGIN_EXAMPLE' … '#+END_EXAMPLE'     |
+| <E                     | '#+BEGIN_EXPORT' … '#+END_EXPORT'       |
+| <h                     | '#+BEGIN_EXPORT html' … '#+END_EXPORT'  |
+| <l                     | '#+BEGIN_EXPORT latex' … '#+END_EXPORT' |
+| <q                     | '#+BEGIN_QUOTE' … '#+END_QUOTE'         |
+| <s                     | '#+BEGIN_SRC' … '#+END_SRC'             |
+| <v                     | '#+BEGIN_VERSE' … '#+END_VERSE'         |
+
+#+BEGIN_SRC emacs-lisp :results silent
+  (require 'org-tempo)
+#+END_SRC
+
 * end
 #+BEGIN_SRC emacs-lisp
 (use-package emacs :ensure nil :config (setq ring-bell-function #'ignore))

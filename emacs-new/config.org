@@ -1,4 +1,4 @@
-#+TITLE: Global configs
+ #+TITLE: Global configs
 #+DESCRIPTION: Emacs configs
 #+AUTHOR: Cesar Munoz
 
@@ -69,7 +69,6 @@
   ;; hace que las lineas se extiendan mas aya del editor si es necesario
   (global-visual-line-mode -1)
   (setq-default truncate-lines t)
-  (setq-default truncate-string-ellipsis "…")
 #+end_src
 
 ** Dired and columns/row
@@ -169,7 +168,7 @@
 
 * Package Manager -elpaca-
 #+BEGIN_SRC emacs-lisp
-  (defvar elpaca-installer-version 0.7)
+  (defvar elpaca-installer-version 0.8)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
   (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
   (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
@@ -390,16 +389,16 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
     (marginalia-mode 1))
 #+end_src
 ** Consult
-|---------+------------------+-----------------------|
-| keys    | order            | desc                  |
-|---------+------------------+-----------------------|
-| C-f     | counsult-grep    | buscar recursivamente |
-| M-s M-f | counsult-find    |                       |
-| M-s M-o | counsult-outline | buscar en el header   |
-| C-s M-l | counsult-line    | buscar en el bufer    |
-| C-x b   | counsult-bufer   | buscar bufers         |
-|         |                  |                       |
-|---------+------------------+-----------------------|
+|---------+--------------------+---------------------------|
+| keys    | order              | explicacion               |
+|---------+--------------------+---------------------------|
+| M-s M-g | counsult-grep      | buscar recursivamente     |
+| M-s M-f | counsult-find      |                           |
+| M-s M-o | counsult-outline   | buscar en el header       |
+| C-x b   | counsult-bufer     | buscar en el bufer        |
+| C-S     | consult-lile-multi | buscar en todos los bufer |
+| C-s     | counsult-line      | buscar en el bufer        |
+|---------+--------------------+---------------------------|
 En el bufer puedes hacer las siguientes cosas
  + b SPC para /bufers/
  + SPC hiden /bufers/
@@ -414,15 +413,13 @@ En el bufer puedes hacer las siguientes cosas
   (use-package consult
     :ensure t
     :bind (;; A recursive grep
-           ("C-s" . consult-grep)
+           ("M-s M-g" . consult-grep)
            ;; Search for files names recursively
            ("M-s M-f" . consult-find)
            ;; Search through the outline (headings) of the file
            ("M-s M-o" . consult-outline)
-           ;; Search the current buffer
-           ("M-s M-l" . consult-line)
-           ;; Switch to another buffer, or bookmarked file, or recently
-           ;; opened file.
+           ("C-s" . consult-line)
+           ("C-S" . consult-line-multi)
            ("C-x b" . consult-buffer)))
 #+end_src
 
@@ -644,7 +641,7 @@ En el bufer puedes hacer las siguientes cosas
     :load-path "~/.emacs.d/org-modern-indent/"
     :after org-modern 
     :config
-    (add-hook 'org-mode-hook #'org-modern-indent-mode 90)) 
+    (add-hook 'org-mode-hook #'org-modern-indent-mode 80)) 
 #+end_src
 
 *** org-modern
@@ -653,12 +650,12 @@ En el bufer puedes hacer las siguientes cosas
   (use-package org-modern
    :ensure '(org-modern :host github :repo "minad/org-modern")
    :custom
-   (org-modern-hide-stars nil)               ; Mantiene las estrellas visibles para evitar indentación adicional
+   ;(org-modern-hide-stars nil)               ; Mantiene las estrellas visibles para evitar indentación adicional
    (org-modern-table t)                      ; Activa la modernización de tablas
    (org-modern-list '((?* . "•") (?+ . "‣"))) ; Define símbolos para listas de Org
    (org-modern-checkbox '((?X . "✓") (?- . "✗") (?\s . "⬚"))) ; Define símbolos para checkboxes
    (org-modern-star '("◉" "○" "✸" "✿"))     ; Define símbolos para encabezados
-   (org-modern-block-name '("" . ""))        ; Personaliza los bloques de código (para alinear mejor los bordes superiores)
+   ;(org-modern-block-name '("" . ""))        ; Personaliza los bloques de código (para alinear mejor los bordes superiores)
    :hook
    (org-mode . org-modern-mode)
    (org-agenda-finalize . org-modern-agenda))
@@ -668,7 +665,7 @@ En el bufer puedes hacer las siguientes cosas
 : [nil 26400 4186 175622 nil elpaca-process-queues nil nil 562000 nil]
 
 *** org-bullets
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC
 
   (use-package org-bullets-mode
   :ensure org-bullets
