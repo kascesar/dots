@@ -26,7 +26,8 @@
   - [[#marginalia][Marginalia]]
   - [[#consult][Consult]]
   - [[#rainbow][rainbow]]
-  - [[#org-66][ORG]]
+  - [[#org-67][ORG]]
+    - [[#latex-in-org-mode][latex in org mode]]
     - [[#org-elipsis][org-elipsis]]
     - [[#org-toc-table-of-contents][org-toc (table of contents)]]
     - [[#org-agenda--super-agenda][org-agenda & super-agenda]]
@@ -34,6 +35,7 @@
     - [[#org-modern-indent][org-modern-indent]]
     - [[#org-bullets][org-bullets]]
     - [[#org-roam][org-roam]]
+    - [[#org-roam-ui][org-roam-ui]]
   - [[#calendar][Calendar]]
   - [[#python][Python]]
   - [[#company][company]]
@@ -43,10 +45,11 @@
     - [[#git-timemachine][git-timemachine]]
 - [[#tempo][Tempo]]
 - [[#end][end]]
+- [[#latex][latex]]
 
 * Common configs
 ** Transparencia
-#+begin_src emacs-lisp
+#+begin_src
 (add-to-list 'default-frame-alist '(alpha . 95))
 #+end_src
 ** Babel lenguajes
@@ -442,14 +445,15 @@ En el bufer puedes hacer las siguientes cosas
     (add-hook 'org-mode-hook 'rainbow-mode)
     (add-hook 'prog-mode-hook 'rainbow-mode)
 #+end_src
-** ORG [6/6]
-
+** ORG [6/7]
+- [ ] instalacion de talext y otros para renderizar ecuaciones
 - [X] elipsis icono para identificar que parte del archivo ha sido contraido
 - [X] toc permite crear un indice interactivo en el archivo org
 - [X] agenda y super-agenda gestores y mejoras de agenda de org-mode
 - [X] modern agrega muchas mejoras visuales que emjoran la apariencia de los archivos org 
 - [X] modern-ident mejora la identacion de los bloques de codigo (no me funciona)
 - [X] bullets son unos cambios para las stars en org-mode
+  
 #+BEGIN_SRC emacs-lisp :results silent
   ;; Aspecto mejorado al identar
   ;(add-hook 'org-mode-hook 'org-indent-mode)
@@ -531,6 +535,16 @@ En el bufer puedes hacer las siguientes cosas
       (setq org-tags-column 81))
 
 #+end_src
+*** latex in org mode
+#+begin_src sh
+    sudo apt install texlive texlive-latex-extra dvipng
+  #+end_src
+
+#+begin_src emacs-lisp
+  (setq org-latex-create-formula-image-program 'dvipng)
+  (setq org-preview-latex-default-process 'dvipng)
+#+end_src
+
 *** org-elipsis
 #+BEGIN_SRC emacs-lisp :results silent
   ;(use-package org
@@ -688,9 +702,25 @@ En el bufer puedes hacer las siguientes cosas
   (setq org-roam-v2-ack t)
   (setq org-roam-directory (file-truename "~/Dropbox/org-roam/"))
   (setq org-roam-db-autosync-mode t)
+  (setq org-roam-completion-everywhere t)
 #+end_src
 
-
+*** org-roam-ui
+#+begin_src emacs-lisp
+(use-package org-roam-ui
+  :ensure
+    (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+    :after org-roam
+;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+;;         a hookable mode anymore, you're advised to pick something yourself
+;;         if you don't care about startup time, use
+;;  :hook (after-init . org-roam-ui-mode)
+    :config
+    (setq org-roam-ui-sync-theme t
+          org-roam-ui-follow t
+          org-roam-ui-update-on-save t
+          org-roam-ui-open-on-start t))
+#+end_src
 ** Calendar
 
 #+BEGIN_SRC emacs-lisp
@@ -858,3 +888,15 @@ Herramienta que me permite observar un archivo de manera interactiva para ver su
 #+BEGIN_SRC emacs-lisp
 (use-package emacs :ensure nil :config (setq ring-bell-function #'ignore))
 #+END_SRC
+
+
+
+* latex
+
+\[
+e^{i\pi} = -1
+\]
+
+\[
+\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
+\]
