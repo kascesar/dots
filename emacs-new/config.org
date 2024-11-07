@@ -1,4 +1,4 @@
- #+TITLE: Global configs
+#+TITLE: Global configs
 #+DESCRIPTION: Emacs configs
 #+AUTHOR: Cesar Munoz
 
@@ -33,6 +33,7 @@
     - [[#org-modern][org-modern]]
     - [[#org-modern-indent][org-modern-indent]]
     - [[#org-bullets][org-bullets]]
+    - [[#org-roam][org-roam]]
   - [[#calendar][Calendar]]
   - [[#python][Python]]
   - [[#company][company]]
@@ -163,8 +164,13 @@
   (global-set-key (kbd "<f10>") 'open-dashboard)
 
   ;; recen files
-  (global-set-key (kbd "C-c r") 'counsel-recentf)
-  
+  (global-set-key (kbd "C-c r") 'consult-recent-file)
+
+
+  ;; org-roam
+  (global-set-key (kbd "C-c n l") 'org-roam-buffer-toggle)
+  (global-set-key (kbd "C-c n f") 'org-roam-node-find)
+  (global-set-key (kbd "C-c n i") 'org-roam-node-insert)
 #+END_SRC
 
 * Package Manager -elpaca-
@@ -675,6 +681,15 @@ En el bufer puedes hacer las siguientes cosas
     :hook org-mode)
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+END_SRC
+*** org-roam
+#+begin_src emacs-lisp :results silent
+  (elpaca org-roam
+    :ensure t)
+  (setq org-roam-v2-ack t)
+  (setq org-roam-directory (file-truename "~/Dropbox/org-roam/"))
+  (setq org-roam-db-autosync-mode t)
+#+end_src
+
 
 ** Calendar
 
