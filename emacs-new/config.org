@@ -1,4 +1,4 @@
-#+TITLE: Global configs
++TITLE: Global configs
 #+DESCRIPTION: Emacs configs
 #+AUTHOR: Cesar Munoz
 
@@ -13,6 +13,7 @@
   - [[#font][Font]]
   - [[#recent-files][Recent files]]
 - [[#keybindings][Keybindings]]
+- [[#eaf-aplication-framework][Eaf-aplication framework]]
 - [[#package-manager--elpaca-][Package Manager -elpaca-]]
   - [[#projectile][Projectile]]
   - [[#flycheck][Flycheck]]
@@ -26,7 +27,7 @@
   - [[#marginalia][Marginalia]]
   - [[#consult][Consult]]
   - [[#rainbow][rainbow]]
-  - [[#org-67][ORG]]
+  - [[#org-77][ORG]]
     - [[#latex-in-org-mode][latex in org mode]]
     - [[#org-elipsis][org-elipsis]]
     - [[#org-toc-table-of-contents][org-toc (table of contents)]]
@@ -142,6 +143,8 @@
 * Keybindings
 #+BEGIN_SRC emacs-lisp
   ;; Additional configurations
+  ;;(global-set-key (kbd "C-x k") 'kill-this-buffer)
+  (global-set-key (kbd "C-x k") 'kill-current-buffer)
   ;; Move between windows using Meta key
   (global-set-key [M-left] 'windmove-left)
   (global-set-key [M-right] 'windmove-right)
@@ -175,6 +178,19 @@
   (global-set-key (kbd "C-c n f") 'org-roam-node-find)
   (global-set-key (kbd "C-c n i") 'org-roam-node-insert)
 #+END_SRC
+
+#+RESULTS:
+: org-roam-node-insert
+* Eaf-aplication framework
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "~/.emacs.d/site-lisp/emacs-application-framework/")
+  (require 'eaf)
+  (require 'eaf-org-previewer)
+  (require 'eaf-pyqterminal)
+  (require 'eaf-git)
+  (require 'eaf-markdown-previewer)
+  (require 'eaf-pdf-viewer)
+#+end_src
 
 * Package Manager -elpaca-
 #+BEGIN_SRC emacs-lisp
@@ -254,8 +270,8 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
     :ensure t
     :demand t
     :config
-    (load-theme 'ef-reverie :no-confirm))
-  (setq ef-themes-to-toggle '(ef-reverie ef-rosa))
+    (load-theme 'ef-rosa :no-confirm))
+  (setq ef-themes-to-toggle '(ef-rosa ef-reverie))
 #+END_SRC
 
 ** Beacon
@@ -445,8 +461,8 @@ En el bufer puedes hacer las siguientes cosas
     (add-hook 'org-mode-hook 'rainbow-mode)
     (add-hook 'prog-mode-hook 'rainbow-mode)
 #+end_src
-** ORG [6/7]
-- [ ] instalacion de talext y otros para renderizar ecuaciones
+** ORG [7/7]
+- [X] instalacion de talext y otros para renderizar ecuaciones
 - [X] elipsis icono para identificar que parte del archivo ha sido contraido
 - [X] toc permite crear un indice interactivo en el archivo org
 - [X] agenda y super-agenda gestores y mejoras de agenda de org-mode
@@ -696,6 +712,7 @@ En el bufer puedes hacer las siguientes cosas
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+END_SRC
 *** org-roam
+Configuración de org-roam estandar, par mi dropbox
 #+begin_src emacs-lisp :results silent
   (elpaca org-roam
     :ensure t)
@@ -705,6 +722,26 @@ En el bufer puedes hacer las siguientes cosas
   (setq org-roam-completion-everywhere t)
 #+end_src
 
+#+begin_src
+  ;; -*- lexical-binding: t; -*-
+  
+(defun my/org-roam-filter-by-tag (tag-name)
+  (lambda (node)
+    (member tag-name (org-roam-node-tags node))))
+
+(defun my/org-roam-list-notes-by-tag (tag-name)
+  (mapcar #'org-roam-node-file
+          (seq-filter
+           (my/org-roam-filter-by-tag tag-name)
+           (org-roam-node-list))))
+
+(defun my/org-roam-refresh-agenda-list ()
+  (interactive)
+  (setq org-agenda-files (my/org-roam-list-notes-by-tag "Project")))
+
+;; Build the agenda list the first time for the session
+(my/org-roam-refresh-agenda-list)
+#+end_src
 *** org-roam-ui
 #+begin_src emacs-lisp
 (use-package org-roam-ui
@@ -787,23 +824,6 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
 #+END_SRC
 
 #+begin_src emacs-lisp
-  (elpaca pyvenv
-    :ensure t)
-
-  (defun my-python-venv-activate ()
-  "Activar el entorno virtual de Python si existe en la carpeta del proyecto."
-  (let ((venv-dir (expand-file-name ".venv" (locate-dominating-file default-directory ".venv")))))
-    (when (and (file-directory-p venv-dir)
-               (file-exists-p (expand-file-name "bin/activate" venv-dir)))
-      (pyvenv-activate venv-dir)))
-
-  (add-hook 'python-mode-hook 'my-python-venv-activate)
-  (defun set-flycheck-python-pylint-executable ()
-  "Configurar Flycheck para usar pylint del entorno virtual activo."
-  (let ((venv-python (expand-file-name "bin/python" (pyvenv-workon)))))
-    (when (file-exists-p venv-python)
-      (setq-local flycheck-python-pylint-executable venv-python)))
-
   (add-hook 'python-mode-hook 'set-flycheck-python-pylint-executable)
 #+end_src
 
@@ -893,10 +913,9 @@ Herramienta que me permite observar un archivo de manera interactiva para ver su
 
 * latex
 
-\[
-e^{i\pi} = -1
-\]
 
-\[
+$e^{i\pi} = -1$
+
+$$
 \int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
-\]
+$$
