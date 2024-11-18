@@ -803,37 +803,77 @@ Aqui configuro LSP de tal forma que quede preparado para desarrollo en *Emacs*.
 #+END_SRC
 Ahora, configuramos el entorno de desarrollo de emacs para python
 #+BEGIN_SRC emacs-lisp :results silent
+  ;; Configuración de LSP para Python
   (use-package lsp-pyright
-   :ensure t
-   :custom (lsp-pyright-langserver-command "pyright")
-   :hook (python-mode . (lambda ()
+    :ensure t
+    :custom
+    (lsp-pyright-langserver-command "pyright-langserver --stdio --log-level trace")  ;; Usamos un string único
+    :hook (python-mode . (lambda ()
                            (require 'lsp-pyright)
                            (lsp))))
+  ;; YASnippet para snippets
   (elpaca yasnippet
     :ensure t)
 
+  ;; LSP Mode y Pyright
   (elpaca lsp-mode
-     :ensure t
-     ;:commands (lsp lsp-deferred)
-     ;:hook (python-mode . lsp-deferred)
-     :config
-     ;(require 'lsp-imenu)
-     (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
-     (require 'lsp-pyright))
+    :ensure t
+    :config
+    (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)  ;; Habilitar Imenu para navegación rápida
+    (require 'lsp-pyright))
+
+  ;; Activar LSP en Python
   (add-hook 'python-mode-hook #'lsp-deferred)
+
+  ;; Usar Pipenv automáticamente cuando el archivo esté en un entorno Pipenv
   (add-hook 'python-mode-hook #'pipenv-mode)
+
+  ;; Black para formateo automático
   (use-package python-black
-   :ensure t
-   :hook (python-mode . python-black-on-save-mode))
+    :ensure t
+    :hook (python-mode . python-black-on-save-mode))
 
-   (use-package py-isort
-   :ensure t
-   :hook (python-mode . py-isort-before-save))
+  ;; Py-Isort para organizar imports automáticamente antes de guardar
+  (use-package py-isort
+    :ensure t
+    :hook (python-mode . py-isort-before-save))
 
-
+  ;; Flymake-ruff para linting (si estás usando Flymake en vez de Flycheck)
   (add-to-list 'load-path "~/.emacs.d/flymake-ruff")
   (require 'flymake-ruff)
   (add-hook 'python-mode-hook #'flymake-ruff-load)
+
+  ;; Opcional: Si quieres usar Pylint junto con Flycheck (aunque tú ya usas Pyright)
+  (add-hook 'python-mode-hook 'set-flycheck-python-pylint-executable)
+
+  ;; Integrar Company Mode para autocompletado con LSP
+  (use-package company
+    :ensure t
+    :hook (python-mode . company-mode)
+    :config
+    (setq company-idle-delay 0.2)  ;; Ajustar el retraso para autocompletado
+    (setq company-minimum-prefix-length 1)  ;; Autocompletar con solo una letra
+    (setq company-tooltip-limit 10))  ;; Limitar la cantidad de sugerencias en el menú
+
+  ;; Integrar LSP UI para ver la documentación y más con LSP
+
+  (use-package lsp-ui
+    :ensure t
+    :hook (lsp-mode . lsp-ui-mode)
+    :custom
+    (lsp-ui-doc-enable t)       ;; Habilitar la documentación emergente
+    (lsp-ui-doc-use-webkit t)   ;; Usar un visor web para la documentación
+    (lsp-ui-doc-include-signature t)  ;; Incluir la firma de la función en la doc
+    (lsp-ui-sideline-enable t)  ;; Mostrar la línea lateral de sugerencias
+    (lsp-ui-doc-show-with-cursor t)
+    (lsp-ui-doc-show-with-mouse t)
+    (lsp-ui-doc-delay 0.5)
+    (lsp-ui-doc-position 'at-point)
+    (lsp-headerline-breadcrumb-enable t)
+    (lsp-lens-enable t)
+    ;; (lsp-ui-sideline-delay 0.5) ;; Retardo de las sugerencias
+    )
+  ;(setq lsp-ui-doc-use-webkit t)
 #+END_SRC
 
 #+begin_src emacs-lisp
@@ -841,7 +881,7 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
 #+end_src
 
 #+RESULTS:
-: my-python-venv-activate
+| python-black-on-save-mode | #[nil ((require 'lsp-pyright) (lsp)) (t)] | set-flycheck-python-pylint-executable | flymake-ruff-load | pipenv-mode | lsp-deferred | company-mode | flycheck-mode | py-isort-before-save | black-mode | lsp |
 
 marcar las columnas mas largas que 80 caracteres
 #+begin_src emacs-lisp :results silent
@@ -853,7 +893,7 @@ marcar las columnas mas largas que 80 caracteres
 #+end_src
 
 ** company
-#+begin_src emacs-lisp
+#+begin_src 
   (use-package company
     :ensure t
     :defer 2
