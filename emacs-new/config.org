@@ -15,6 +15,7 @@
 - [[#keybindings][Keybindings]]
 - [[#eaf-aplication-framework][Eaf-aplication framework]]
 - [[#package-manager--elpaca-][Package Manager -elpaca-]]
+  - [[#tldr][TLDR]]
   - [[#projectile][Projectile]]
   - [[#flycheck][Flycheck]]
   - [[#imenu-list][Imenu-list]]
@@ -236,6 +237,13 @@
   :ensure t
   (elpaca-use-package-mode))
 #+END_SRC
+** TLDR
+#+begin_src emacs-lisp
+  (elpaca tldr
+    :ensure t)
+  (setq tldr-enabled-categories '("linux"))
+#+end_src
+
 ** Projectile
 #+begin_src emacs-lisp :results silent
   (elpaca projectile
@@ -821,6 +829,11 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
    (use-package py-isort
    :ensure t
    :hook (python-mode . py-isort-before-save))
+
+
+  (add-to-list 'load-path "~/.emacs.d/flymake-ruff")
+  (require 'flymake-ruff)
+  (add-hook 'python-mode-hook #'flymake-ruff-load)
 #+END_SRC
 
 #+begin_src emacs-lisp
