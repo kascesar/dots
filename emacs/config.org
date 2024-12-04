@@ -1,4 +1,4 @@
-+TITLE: Global configs
+#+TITLE: Global configs
 #+DESCRIPTION: Emacs configs
 #+AUTHOR: Cesar Munoz
 
@@ -28,8 +28,9 @@
   - [[#marginalia][Marginalia]]
   - [[#consult][Consult]]
   - [[#rainbow][rainbow]]
+  - [[#ellama][ellama]]
   - [[#org-77][ORG]]
-    - [[#latex-in-org-mode][latex in org mode]]
+    - [[#latex-in-org-mo][latex in org mo]]
     - [[#org-elipsis][org-elipsis]]
     - [[#org-toc-table-of-contents][org-toc (table of contents)]]
     - [[#org-agenda--super-agenda][org-agenda & super-agenda]]
@@ -60,7 +61,6 @@
  'org-babel-load-languages
 '((shell . t)))
 #+END_SRC
-
 ** Interfza
 #+BEGIN_SRC emacs-lisp
 (menu-bar-mode -1)
@@ -200,33 +200,33 @@
   (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
   (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
   (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-				:ref nil :depth 1
-				:files (:defaults "elpaca-test.el" (:exclude "extensions"))
-				:build (:not elpaca--activate-package)))
+  				:ref nil :depth 1
+  				:files (:defaults "elpaca-test.el" (:exclude "extensions"))
+  				:build (:not elpaca--activate-package)))
   (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-	 (build (expand-file-name "elpaca/" elpaca-builds-directory))
-	 (order (cdr elpaca-order))
-	 (default-directory repo))
+  	 (build (expand-file-name "elpaca/" elpaca-builds-directory))
+  	 (order (cdr elpaca-order))
+  	 (default-directory repo))
     (add-to-list 'load-path (if (file-exists-p build) build repo))
     (unless (file-exists-p repo)
       (make-directory repo t)
       (when (< emacs-major-version 28) (require 'subr-x))
       (condition-case-unless-debug err
-	  (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-		   ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-						   ,@(when-let ((depth (plist-get order :depth)))
-						       (list (format "--depth=%d" depth) "--no-single-branch"))
-						   ,(plist-get order :repo) ,repo))))
-		   ((zerop (call-process "git" nil buffer t "checkout"
-					 (or (plist-get order :ref) "--"))))
-		   (emacs (concat invocation-directory invocation-name))
-		   ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-					 "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-		   ((require 'elpaca))
-		   ((elpaca-generate-autoloads "elpaca" repo)))
-	      (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-	    (error "%s" (with-current-buffer buffer (buffer-string))))
-	((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  	  (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+  		   ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+  						   ,@(when-let ((depth (plist-get order :depth)))
+  						       (list (format "--depth=%d" depth) "--no-single-branch"))
+  						   ,(plist-get order :repo) ,repo))))
+  		   ((zerop (call-process "git" nil buffer t "checkout"
+  					 (or (plist-get order :ref) "--"))))
+  		   (emacs (concat invocation-directory invocation-name))
+  		   ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+  					 "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+  		   ((require 'elpaca))
+  		   ((elpaca-generate-autoloads "elpaca" repo)))
+  	      (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+  	    (error "%s" (with-current-buffer buffer (buffer-string))))
+  	((error) (warn "%s" err) (delete-directory repo 'recursive))))
     (unless (require 'elpaca-autoloads nil t)
       (require 'elpaca)
       (elpaca-generate-autoloads "elpaca" repo)
@@ -237,6 +237,7 @@
   :ensure t
   (elpaca-use-package-mode))
 #+END_SRC
+
 ** TLDR
 #+begin_src emacs-lisp
   (elpaca tldr
@@ -278,7 +279,7 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
     :ensure t
     :demand t
     :config
-    (load-theme 'ef-rosa :no-confirm))
+    (load-theme 'ef-reverie :no-confirm))
   (setq ef-themes-to-toggle '(ef-rosa ef-reverie))
 #+END_SRC
 
@@ -469,6 +470,10 @@ En el bufer puedes hacer las siguientes cosas
     (add-hook 'org-mode-hook 'rainbow-mode)
     (add-hook 'prog-mode-hook 'rainbow-mode)
 #+end_src
+** ellama
+#+begin_src emacs-lisp
+
+#+end_src 
 ** ORG [7/7]
 - [X] instalacion de talext y otros para renderizar ecuaciones
 - [X] elipsis icono para identificar que parte del archivo ha sido contraido
@@ -559,7 +564,7 @@ En el bufer puedes hacer las siguientes cosas
       (setq org-tags-column 81))
 
 #+end_src
-*** latex in org mode
+*** latex in org mo
 #+begin_src sh
     sudo apt install texlive texlive-latex-extra dvipng
   #+end_src
@@ -569,6 +574,12 @@ En el bufer puedes hacer las siguientes cosas
   (setq org-preview-latex-default-process 'dvipng)
 #+end_src
 
+Configuraciones que permiten enbellecer el soporte de latex en emacs
+#+begin_src emacs-lisp
+  (plist-put org-format-latex-options :scale 2.0)
+  (setq org-pretty-entities t)
+  (setq org-startup-with-latex-preview t)
+#+end_src
 *** org-elipsis
 #+BEGIN_SRC emacs-lisp :results silent
   ;(use-package org
@@ -686,7 +697,7 @@ En el bufer puedes hacer las siguientes cosas
    :ensure '(org-modern :host github :repo "minad/org-modern")
    :custom
    ;(org-modern-hide-stars nil)              
-   (org-modern-table t)
+   (org-modern-table nil)
    (org-modern-list '((?* . "•") (?+ . "‣")))
    (org-modern-checkbox '((?X . "✓") (?- . "✗") (?\s . "⬚")))
    (org-modern-star '("◉" "●" "◎" "⊙" "⊚" "⊛" "∙" "∘" "☉"  "❍" "○" "◌" "⚬" "￮" "◦"))
@@ -876,12 +887,9 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
   ;(setq lsp-ui-doc-use-webkit t)
 #+END_SRC
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :results silent
   (add-hook 'python-mode-hook 'set-flycheck-python-pylint-executable)
 #+end_src
-
-#+RESULTS:
-| python-black-on-save-mode | #[nil ((require 'lsp-pyright) (lsp)) (t)] | set-flycheck-python-pylint-executable | flymake-ruff-load | pipenv-mode | lsp-deferred | company-mode | flycheck-mode | py-isort-before-save | black-mode | lsp |
 
 marcar las columnas mas largas que 80 caracteres
 #+begin_src emacs-lisp :results silent
@@ -915,6 +923,12 @@ Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
 (use-package transient :ensure t :demand t)
 (use-package magit :ensure (:wait t) :demand t)
 #+END_SRC
+
+Magit repositories
+#+begin_src emacs-lisp :results silent
+  (setq magit-repository-directories
+        '(("~/develop" . 3)))
+#+end_src
 
 *** git-gutter
 Esta herramienta agrega indicadores para identificar los cambios miesntras programo
