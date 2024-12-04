@@ -1,9 +1,11 @@
+
 #+TITLE: Global configs
 #+DESCRIPTION: Emacs configs
 #+AUTHOR: Cesar Munoz
 
 * Table of contents                                                              :TOC_4:
 - [[#common-configs][Common configs]]
+  - [[#smooth-scrolling][smooth scrolling]]
   - [[#transparencia][Transparencia]]
   - [[#babel-lenguajes][Babel lenguajes]]
   - [[#interfza][Interfza]]
@@ -40,6 +42,7 @@
     - [[#org-roam][org-roam]]
     - [[#org-roam-ui][org-roam-ui]]
   - [[#calendar][Calendar]]
+  - [[#terraform][Terraform]]
   - [[#python][Python]]
   - [[#company][company]]
   - [[#git-33][git]]
@@ -51,6 +54,11 @@
 - [[#latex][latex]]
 
 * Common configs
+** smooth scrolling
+
+#+begin_src emacs-lisp
+(pixel-scroll-precision-mode t)
+#+end_src
 ** Transparencia
 #+begin_src
 (add-to-list 'default-frame-alist '(alpha . 95))
@@ -279,7 +287,7 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
     :ensure t
     :demand t
     :config
-    (load-theme 'ef-reverie :no-confirm))
+    (load-theme 'ef-rosa :no-confirm))
   (setq ef-themes-to-toggle '(ef-rosa ef-reverie))
 #+END_SRC
 
@@ -805,6 +813,23 @@ Configuración de org-roam estandar, par mi dropbox
   (setq calendar-week-start-day 1)
   (setq european-calendar-style t)
 #+END_SRC
+** Terraform
+Agrega terraform-mode para formateo de sintaxys terraform
+
+#+begin_src emacs-lisp
+(elpaca terraform-mode
+  :ensure t
+  :config
+  (defun my-terraform-mode-init ()
+    ;; Si deseas habilitar `outline-minor-mode`
+    ;; (outline-minor-mode 1)
+
+    ;; Configuración de indentación
+    (setq tab-width 4))
+
+  (add-hook 'terraform-mode-hook 'my-terraform-mode-init))
+
+#+end_src
 ** Python
 Aqui configuro LSP de tal forma que quede preparado para desarrollo en *Emacs*.
 
@@ -928,6 +953,15 @@ Magit repositories
 #+begin_src emacs-lisp :results silent
   (setq magit-repository-directories
         '(("~/develop" . 3)))
+#+end_src
+
+Dividir la ventana de forma vertical en vez de horizontal en /Ediff/
+#+begin_src emacs-lisp
+(setq ediff-split-window-function 'split-window-sensibly)
+#+end_src
+
+#+begin_src emacs-lisp
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
 #+end_src
 
 *** git-gutter
