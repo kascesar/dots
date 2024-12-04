@@ -930,6 +930,15 @@ Magit repositories
         '(("~/develop" . 3)))
 #+end_src
 
+Dividir la ventana de forma vertical en vez de horizontal en /Ediff/
+#+begin_src emacs-lisp
+(setq ediff-split-window-function 'split-window-sensibly)
+#+end_src
+
+#+begin_src emacs-lisp
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+#+end_src
+
 *** git-gutter
 Esta herramienta agrega indicadores para identificar los cambios miesntras programo
 #+BEGIN_SRC emacs-lisp
