@@ -1,9 +1,11 @@
+
 #+TITLE: Global configs
 #+DESCRIPTION: Emacs configs
 #+AUTHOR: Cesar Munoz
 
 * Table of contents                                                              :TOC_4:
 - [[#common-configs][Common configs]]
+  - [[#smooth-scrolling][smooth scrolling]]
   - [[#transparencia][Transparencia]]
   - [[#babel-lenguajes][Babel lenguajes]]
   - [[#interfza][Interfza]]
@@ -15,6 +17,8 @@
 - [[#keybindings][Keybindings]]
 - [[#eaf-aplication-framework][Eaf-aplication framework]]
 - [[#package-manager--elpaca-][Package Manager -elpaca-]]
+  - [[#ellama][ellama]]
+  - [[#gtpel][gtpel]]
   - [[#tldr][TLDR]]
   - [[#projectile][Projectile]]
   - [[#flycheck][Flycheck]]
@@ -28,7 +32,6 @@
   - [[#marginalia][Marginalia]]
   - [[#consult][Consult]]
   - [[#rainbow][rainbow]]
-  - [[#ellama][ellama]]
   - [[#org-77][ORG]]
     - [[#latex-in-org-mo][latex in org mo]]
     - [[#org-elipsis][org-elipsis]]
@@ -40,10 +43,12 @@
     - [[#org-roam][org-roam]]
     - [[#org-roam-ui][org-roam-ui]]
   - [[#calendar][Calendar]]
+  - [[#terraform][Terraform]]
   - [[#python][Python]]
   - [[#company][company]]
   - [[#git-33][git]]
     - [[#magit][Magit]]
+    - [[#magit-llm-commit-generator][magit-llm-commit-generator]]
     - [[#git-gutter][git-gutter]]
     - [[#git-timemachine][git-timemachine]]
 - [[#tempo][Tempo]]
@@ -51,6 +56,11 @@
 - [[#latex][latex]]
 
 * Common configs
+** smooth scrolling
+
+#+begin_src emacs-lisp
+(pixel-scroll-precision-mode t)
+#+end_src
 ** Transparencia
 #+begin_src
 (add-to-list 'default-frame-alist '(alpha . 95))
@@ -237,7 +247,42 @@
   :ensure t
   (elpaca-use-package-mode))
 #+END_SRC
+** ellama
 
+#+begin_src emacs-lisp
+(elpaca 
+  (ellama :repo "https://github.com/s-kostyaev/ellama.git")
+  (progn
+    ;; Configuración de ellama
+    (setopt ellama-language "English")
+    (require 'llm-ollama) ;; Asegúrate de que este paquete esté instalado
+    (setopt ellama-provider
+            (make-llm-ollama
+             :chat-model "qwen2.5-coder:1.5b"
+             :embedding-model "qwen2.5-coder:1.5b"))))
+#+end_src
+** gtpel
+#+begin_src emacs-lisp
+  ;; Instalar y configurar gptel con Elpaca y Ollama
+  (elpaca
+    (gptel :repo "https://github.com/karthink/gptel.git")
+    (progn
+      ;; Configurar Ollama como backend de gptel
+      (setq gptel-backend
+            (gptel-make-ollama
+             "Ollama"                      ;; Nombre del backend
+             :host "localhost:11434"       ;; Dirección del servidor Ollama
+             :stream t                     ;; Habilitar respuesta en streaming
+             :models '(qwen2.5-coder:1.5b)))   ;; Modelos disponibles en Ollama
+
+      ;; Opcional: Modelo predeterminado para Ollama
+      (setq gptel-model 'qwen2.5-coder:1.5b)
+
+      ;; Atajo de teclado para abrir gptel
+      (global-set-key (kbd "C-c g") 'gptel)))
+
+
+#+end_src 
 ** TLDR
 #+begin_src emacs-lisp
   (elpaca tldr
@@ -279,7 +324,7 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
     :ensure t
     :demand t
     :config
-    (load-theme 'ef-reverie :no-confirm))
+    (load-theme 'ef-rosa :no-confirm))
   (setq ef-themes-to-toggle '(ef-rosa ef-reverie))
 #+END_SRC
 
@@ -470,10 +515,6 @@ En el bufer puedes hacer las siguientes cosas
     (add-hook 'org-mode-hook 'rainbow-mode)
     (add-hook 'prog-mode-hook 'rainbow-mode)
 #+end_src
-** ellama
-#+begin_src emacs-lisp
-
-#+end_src 
 ** ORG [7/7]
 - [X] instalacion de talext y otros para renderizar ecuaciones
 - [X] elipsis icono para identificar que parte del archivo ha sido contraido
@@ -805,6 +846,23 @@ Configuración de org-roam estandar, par mi dropbox
   (setq calendar-week-start-day 1)
   (setq european-calendar-style t)
 #+END_SRC
+** Terraform
+Agrega terraform-mode para formateo de sintaxys terraform
+
+#+begin_src emacs-lisp
+(elpaca terraform-mode
+  :ensure t
+  :config
+  (defun my-terraform-mode-init ()
+    ;; Si deseas habilitar `outline-minor-mode`
+    ;; (outline-minor-mode 1)
+
+    ;; Configuración de indentación
+    (setq tab-width 4))
+
+  (add-hook 'terraform-mode-hook 'my-terraform-mode-init))
+
+#+end_src
 ** Python
 Aqui configuro LSP de tal forma que quede preparado para desarrollo en *Emacs*.
 
@@ -840,10 +898,31 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
   (add-hook 'python-mode-hook #'pipenv-mode)
 
   ;; Black para formateo automático
+  ;(use-package python-black
+  ;  :ensure t
+  ;  :hook (python-mode . python-black-on-save-mode)
+  ;  :custom
+  ;  (blacken-line-length 79))
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; Black - Formateo al guardar
   (use-package python-black
     :ensure t
-    :hook (python-mode . python-black-on-save-mode))
+    :hook (python-mode . (lambda ()
+                         (python-black-on-save-mode)
+                         (setq blacken-line-length 79))) ; Fuerza 79 caracteres
+    :custom
+    (python-black-extra-args '("--line-length=79" "--fast"))) ; Args CLI explícitos
 
+  ;; Deshabilitar formateo del LSP
+  (setq lsp-enable-format nil)
+
+  ;; Orden de ejecución: isort → black
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (add-hook 'before-save-hook 'py-isort-before-save nil 'local)
+              (add-hook 'before-save-hook 'python-black-buffer nil 'local)))
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (setq blacken-line-length 79)
   ;; Py-Isort para organizar imports automáticamente antes de guardar
   (use-package py-isort
     :ensure t
@@ -892,7 +971,7 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
 #+end_src
 
 marcar las columnas mas largas que 80 caracteres
-#+begin_src emacs-lisp :results silent
+#+begin_src 
   (add-to-list 'load-path "~/.emacs.d/column-marker/")
   (require 'column-marker)
 
@@ -930,6 +1009,38 @@ Magit repositories
         '(("~/develop" . 3)))
 #+end_src
 
+Dividir la ventana de forma vertical en vez de horizontal en /Ediff/
+#+begin_src emacs-lisp
+(setq ediff-split-window-function 'split-window-sensibly)
+#+end_src
+
+#+begin_src emacs-lisp
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+#+end_src
+*** magit-llm-commit-generator
+#+begin_src emacs-lisp
+  (use-package magit-gptcommit
+    :ensure t
+    :demand t
+    :after magit
+    :bind (:map git-commit-mode-map
+                ("C-c C-g" . magit-gptcommit-commit-accept))
+    :custom
+    (magit-gptcommit-llm-provider (make-llm-ollama
+  				 :host "localhost:11434"
+  				 :chat-model "qwen2.5-coder:1.5b"
+  				 :embedding-model "qwen2.5-coder:1.5b"))
+
+    :config
+    ;; Enable magit-gptcommit-mode to watch staged changes and generate commit message automatically in magit status buffer
+    ;; This mode is optional, you can also use `magit-gptcommit-generate' to generate commit message manually
+    ;; `magit-gptcommit-generate' should only execute on magit status buffer currently
+    ;; (magit-gptcommit-mode 1)
+
+    ;; Add gptcommit transient commands to `magit-commit'
+    ;; Eval (transient-remove-suffix 'magit-commit '(1 -1)) to remove gptcommit transient commands
+    (magit-gptcommit-status-buffer-setup))
+#+end_src
 *** git-gutter
 Esta herramienta agrega indicadores para identificar los cambios miesntras programo
 #+BEGIN_SRC emacs-lisp
@@ -952,7 +1063,8 @@ Herramienta que me permite observar un archivo de manera interactiva para ver su
   (elpaca git-timemachine
   :ensure t)
 #+END_SRC
-  
+
+
 * Tempo
 | Typing the below + TAB | Expands to ...                          |
 |------------------------+-----------------------------------------|
