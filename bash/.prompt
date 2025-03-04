@@ -98,14 +98,13 @@ repo_string() {
 function virtualenv_info(){
     # Get Virtual Env
     if [[ -n "$VIRTUAL_ENV" ]]; then
-        # Strip out the path and just leave the env name
-        venv="${VIRTUAL_ENV##*/}"
+        # Obtener el nombre del directorio padre del entorno virtual
+        venv_dir=$(dirname "$VIRTUAL_ENV")
+        venv=$(basename "$venv_dir")  # Nombre del proyecto
     else
-        # In case you don't have one activated
         venv=''
     fi
     [[ -n "$venv" ]] && echo -e -n "${echo_color_par}[ ${echo_bold_green}venv ${echo_green}$venv ${echo_color_par}]"
 }
-
 
 PS1="\n${color_par}┌─[${color_dir} \w ${color_par}]\$(repo_string)\$(virtualenv_info)\n${color_par}└─▪${color_normal} "

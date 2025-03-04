@@ -33,7 +33,7 @@
   - [[#marginalia][Marginalia]]
   - [[#consult][Consult]]
   - [[#rainbow][rainbow]]
-  - [[#org-77][ORG]]
+  - [[#org-01][ORG]]
     - [[#latex-in-org-mode][latex in org mode]]
     - [[#org-elipsis][org-elipsis]]
     - [[#org-toc-table-of-contents][org-toc (table of contents)]]
@@ -44,6 +44,7 @@
     - [[#org-roam][org-roam]]
     - [[#org-roam-ui][org-roam-ui]]
     - [[#org-mermaid][org-mermaid]]
+    - [[#olivetti][olivetti]]
   - [[#calendar][Calendar]]
   - [[#terraform][Terraform]]
   - [[#python][Python]]
@@ -560,7 +561,7 @@ En el bufer puedes hacer las siguientes cosas
     (add-hook 'org-mode-hook 'rainbow-mode)
     (add-hook 'prog-mode-hook 'rainbow-mode)
 #+end_src
-** ORG [7/7]
+** ORG [0/1]
 - [X] instalacion de talext y otros para renderizar ecuaciones
 - [X] elipsis icono para identificar que parte del archivo ha sido contraido
 - [X] toc permite crear un indice interactivo en el archivo org
@@ -874,6 +875,30 @@ Uso de mermaid en org mode, es necesario instalaar mermaid-cli
 
 #+RESULTS:
 : /usr/bin/mmdc
+*** olivetti
+Oliveti permite centrar el texto en un documento para mejorar la lectura y la edicion del contenido
+#+begin_src emacs-lisp
+;  (use-package olivetti
+;      :ensure (:wait t)
+;      :demand t)
+;  (add-hook 'org-mode-hook 'olivetti-mode)
+;  (setq olivetti-body-width 0.7)
+
+(use-package olivetti
+  :ensure t
+  :hook (org-mode . my/org-mode-olivetti)
+  :config
+  (setq olivetti-body-width 0.7))
+
+(defun my/org-mode-olivetti ()
+  "Activar Olivetti en Org-Mode con ancho personalizado."
+  (olivetti-mode 1)
+  (setq olivetti-body-width 0.65))
+
+#+end_src
+
+#+RESULTS:
+: [nil 26568 45696 830509 nil elpaca-process-queues nil nil 274000 nil]
 
 ** Calendar
 
