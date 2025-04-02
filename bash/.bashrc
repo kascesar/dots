@@ -39,5 +39,5 @@ export PATH="~/.local/bin/:$PATH"
 PIPENV_VENV_IN_PROJECT=1
 
 # Set up fzf key bindings and fuzzy completion
-
-eval "$(oh-my-posh init bash --config ~/asd.yaml)"
+PATH=$PATH:/home/cesar/.local/bin
+eval "$(oh-my-posh init bash --config 'https://raw.githubusercontent.com/kascesar/dots/refs/heads/main/bash/.posh_config.yaml')"
