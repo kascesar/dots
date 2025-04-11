@@ -1,0 +1,24 @@
+#+TITLE: Qtile configs
+#+AUTHOR: Cesar Muñoz Araya
+#+PROPERTY: header-args:python :tangle config.py
+
+* Configuración de entorno
+
+#+BEGIN_SRC python
+import os
+import sys
+#+END_SRC
+
+* Parámetros generales
+#+BEGIN_SRC python
+DEBUG = True
+TIMEOUT = 30
+#+END_SRC
+
+* Configuración de base de datos
+#+BEGIN_SRC python
+DB_HOST = "localhost"
+DB_PORT = 5432
+DB_USER = "usuario"
+DB_PASSWORD = "secreto"
+#+END_SRC
