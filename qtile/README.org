@@ -1,12 +1,30 @@
 #+TITLE: Qtile configs
-#+AUTHOR: Cesar Muñoz Araya
-#+PROPERTY: header-args:python :tangle config.py
+#+AUTHOR: Cesar Muñoz A.
+#+PROPERTY: header-args:python :tangle ~/.config/qtile/config.py
+#+OPTIONS: toc:3
+-----
+Esta es mi configuracion de Qtile
+
+-----
+* Tabla de contenidos                                                             :toc:
+- [[#dependencias][dependencias]]
+- [[#configuración-de-entorno][Configuración de entorno]]
+- [[#parámetros-generales][Parámetros generales]]
+- [[#configuración-de-base-de-datos][Configuración de base de datos]]
+
+* dependencias
+Estas son las dependencias de /Qtile/
+#+begin_src bash
+  sudo apt install pipx xserver-xorg xinit libpangocairo-1.0-0
+  pipx install qtile xcffib cairocffi
+#+end_src
 
 * Configuración de entorno
-
 #+BEGIN_SRC python
-import os
-import sys
+from libqtile import bar, layout, qtile, widget
+from libqtile.config import Click, Drag, Group, Key, Match, Screen
+from libqtile.lazy import lazy
+from libqtile.utils import guess_terminal
 #+END_SRC
 
 * Parámetros generales
