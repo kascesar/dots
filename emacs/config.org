@@ -957,7 +957,16 @@ Aqui configuro LSP de tal forma que quede preparado para desarrollo en *Emacs*.
 
 /Pylsp/ Servidor de python de microsoft
 #+BEGIN_SRC sh :results silent
-  pip install -U 'python-lsp-server[all]' black isort pyright ruff
+  # Herramientas esenciales para LSP y formateo
+  pipx install mypy                # Type checking
+  pipx install "python-lsp-server[all]"  # Servidor LSP de Python (pylsp)
+  pipx install black               # Formateador automÃ¡tico
+  pipx install isort               # Organizador de imports
+  pipx install ruff                # Linter rÃ¡pido (reemplaza flake8 + isort)
+
+  # Pyright (alternativa LSP de Microsoft)
+  # NOTA: Pyright es una herramienta Node.js, instálalo con npm:
+  npm install -g pyright
 #+END_SRC
 Ahora, configuramos el entorno de desarrollo de emacs para python
 #+BEGIN_SRC emacs-lisp :results silent
