@@ -43,6 +43,7 @@
     - [[#org-bullets][org-bullets]]
     - [[#org-roam][org-roam]]
     - [[#org-roam-ui][org-roam-ui]]
+    - [[#org-auto-fill][org-auto-fill]]
     - [[#org-mermaid][org-mermaid]]
     - [[#olivetti][olivetti]]
   - [[#calendar][Calendar]]
@@ -146,7 +147,7 @@ Descomentar la linea "mapc" para instalar los lenguajes
             (display-line-numbers-mode 1)))
 ;; Ajustar el formato de los números de línea con espacio adicional
 (setq display-line-numbers-width-start t)
-
+(setq dired-listing-switches "-alh --group-directories-first")
 ;; Ocultar archivos ocultos en dired
 (require 'dired-x)
 (setq dired-omit-files "^\\...+$")
@@ -864,6 +865,12 @@ Configuración de org-roam estandar, par mi dropbox
           org-roam-ui-update-on-save t
           org-roam-ui-open-on-start t))
 #+end_src
+*** org-auto-fill
+Permite reformatear el tecto a un ancho preestablecido
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook 'turn-on-auto-fill)
+(setq fill-column 80)
+#+end_src
 *** org-mermaid
 Uso de mermaid en org mode, es necesario instalaar mermaid-cli
 #+begin_src
@@ -888,12 +895,12 @@ Oliveti permite centrar el texto en un documento para mejorar la lectura y la ed
   :ensure t
   :hook (org-mode . my/org-mode-olivetti)
   :config
-  (setq olivetti-body-width 0.7))
+  (setq olivetti-body-width 0.55))
 
 (defun my/org-mode-olivetti ()
   "Activar Olivetti en Org-Mode con ancho personalizado."
   (olivetti-mode 1)
-  (setq olivetti-body-width 0.65))
+  (setq olivetti-body-width 0.55))
 
 #+end_src
 
@@ -1109,7 +1116,7 @@ Dividir la ventana de forma vertical en vez de horizontal en /Ediff/
                 ("C-c C-g" . magit-gptcommit-commit-accept))
     :custom
     (magit-gptcommit-llm-provider (make-llm-ollama
-  				 :host "localhost:11434"
+  				 ;:host "localhost:11434"
   				 :chat-model "qwen2.5-coder:1.5b"
   				 :embedding-model "qwen2.5-coder:1.5b"))
 
@@ -1123,6 +1130,10 @@ Dividir la ventana de forma vertical en vez de horizontal en /Ediff/
     ;; Eval (transient-remove-suffix 'magit-commit '(1 -1)) to remove gptcommit transient commands
     (magit-gptcommit-status-buffer-setup))
 #+end_src
+
+#+RESULTS:
+: [nil 26574 63909 969882 nil elpaca-process-queues nil nil 644000 nil]
+
 *** git-gutter
 Esta herramienta agrega indicadores para identificar los cambios miesntras programo
 #+BEGIN_SRC emacs-lisp
