@@ -1,86 +1,84 @@
 $schema: "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json"
+version: 3
+
 blocks:
-  - alignment: "left"
+  - type: "prompt"
+    alignment: "left"
     segments:
-      - background: "#0077c2"
-        foreground: "#ffffff"
-        leading_diamond: "\u256d\u2500\ue0b6"
+      - type: "path"
         style: "diamond"
-        template: " {{ .Name }} "
-        type: "shell"
-      - background: "#ef5350"
-        foreground: "#FFFB38"
-        style: "diamond"
-        template: "<parentBackground>\ue0b0</> \uf292 "
-        type: "root"
-      - background: "#FF9248"
+        template: " \uf07b\uea9c {{ .Path }} "
+        background: "#FF9248"
         foreground: "#2d3436"
-        powerline_symbol: "\ue0b0"
         leading_diamond: "\u256d\u2500\ue0b6"
+        trailing_diamond: "\ue0b4"
         properties:
           folder_icon: " \uf07b "
           home_icon: "\ue617"
           style: "full"
-        style: "powerline"
-        template: " \uf07b\uea9c {{ .Path }} "
-        type: "path"
-      - background: "#FFFB38"
+
+      - type: "git"
+        style: "diamond"
+        template: "{{ .HEAD }}{{ if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }} |{{ if gt .Working.Untracked 0 }} ?{{ .Working.Untracked }}{{ end }}{{ if gt .Working.Modified 0 }} ~{{ .Working.Modified }}{{ end }}{{ if gt .Working.Deleted 0 }} -{{ .Working.Deleted }}{{ end }}{{ if gt .Working.Unmerged 0 }} x{{ .Working.Unmerged }}{{ end }}{{ end }}{{ if .Staging.Changed }} +{{ .Staging.String }}{{ end }}"
+        background: "#FFFB38"
+        foreground: "#011627"
+        trailing_diamond: "\ue0b4"
+        properties:
+          fetch_status: true
+          fetch_upstream_icon: true
         background_templates:
           - "{{ if or (.Working.Changed) (.Staging.Changed) }}#ffeb95{{ end }}"
           - "{{ if and (gt .Ahead 0) (gt .Behind 0) }}#c5e478{{ end }}"
           - "{{ if gt .Ahead 0 }}#C792EA{{ end }}"
           - "{{ if gt .Behind 0 }}#C792EA{{ end }}"
-        foreground: "#011627"
-        properties:
-          fetch_status: true
-          fetch_upstream_icon: true
-        style: "diamond"
-        template: " {{ .UpstreamIcon }}{{ .HEAD }}{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{if not .Merge}}<>{{ else }}<󱓋>{{ end }}{{ if .Working.Changed }} | {{ if gt .Working.Untracked 0 }}<#FF0000>{{ .Working.Untracked }}</>{{ end }} <#FFA500> {{ .Working.String }}</>{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} | {{ end }}{{ if .Staging.Changed }}<#32CD32> {{ .Staging.String }}</>{{ end }}"
-        trailing_diamond: "\ue0b4"
-        type: "git"
-    type: "prompt"
-  - alignment: "left"
+
+  - type: "prompt"
+    alignment: "left"
+    overflow: hide
     segments:
-      - background: "#303030"
+      - type: "python"
+        style: "diamond"
+        template: " {{ if .Venv }}{{ .Venv }}{{ end }}"
+        background: "#306998"
+        foreground: "#FFE873"
+        leading_diamond: "\ue0b6"
+        trailing_diamond: "\ue0b4"
+        properties:
+          display_mode: environment
+          fetch_virtual_env: true
+          folder_name_fallback: true
+          default_venv_names: [".venv", "venv"]
+          home_enabled: true
+
+  - type: "prompt"
+    alignment: "left"
+    segments:
+      - type: "node"
+        style: "diamond"
+        template: "\ue718 {{ if .PackageManagerIcon }}{{ .PackageManagerIcon }} {{ end }}{{ .Full }}"
+        background: "#303030"
         foreground: "#3C873A"
         leading_diamond: "\ue0b6"
+        trailing_diamond: "\ue0b4"
         properties:
           fetch_package_manager: true
           npm_icon: " <#cc3a3a>\ue5fa</> "
           yarn_icon: " <#348cba>\ue6a7</>"
-        style: "diamond"
-        template: "\ue718 {{ if .PackageManagerIcon }}{{ .PackageManagerIcon }} {{ end }}{{ .Full }}"
-        trailing_diamond: "\ue0b4 "
-        type: "node"
-      - background: "#306998"
-        foreground: "#FFE873"
-        leading_diamond: "\ue0b6"
-        style: "diamond"
-        template: " {{ if .Venv }}{{ .Venv }}{{ end }}"  # Template simplificado
-        properties:
-          display_mode: environment  # Muestra el segmento SOLO cuando hay un entorno virtual activo
-          fetch_virtual_env: true    # Fuerza la detección del entorno
-          folder_name_fallback: true # Usa el nombre de la carpeta padre para el entorno
-          default_venv_names: [".venv", "venv"]  # Nombres de carpetas que identifican un entorno
-          home_enabled: true
-        trailing_diamond: "\ue0b4 "
-        type: "python"
-    type: "prompt"
-    overflow: "hide"
-  - alignment: "left"
+
+  - type: "prompt"
+    alignment: "left"
     newline: true
     segments:
-      - foreground: "#21c7c7"
+      - type: "text"
         style: "plain"
         template: "\u2570\u2500"
-        type: "text"
-      - foreground: "#e0f8ff"
+        foreground: "#21c7c7"
+
+      - type: "status"
+        style: "plain"
+        template: "\ue285\ueab6 "
+        foreground: "#e0f8ff"
         foreground_templates:
           - "{{ if gt .Code 0 }}#ef5350{{ end }}"
         properties:
           always_enabled: true
-        style: "plain"
-        template: "\ue285\ueab6 "
-        type: "status"
-    type: "prompt"
-version: 3
