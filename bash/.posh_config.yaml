@@ -7,20 +7,25 @@ blocks:
     segments:
       - type: "path"
         style: "diamond"
-        template: "{{ .Path }}"
-        foreground: "#00ff00"
-        leading_diamond: "\u256d\u2500["
-        trailing_diamond: "]"
+        template: "<magenta>\u256d\u2500[</>{{ .Path }}<magenta>]</>"
         properties:
           folder_icon: "\uf07b"
           home_icon: "\ue617"
-          style: agnoster            
+          style: agnoster
+          folder_separator_icon: "\ue0b1"
       - type: git
         style: diamond
-        template: "{{ .UpstreamIcon }}{{ .HEAD }}{{ if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }}  {{ .Working.String }}{{ end }}{{ if and .Working.Changed .Staging.Changed }} |{{ end }}{{ if .Staging.Changed }}  {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0 }}  {{ .StashCount }}{{ end }}"
-        foreground: "#ff8000"
-        leading_diamond : "]["
-        trailing_diamond: "]"        
+        template: >-
+          <magenta>[</>
+          {{ .UpstreamIcon }}
+          {{ .HEAD }}
+          {{ if .BranchStatus }}{{ .BranchStatus }}{{ end }}
+          {{ if .Working.Changed }}<red></>{{ .Working.String }}{{ end }}
+          {{ if and .Working.Changed .Staging.Changed }}<magenta>|</>{{ end }}
+          {{ if and (not .Working.Changed) .Staging.Changed }}<magenta>|</>{{ end }}
+          {{ if .Staging.Changed }}<green></>{{ .Staging.String }}{{ end }}
+          {{ if gt .StashCount 0 }}{{ .StashCount }}{{ end }}
+          <magenta>]</>
         properties:
           fetch_status: true
           fetch_upstream_icon: false
@@ -30,13 +35,17 @@ blocks:
           mapped_branches:
             feat/*: "🚀 "
             bug/*: "🐛 "
+            hotfix/*: "🧯 " 
   - type: "prompt"
     alignment: "left"
     overflow: hide
     segments:
       - type: "python"
         style: "diamond"
-        template: " {{ if .Venv }}{{ .Venv }}{{ end }}"
+        template: >-
+          <magenta>[</>
+           {{ if .Venv }}{{ .Venv }}{{ end }}
+          <magenta>]</>
         foreground: "#ff0066"
         leading_diamond : "["
         trailing_diamond: "]"        
@@ -54,10 +63,10 @@ blocks:
     segments:
       - type: "aws"
         style: diamond
-        leading_diamond : "["
-        trailing_diamond: "]"        
-        foreground: "#ff9900"
-        template: "  {{.Profile}}{{if .Region}} {{.Region}}{{end}}"
+        template: >- 
+          <magenta>[</>
+           {{.Profile}}{{if .Region}} {{.Region}}{{end}}
+          <magenta>]</>
 
   - type: "prompt"
     alignment: "left"
@@ -65,11 +74,11 @@ blocks:
     segments:
       - type: "text"
         style: "plain"
-        template: "\u2570\u2500"
+        template: "<magenta>\u2570\u2500</>"
 
       - type: "status"
         style: "plain"
-        template: "◉→ "
+        template: "<magenta>◉→</> "
         foreground: "#e0f8ff"
         foreground_templates:
           - "{{ if gt .Code 0 }}#ef5350{{ end }}"
