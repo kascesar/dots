@@ -7,16 +7,16 @@ blocks:
     segments:
       - type: "path"
         style: "diamond"
-        template: "<magenta>\u256d\u2500[</>{{ .Path }}<magenta>]</>"
+        template: "<cyan>\u256d\u2500</>{{ .Path }}<cyan></>"
         properties:
           folder_icon: "\uf07b"
           home_icon: "\ue617"
           style: agnoster
-          folder_separator_icon: "\ue0b1"
+          folder_separator_icon: "<cyan></>"
       - type: git
         style: diamond
         template: >-
-          <magenta>[</>
+          <cyan>-</>
           {{ .UpstreamIcon }}
           {{ .HEAD }}
           {{ if .BranchStatus }}{{ .BranchStatus }}{{ end }}
@@ -25,10 +25,13 @@ blocks:
           {{ if and (not .Working.Changed) .Staging.Changed }}<magenta>|</>{{ end }}
           {{ if .Staging.Changed }}<green></>{{ .Staging.String }}{{ end }}
           {{ if gt .StashCount 0 }}{{ .StashCount }}{{ end }}
-          <magenta>]</>
+          <cyan></>
         properties:
           fetch_status: true
-          fetch_upstream_icon: false
+          fetch_upstream_icon: true
+          git_icon: ""
+          codecommit_icon: 󰸏
+          branch_icon: ""
           untracked_modes:
             /Users/user/Projects/oh-my-posh/: no
           source: cli
@@ -43,13 +46,9 @@ blocks:
       - type: "python"
         style: "diamond"
         template: >-
-          <magenta>[</>
+          <cyan>-</>
            {{ if .Venv }}{{ .Venv }}{{ end }}
-          <magenta>]</>
-        foreground: "#ff0066"
-        leading_diamond : "["
-        trailing_diamond: "]"        
-
+          <cyan></>
         properties:
           display_mode: environment
           fetch_virtual_env: true
@@ -64,9 +63,9 @@ blocks:
       - type: "aws"
         style: diamond
         template: >- 
-          <magenta>[</>
-           {{.Profile}}{{if .Region}} {{.Region}}{{end}}
-          <magenta>]</>
+          <cyan></>
+          󰸏 {{.Profile}}{{if .Region}} {{.Region}}{{end}}
+          <cyan></>
 
   - type: "prompt"
     alignment: "left"
@@ -74,13 +73,14 @@ blocks:
     segments:
       - type: "text"
         style: "plain"
-        template: "<magenta>\u2570\u2500</>"
+        template: "<cyan>\u2570\u2500</>"
 
       - type: "status"
         style: "plain"
-        template: "<magenta>◉→</> "
+        template: "<cyan>◉→</> "
         foreground: "#e0f8ff"
         foreground_templates:
           - "{{ if gt .Code 0 }}#ef5350{{ end }}"
         properties:
           always_enabled: true
+
