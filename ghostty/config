@@ -1,0 +1,8 @@
+cursor-style-blink = true
+font-family = MesloLGS Nerd Font Mono
+font-style = MesloLGS Nerd Font Mono
+
+keybind = alt+ctrl+t=new_split:right
+keybind = alt+ctrl+t=new_split:down
+
+gtk-titlebar = false
