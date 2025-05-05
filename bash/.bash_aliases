@@ -1,12 +1,5 @@
 # -*- mode: sh; -*-
 
-# alias nano="nano -lET 4"
-alias et="emacsclient -t"
+alias nano="nano -lET 4"
 
-function ec () {
-         emacsclient -cq "$@" &
-}
-
-alias v=less
-alias sclip="xclip -selection c"
-alias gclip="xclip -selection c -o"
+alias ls="exa --icons --group-directories-first -l "
