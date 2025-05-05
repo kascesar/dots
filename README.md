@@ -1,11 +1,25 @@
 # dots
+
+## Software necesario
+
+### exa
+```bash
+sudo apt install exa
+```
+
+### oh-my-posh
+
+Instalar con:
+```bash
+curl -s https://ohmyposh.dev/install.sh | bash -s
+```
+Ademas, neceitamos instalar las fuentes necesarias
+luego de instalar _oh my posh_
+```bash
+oh-my-posh font install meslo
+```
+
 ---
-
-Configuraciones de mi teclado *Corne* y *Emacs*
-
----
-
-
 
 ## Qmk
 
@@ -24,20 +38,3 @@ qmk flash -kb crkbd -km cesar
   ```shell
   M-x all-the-icons-install-fonts
   ```
-### Instalar Emacs EAF
-
-Instalar *EAF* de *Emacs*
-  ```shell
-  git clone --depth=1 -b master https://github.com/emacs-eaf/emacs-application-framework.git ~/.emacs.d/site-lisp/emacs-application-framework/ \
-  cd ~/.emacs.d/site-lisp/emacs-application-framework/ \
-  chmod +x ./install-eaf.py \
-  ./install-eaf.py
-  ```
-
-**Applets que uso**:
-
-* org-previwer
-* md-previwer
-* pyqterminal
-* git
-* pdf-viwer
