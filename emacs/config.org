@@ -199,41 +199,41 @@ Descomentar la linea "mapc" para instalar los lenguajes
 #+END_SRC
 * Keybindings
 #+BEGIN_SRC emacs-lisp
-  ;; Additional configurations
-  ;;(global-set-key (kbd "C-x k") 'kill-this-buffer)
-  (global-set-key (kbd "C-x k") 'kill-current-buffer)
-  ;; Move between windows using Meta key
-  (global-set-key [M-left] 'windmove-left)
-  (global-set-key [M-right] 'windmove-right)
-  (global-set-key [M-up] 'windmove-up)
-  (global-set-key [M-down] 'windmove-down)
+    ;; Additional configurations
+    ;;(global-set-key (kbd "C-x k") 'kill-this-buffer)
+    (global-set-key (kbd "C-x k") 'kill-current-buffer)
+    ;; Move between windows using Meta key
+    (global-set-key [M-left] 'windmove-left)
+    (global-set-key [M-right] 'windmove-right)
+    (global-set-key [M-up] 'windmove-up)
+    (global-set-key [M-down] 'windmove-down)
 
-  ;; Zoom in/out with mouse
-  (global-set-key [C-mouse-4] 'text-scale-increase)
-  (global-set-key [C-mouse-5] 'text-scale-decrease)
+    ;; Zoom in/out with mouse
+    (global-set-key [C-mouse-4] 'text-scale-increase)
+    (global-set-key [C-mouse-5] 'text-scale-decrease)
 
-  ;; Incrementa el tamaño de la fuente
-  (global-set-key (kbd "C-+") 'text-scale-increase)
-  ;; Disminuye el tamaño de la fuente
-  (global-set-key (kbd "C--") 'text-scale-decrease)
+    ;; Incrementa el tamaño de la fuente
+    (global-set-key (kbd "C-+") 'text-scale-increase)
+    ;; Disminuye el tamaño de la fuente
+    (global-set-key (kbd "C--") 'text-scale-decrease)
 
-  ;; undo and redo
-  (global-unset-key (kbd "C-z"))
-  (global-set-key (kbd "C-z") 'undo)
+    ;; undo and redo
+    (global-unset-key (kbd "C-z"))
+    (global-set-key (kbd "C-z") 'undo)
 
-  ;; org-agenda
-  (global-set-key (kbd "<f7>") 'org-agenda)
-  ;; F10 para ir al Dashboard
-  (global-set-key (kbd "<f10>") 'open-dashboard)
+    ;; org-agenda
+    (global-set-key (kbd "<f7>") 'org-agenda)
+    ;; F10 para ir al Dashboard
+    (global-set-key (kbd "<f10>") 'dashboard-open)
 
-  ;; recen files
-  (global-set-key (kbd "C-c r") 'consult-recent-file)
+    ;; recen files
+    (global-set-key (kbd "C-c r") 'consult-recent-file)
 
 
-  ;; org-roam
-  (global-set-key (kbd "C-c n l") 'org-roam-buffer-toggle)
-  (global-set-key (kbd "C-c n f") 'org-roam-node-find)
-  (global-set-key (kbd "C-c n i") 'org-roam-node-insert)
+    ;; org-roam
+    (global-set-key (kbd "C-c n l") 'org-roam-buffer-toggle)
+    (global-set-key (kbd "C-c n f") 'org-roam-node-find)
+    (global-set-key (kbd "C-c n i") 'org-roam-node-insert)
 #+END_SRC
 
 #+RESULTS:
