@@ -41,5 +41,5 @@ PIPENV_VENV_IN_PROJECT=1
 # Set up fzf key bindings and fuzzy completion
 PATH=$PATH:/home/cesar/.local/bin
 # eval "$(oh-my-posh init bash --config 'https://raw.githubusercontent.com/kascesar/dots/refs/heads/main/bash/.posh_config.yaml')"
-eval "neofetch -L"
+
 eval "$(oh-my-posh init bash --config ~/.posh_config.yaml)"
