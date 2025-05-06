@@ -2,17 +2,32 @@
 
 ## Software necesario
 
-### exa
+### exa y bat
 ```bash
-sudo apt install exa
+sudo apt install exa bat
 ```
 ### kitty -emulador de termina que uso-
 ```bash
-curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin && \
-ln -sf ~/.local/kitty.app/bin/kitty ~/.local/kitty.app/bin/kitten ~/.local/bin/ && \
-cp ~/.local/kitty.app/share/applications/kitty.desktop ~/.local/share/applications/ && \
-sed -i "s|Icon=kitty|Icon=$(readlink -f ~)/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" ~/.local/share/applications/kitty*.desktop && \
-sed -i "s|Exec=kitty|Exec=$(readlink -f ~)/.local/kitty.app/bin/kitty|g" ~/.local/share/applications/kitty*.desktop && \
+curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+```
+
+```bash
+ln -sf ~/.local/kitty.app/bin/kitty ~/.local/kitty.app/bin/kitten ~/.local/bin/
+```
+
+```bash
+cp ~/.local/kitty.app/share/applications/kitty.desktop ~/.local/share/applications/
+```
+
+```bash
+sed -i "s|Icon=kitty|Icon=$(readlink -f ~)/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" ~/.local/share/applications/kitty*.desktop
+```
+
+```bash
+sed -i "s|Exec=kitty|Exec=$(readlink -f ~)/.local/kitty.app/bin/kitty|g" ~/.local/share/applications/kitty*.desktop
+```
+
+```bash
 sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator ~/.local/bin/kitty 40
 ```
 
@@ -47,8 +62,18 @@ qmk compile -kb crkbd -km cesar
 ```shell
 qmk flash -kb crkbd -km cesar
 ```
+
 ## Emacs
 
+### instalar dependencias para editar codigo de python
+
+  ```shell
+  pipx install mypy "python-lsp-server[all]" black isort ruff
+  ```
+  y pyright
+  ```shell
+  npm install -g pyright
+  ```
 ### Instalar las fuentes
   ```shell
   M-x all-the-icons-install-fonts
