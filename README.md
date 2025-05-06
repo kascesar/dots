@@ -78,3 +78,13 @@ qmk flash -kb crkbd -km cesar
   ```shell
   M-x all-the-icons-install-fonts
   ```
+
+## Git
+Configuración global de git, y delta, el cual uso en mi flujo diario de git.
+
+* copia la configuracion al $HOME
+```bash
+cp .gitconfig ~/
+```
+
+Luego necesitamos instalar la dependnecia [*delta*](https://dandavison.github.io/delta/installation.html)

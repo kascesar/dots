@@ -1,0 +1,22 @@
+# Este es el archivo de configuración de Git por usuario.
+[user]
+# Por favor, adapta y descomenta las siguientes líneas:
+	name = cesar augusto muñoz araya
+	email = kas.cesar@gmail.com
+
+[core]
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true  # use n and N to move between diff sections
+    dark = true      # or light = true, or omit for auto-detection
+	side-by-side = true
+
+[merge]
+    conflictstyle = zdiff3
+
+[github]
+	user = kascesar
