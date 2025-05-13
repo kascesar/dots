@@ -37,6 +37,7 @@ blocks:
           source: cli
           mapped_branches:
             feat/*: "🚀 "
+            feature/*: "🚀 "
             bug/*: "🐛 "
             hotfix/*: "🧯 " 
   - type: "prompt"
