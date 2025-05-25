@@ -1,4 +1,3 @@
-
 #+TITLE: Global configs
 #+DESCRIPTION: Emacs configs
 #+AUTHOR: Cesar Munoz
@@ -7,11 +6,10 @@
 - [[#common-configs][Common configs]]
   - [[#smooth-scrolling][smooth scrolling]]
   - [[#tree-sitter-languajes][tree-sitter languajes]]
-  - [[#transparencia][Transparencia]]
   - [[#babel-lenguajes][Babel lenguajes]]
   - [[#interfaz][Interfaz]]
   - [[#ajuste-de-lineas][Ajuste de lineas]]
-  - [[#dired-and-columnsrow][Dired and columns/row]]
+  - [[#dired-fill-column-columnsrow][Dired, fill-column, columns/row]]
   - [[#reload-config][Reload config]]
   - [[#font][Font]]
   - [[#recent-files][Recent files]]
@@ -44,16 +42,13 @@
     - [[#org-agenda--super-agenda][org-agenda & super-agenda]]
     - [[#org-modern][org-modern]]
     - [[#org-modern-indent][org-modern-indent]]
-    - [[#org-bullets][org-bullets]]
     - [[#org-roam][org-roam]]
     - [[#org-roam-ui][org-roam-ui]]
     - [[#org-auto-fill][org-auto-fill]]
-    - [[#org-mermaid][org-mermaid]]
     - [[#olivetti][olivetti]]
   - [[#calendar][Calendar]]
   - [[#terraform][Terraform]]
   - [[#python][Python]]
-  - [[#company][company]]
   - [[#git-33][git]]
     - [[#magit][Magit]]
     - [[#magit-llm-commit-generator][magit-llm-commit-generator]]
@@ -108,10 +103,7 @@ Descomentar la linea "mapc" para instalar los lenguajes
         (typescript-mode . typescript-ts-mode)
         (yaml-mode . yaml-ts-mode)))
 #+end_src
-** Transparencia
-#+begin_src
-(add-to-list 'default-frame-alist '(alpha . 95))
-#+end_src
+
 ** Babel lenguajes
 #+BEGIN_SRC emacs-lisp
     (org-babel-do-load-languages
@@ -138,27 +130,30 @@ Descomentar la linea "mapc" para instalar los lenguajes
 (setq-default truncate-lines t)
 #+end_src
 
-** Dired and columns/row
+** Dired, fill-column, columns/row
 #+BEGIN_SRC emacs-lisp
-;; Mostrar el número de columna en el modo de línea
-(column-number-mode)
+  ;; Mostrar el número de columna en el modo de línea
+  (column-number-mode)
 
-;; Desactivar la visualización de números de columna en org-mode
-(add-hook 'org-mode-hook (lambda () (column-number-mode -1)))
-;; Habilitar los números de línea en la izquierda en modos de programación
-(add-hook 'prog-mode-hook
-          (lambda ()
-            (display-line-numbers-mode 1)))
-;; Ajustar el formato de los números de línea con espacio adicional
-(setq display-line-numbers-width-start t)
-(setq dired-listing-switches "-alh --group-directories-first")
-;; Ocultar archivos ocultos en dired
-(require 'dired-x)
-(setq dired-omit-files "^\\...+$")
-(add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1)))
+  ;; Desactivar la visualización de números de columna en org-mode
+  (add-hook 'org-mode-hook (lambda () (column-number-mode -1)))
+  ;; Habilitar los números de línea en la izquierda en modos de programación
+  (add-hook 'prog-mode-hook
+            (lambda ()
+              (display-line-numbers-mode 1)))
+  ;; Ajustar el formato de los números de línea con espacio adicional
+  (setq display-line-numbers-width-start t)
+  (setq dired-listing-switches "-alh --group-directories-first")
+  ;; Ocultar archivos ocultos en dired
+  (require 'dired-x)
+  (setq dired-omit-files "^\\...+$")
+  (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1)))
 
-;; dont ask when kill buffer
-(global-set-key [remap kill-buffer] #'kill-this-buffer)
+  ;; dont ask when kill buffer
+  (global-set-key [remap kill-buffer] #'kill-this-buffer)
+
+  ;; fill-column
+  (setq fill-column 80)
 #+END_SRC
 
 ** Reload config
@@ -384,10 +379,12 @@ Esto permite explorar mis programas de manera mas rapida e inteligente
 
 ** Ef-themes
 
-Estos son los /ef-themes/, esta configuracion setea el /theme/ que mas me gusta por defecto /-summer-./
-Ademas, gracias a las cualidades de /ef-themes/ puedes seleccionar mas de un tema con el cual cambiar.
+Estos son los /ef-themes/, esta configuracion setea el /theme/ que mas me
+gusta por defecto /-summer-./ Ademas, gracias a las cualidades de
+/ef-themes/ puedes seleccionar mas de un tema con el cual cambiar.
 
-Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escuro.
+Ademas, tengo configurado que dependiendo de la hora uso el tema claro
+o el oscuro.
 #+BEGIN_SRC emacs-lisp
     (use-package ef-themes
       :ensure t
@@ -649,7 +646,7 @@ En el bufer puedes hacer las siguientes cosas
 - [X] agenda y super-agenda gestores y mejoras de agenda de org-mode
 - [X] modern agrega muchas mejoras visuales que emjoran la apariencia de los archivos org 
 - [X] modern-ident mejora la identacion de los bloques de codigo (no me funciona)
-- [X] bullets son unos cambios para las stars en org-mode
+- [X] bullets son unos cambios para las stars en org-mode 
   
 #+BEGIN_SRC emacs-lisp :results silent
   ;; Aspecto mejorado al identar
@@ -889,15 +886,7 @@ Configuraciones que permiten enbellecer el soporte de latex en emacs
     (add-hook 'org-mode-hook #'org-modern-indent-mode 80))
   (setq org-startup-indented t)
 #+end_src
-*** org-bullets
-#+BEGIN_SRC  :results silent
-  (use-package org-bullets-mode
-    :ensure org-bullets
-    :config ((setq org-bullets-face-name (quote org-bullet-face))
-             (setq org-bullets-bullet-list '"◉" "●" "◎" "⊙" "⊚" "⊛" "∙" "∘" "☉"  "❍" "○" "◌" "⚬" "￮" "◦"))
-    :hook org-mode)
-  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-#+END_SRC
+
 *** org-roam
 Configuración de org-roam estandar, par mi dropbox
 #+begin_src emacs-lisp :results silent
@@ -909,26 +898,6 @@ Configuración de org-roam estandar, par mi dropbox
   (setq org-roam-completion-everywhere t)
 #+end_src
 
-#+begin_src
-  ;; -*- lexical-binding: t; -*-
-  
-(defun my/org-roam-filter-by-tag (tag-name)
-  (lambda (node)
-    (member tag-name (org-roam-node-tags node))))
-
-(defun my/org-roam-list-notes-by-tag (tag-name)
-  (mapcar #'org-roam-node-file
-          (seq-filter
-           (my/org-roam-filter-by-tag tag-name)
-           (org-roam-node-list))))
-
-(defun my/org-roam-refresh-agenda-list ()
-  (interactive)
-  (setq org-agenda-files (my/org-roam-list-notes-by-tag "Project")))
-
-;; Build the agenda list the first time for the session
-(my/org-roam-refresh-agenda-list)
-#+end_src
 *** org-roam-ui
 #+begin_src emacs-lisp
 (use-package org-roam-ui
@@ -946,18 +915,10 @@ Configuración de org-roam estandar, par mi dropbox
           org-roam-ui-open-on-start t))
 #+end_src
 *** org-auto-fill
-Permite reformatear el tecto a un ancho preestablecido
+Permite reformatear el texto automaticamente al ancho preestablecido
+en fill-column 
 #+begin_src emacs-lisp
-(add-hook 'org-mode-hook 'turn-on-auto-fill)
-(setq fill-column 80)
-#+end_src
-*** org-mermaid
-Uso de mermaid en org mode, es necesario instalaar mermaid-cli
-#+begin_src
-  (elpaca ob-mermaid
-    :ensure t)
-
-  (setq ob-mermaid-cli-path "/usr/bin/mmdc")
+  (add-hook 'org-mode-hook 'turn-on-auto-fill)
 #+end_src
 
 *** olivetti
@@ -1143,28 +1104,6 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
   (add-hook 'python-mode-hook 'set-flycheck-python-pylint-executable)
 #+end_src
 
-marcar las columnas mas largas que 80 caracteres
-#+begin_src 
-  (add-to-list 'load-path "~/.emacs.d/column-marker/")
-  (require 'column-marker)
-
-  ;; Corrige el lambda en el hook
-  (add-hook 'python-mode-hook (lambda () (column-marker-1 80)))
-#+end_src
-
-** company
-#+begin_src 
-  (use-package company
-    :ensure t
-    :defer 2
-    :custom
-    (company-begin-commands '(self-insert-command))
-    (company-idle-delay .1)
-    (company-minimum-prefix-length 2)
-    (company-show-numbers t)
-    (company-tooltip-align-annotations 't)
-    (global-company-mode t))
-#+end_src
 ** git [3/3]
 Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
 - [X] magit es un gestor de repositorios git interactivo y muy poderoso
