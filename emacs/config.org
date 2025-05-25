@@ -9,7 +9,7 @@
   - [[#tree-sitter-languajes][tree-sitter languajes]]
   - [[#transparencia][Transparencia]]
   - [[#babel-lenguajes][Babel lenguajes]]
-  - [[#interfza][Interfza]]
+  - [[#interfaz][Interfaz]]
   - [[#ajuste-de-lineas][Ajuste de lineas]]
   - [[#dired-and-columnsrow][Dired and columns/row]]
   - [[#reload-config][Reload config]]
@@ -25,6 +25,9 @@
   - [[#flycheck][Flycheck]]
   - [[#imenu-list][Imenu-list]]
   - [[#ef-themes][Ef-themes]]
+  - [[#denote][Denote]]
+  - [[#denote-org][Denote-org]]
+  - [[#denote-consult][denote-consult]]
   - [[#beacon][Beacon]]
   - [[#highlight-indent-guide][Highlight-indent-guide]]
   - [[#all-the-icons][All-the-icons]]
@@ -117,13 +120,13 @@ Descomentar la linea "mapc" para instalar los lenguajes
        ;(mermaid .t )
        ))
 #+END_SRC
-** Interfza
+** Interfaz
 #+BEGIN_SRC emacs-lisp
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (global-visual-line-mode nil)
-
+(add-to-list 'default-frame-alist '(undecorated . t)) ;; Desacttiva la barra superior del sistema
 (setq inhibit-startup-screen t)    ;; Desactiva la pantalla de inicio
 (setq inhibit-startup-message t)   ;; Desactiva el mensaje de inicio
 #+END_SRC
@@ -374,7 +377,64 @@ Ademas, tengo configurado que dependiendo de la hora uso el tema claro o el escu
       (ef-themes-load-random))
     (setq ef-themes-to-toggle '(ef-rosa ef-reverie))
 #+END_SRC
+** Denote
+#+begin_src emacs-lisp
+  (use-package denote
+    :ensure (denote :host github :repo "protesilaos/denote")
+    :hook (dired-mode . denote-dired-mode)
+    :bind
+    (("C-c n n" . denote)
+     ("C-c n r" . denote-rename-file)
+     ("C-c n l" . denote-link)
+     ("C-c n b" . denote-backlinks)
+     ("C-c n d" . denote-dired)
+     ("C-c n g" . denote-grep))
+    :config
+    (setq denote-directory (expand-file-name "~/Dropbox/denote-notes/"))
+    
+    ;; Automatically rename Denote buffers when opening them so that
+    ;; instead of their long file name they have, for example, a literal
+    ;; "[D]" followed by the file's title.  Read the doc string of
+    ;; `denote-rename-buffer-format' for how to modify this.
+    (denote-rename-buffer-mode 1))
+#+end_src
+** Denote-org
+#+begin_src emacs-lisp
+  (use-package  denote-org
+    :ensure '(denote-org :host github :repo "protesilaos/denote-org")
+    :after denote
+    :commands
+    ;; I list the commands here so that you can discover them more
+    ;; easily.  You might want to bind the most frequently used ones to
+    ;; the `org-mode-map'.
+    ( denote-org-link-to-heading
+      denote-org-backlinks-for-heading
 
+      denote-org-extract-org-subtree
+
+      denote-org-convert-links-to-file-type
+      denote-org-convert-links-to-denote-type
+
+      denote-org-dblock-insert-files
+      denote-org-dblock-insert-links
+      denote-org-dblock-insert-backlinks
+      denote-org-dblock-insert-missing-links
+      denote-org-dblock-insert-files-as-headings))
+
+#+end_src
+** denote-consult
+
+#+begin_src emacs-lisp
+
+  (use-package consult-denote
+    :ensure '(consult-denote :host github :repo "protesilaos/consult-denote")
+    :bind
+    (("C-c n f" . consult-denote-find)
+     ("C-c n g" . consult-denote-grep))
+    :config
+    (consult-denote-mode 1))
+
+#+end_src
 ** Beacon
 #+BEGIN_SRC emacs-lisp :results silent
   ;; Desactivar el parpadeo del cursor y cambiarlo a tipo barra
@@ -880,8 +940,6 @@ Uso de mermaid en org mode, es necesario instalaar mermaid-cli
   (setq ob-mermaid-cli-path "/usr/bin/mmdc")
 #+end_src
 
-#+RESULTS:
-: /usr/bin/mmdc
 *** olivetti
 Oliveti permite centrar el texto en un documento para mejorar la lectura y la edicion del contenido
 #+begin_src emacs-lisp
@@ -895,17 +953,14 @@ Oliveti permite centrar el texto en un documento para mejorar la lectura y la ed
   :ensure t
   :hook (org-mode . my/org-mode-olivetti)
   :config
-  (setq olivetti-body-width 0.55))
+  (setq olivetti-body-width 0.9))
 
 (defun my/org-mode-olivetti ()
   "Activar Olivetti en Org-Mode con ancho personalizado."
   (olivetti-mode 1)
-  (setq olivetti-body-width 0.55))
+  (setq olivetti-body-width 0.9))
 
 #+end_src
-
-#+RESULTS:
-: [nil 26568 45696 830509 nil elpaca-process-queues nil nil 274000 nil]
 
 ** Calendar
 
