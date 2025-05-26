@@ -15,10 +15,8 @@
   - [[#recent-files][Recent files]]
   - [[#ediff][ediff]]
 - [[#keybindings][Keybindings]]
-- [[#eaf-aplication-framework][Eaf-aplication framework]]
 - [[#package-manager--elpaca-][Package Manager -elpaca-]]
-  - [[#ellama][ellama]]
-  - [[#gtpel][gtpel]]
+  - [[#orderless][orderless]]
   - [[#tldr][TLDR]]
   - [[#projectile][Projectile]]
   - [[#flycheck][Flycheck]]
@@ -51,7 +49,6 @@
   - [[#python][Python]]
   - [[#git-33][git]]
     - [[#magit][Magit]]
-    - [[#magit-llm-commit-generator][magit-llm-commit-generator]]
     - [[#git-gutter][git-gutter]]
     - [[#git-timemachine][git-timemachine]]
 - [[#tempo][Tempo]]
@@ -253,20 +250,6 @@ el por defecto.
     (global-set-key (kbd "C-c n f") 'org-roam-node-find)
     (global-set-key (kbd "C-c n i") 'org-roam-node-insert)
 #+END_SRC
-
-#+RESULTS:
-: org-roam-node-insert
-* Eaf-aplication framework
-#+begin_src emacs-lisp
-  (add-to-list 'load-path "~/.emacs.d/site-lisp/emacs-application-framework/")
-  (require 'eaf)
-  (require 'eaf-org-previewer)
-  (require 'eaf-pyqterminal)
-  (require 'eaf-git)
-  (require 'eaf-markdown-previewer)
-  (require 'eaf-pdf-viewer)
-#+end_src
-
 * Package Manager -elpaca-
 #+BEGIN_SRC emacs-lisp
   (defvar elpaca-installer-version 0.8)
@@ -311,41 +294,13 @@ el por defecto.
   :ensure t
   (elpaca-use-package-mode))
 #+END_SRC
-** ellama
-
+** orderless
 #+begin_src emacs-lisp
-(elpaca 
-  (ellama :repo "https://github.com/s-kostyaev/ellama.git")
-  (progn
-    ;; Configuración de ellama
-    (setopt ellama-language "English")
-    (require 'llm-ollama) ;; Asegúrate de que este paquete esté instalado
-    (setopt ellama-provider
-            (make-llm-ollama
-             :chat-model "qwen2.5-coder:1.5b"
-             :embedding-model "qwen2.5-coder:1.5b"))))
-#+end_src
-** gtpel
-#+begin_src emacs-lisp
-  ;; Instalar y configurar gptel con Elpaca y Ollama
-  (elpaca
-    (gptel :repo "https://github.com/karthink/gptel.git")
-    (progn
-      ;; Configurar Ollama como backend de gptel
-      (setq gptel-backend
-            (gptel-make-ollama
-             "Ollama"                      ;; Nombre del backend
-             :host "localhost:11434"       ;; Dirección del servidor Ollama
-             :stream t                     ;; Habilitar respuesta en streaming
-             :models '(qwen2.5-coder:1.5b)))   ;; Modelos disponibles en Ollama
-
-      ;; Opcional: Modelo predeterminado para Ollama
-      (setq gptel-model 'qwen2.5-coder:1.5b)
-
-      ;; Atajo de teclado para abrir gptel
-      (global-set-key (kbd "C-c g") 'gptel)))
-
-
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src 
 ** TLDR
 #+begin_src emacs-lisp
@@ -665,69 +620,68 @@ En el bufer puedes hacer las siguientes cosas
 #+END_SRC
 
 #+begin_src emacs-lisp :results silent
-      (defun org-mode-setup ()
-      (set (make-local-variable 'company-backends)
-           '((company-dabbrev company-yasnippet))))
+  (defun org-mode-setup ()
+  (set (make-local-variable 'company-backends)
+       '((company-dabbrev company-yasnippet))))
 
-      (add-hook 'org-mode-hook #'company-mode)
-      (add-hook 'org-mode-hook #'org-mode-setup)
-      (setq company-dabbrev-other-buffers t)
+  (add-hook 'org-mode-hook #'company-mode)
+  (add-hook 'org-mode-hook #'org-mode-setup)
+  (setq company-dabbrev-other-buffers t)
 
-      ;; ocultamos los caracteres especiales
-      (setq org-hide-emphasis-markers t)
+  ;; ocultamos los caracteres especiales
+  (setq org-hide-emphasis-markers t)
 
-      ;; configuraciones de tags y estado de las tareas
+  ;; configuraciones de tags y estado de las tareas
 
-      (global-set-key (kbd "C-c l") #'org-store-link)
-      (global-set-key (kbd "C-c a") #'org-agenda)
-      (global-set-key (kbd "C-c c") #'org-capture)
+  (global-set-key (kbd "C-c l") #'org-store-link)
+  (global-set-key (kbd "C-c a") #'org-agenda)
+  (global-set-key (kbd "C-c c") #'org-capture)
 
-      (use-package org
-      :config
-      (setq org-log-done 'time)
-      (setq org-log-into-drawer t)
+  (use-package org
+  :config
+  (setq org-log-done 'time)
+  (setq org-log-into-drawer t)
 
-      (setq org-todo-keywords
-            '((sequence "PORHACER(p!)"
-                        "ENPROCESO(e!)"
-                        "BLOQUEADO(b!)"
-                        "DETENIDO(d!)"
-                        "|"
-                        "HECHO(h!)"
-                        "ARCHIVAR(a!)")))
+  (setq org-todo-keywords
+        '((sequence "PORHACER(p!)"
+                    "ENPROCESO(e!)"
+                    "BLOQUEADO(b!)"
+                    "DETENIDO(d!)"
+                    "|"
+                    "HECHO(h!)"
+                    "ARCHIVAR(a!)")))
 
-       (setq org-todo-keyword-faces
-             '(("PORHACER" . "red")
-               ("ENPROCESO" . "magenta")
-               ("BLOQUEADO" . "orange")
-               ("HECHO" . "green")))
+   (setq org-todo-keyword-faces
+         '(("PORHACER" . "red")
+           ("ENPROCESO" . "magenta")
+           ("BLOQUEADO" . "orange")
+           ("HECHO" . "green")))
 
-      (setq org-file-apps
-          '(("\\.html\\'" . browse-url-firefox)))
+  (setq org-file-apps
+      '(("\\.html\\'" . browse-url-firefox)))
 
-      (advice-add 'org-refile :after 'org-save-all-org-buffers)
+  (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
 
-      (setq org-tag-alist '(("@nota" . ?n)
-                            ("@casa" . ?c)
-                            ("@finanzas" . ?d)
-                            ("@fecha" . ?f)
-                            ("@salud" . ?s)
-                            ("@tarea" . ?t)
-                            ("@coche" . ?h)
-                            ("@trabajo" . ?b)
-                            ("@personal" . ?p)
-                            ("crypt" . ?C)
-                            ("TOC_4" . ?i))
-            )
-      (setq org-tags-exclude-from-inheritance '("crypt"))
+  (setq org-tag-alist '(("@nota" . ?n)
+                        ("@casa" . ?c)
+                        ("@finanzas" . ?d)
+                        ("@fecha" . ?f)
+                        ("@salud" . ?s)
+                        ("@tarea" . ?t)
+                        ("@coche" . ?h)
+                        ("@trabajo" . ?b)
+                        ("@personal" . ?p)
+                        ("crypt" . ?C)
+                        ("TOC_4" . ?i))
+        )
+  (setq org-tags-exclude-from-inheritance '("crypt"))
 
-      ;; Progress Logging
-      ;; When a TODO item enters DONE, add a CLOSED: property with current date-time stamp and into drawer
-      (setq org-log-done 'time)
-      (setq org-log-into-drawer "state-book")
-      (setq org-tags-column 81))
-
+  ;; Progress Logging
+  ;; When a TODO item enters DONE, add a CLOSED: property with current date-time stamp and into drawer
+  ;(setq org-log-done 'time)
+  ;(setq org-log-into-drawer "state-book")
+  (setq org-tags-column 81))
 #+end_src
 *** latex in org mode
 #+begin_src sh
@@ -764,92 +718,98 @@ Configuraciones que permiten enbellecer el soporte de latex en emacs
 #+END_SRC
 *** org-agenda & super-agenda
 #+begin_src emacs-lisp
-	(elpaca org-super-agenda
-	    :config
-	    (org-super-agenda-mode))
+  (elpaca org-super-agenda
+    :config
+    (org-super-agenda-mode))
 
-	  (setq org-agenda-skip-scheduled-if-done t
-		org-agenda-skip-deadline-if-done t
-		org-agenda-compact-blocks t
-		org-agenda-window-setup 'current-window
-		org-agenda-start-on-weekday 1
-		org-deadline-warning-days 7
-		org-agenda-time-grid '((daily today require-timed))
-		org-agenda-custom-commands
-		'(
-		  ("x" "Vista trabajo"
-		   ((agenda "" ((org-agenda-span 3)
-				(org-super-agenda-groups
-				 '((:name "Hoy"
-					  :discard (:tag "@personal")
-					  :time-grid t
-					  :scheduled past
-					  :deadline past
-					  :date today
-					  :order 1)))))
-		    (alltodo "" ((org-agenda-overriding-header "")
-				 (org-super-agenda-groups
-				  '((:discard (:tag "personal" ))
-				    (:name "Vencimiento hoy"
-					   :deadline today
-					   :order 5)
-				    (:name "Próximamente"
-					   :deadline future
-					   :order 11)
-				    (:name "Atrasado"
-					   :scheduled past
-					   :deadline past
-					   :order 12)
-				    (:name "Por hacer"
-					    ;:discard (:scheduled future :deadline future)
-					   :todo "PORHACER"
-					   :order 12)
-				    (:name "Esperando"
-					   :todo "BLOQUEADO"
-					   :order 14)))))
-		    (tags "trabajo/HECHO"
-			  ((org-agenda-overriding-header " Tareas Hechas")))))
+  (setq org-agenda-skip-scheduled-if-done t
+  		org-agenda-skip-deadline-if-done t
+  		org-agenda-compact-blocks t
+  		org-agenda-window-setup 'current-window
+  		org-agenda-start-on-weekday 1
+  		org-deadline-warning-days 7
+  		org-agenda-time-grid '((daily today))
+  		org-agenda-custom-commands
+  		'(
+  		  ("x" "Vista trabajo"
+  		   ((agenda "" ((org-agenda-span 3)
+  				(org-super-agenda-groups
+  				 '((:name "Hoy"
+  					  :discard (:tag "@personal")
+  					  :time-grid t
+  					  :scheduled past
+  					  :deadline past
+  					  :date today
+  					  :order 1)))))
+  		    (alltodo "" ((org-agenda-overriding-header "")
+  				 (org-super-agenda-groups
+  				  '((:discard (:tag "personal" ))
+  				    (:name "Vencimiento hoy"
+  					   :deadline today
+  					   :order 5)
+  				    (:name "Próximamente"
+  					   :deadline future
+  					   :order 11)
+  				    (:name "Atrasado"
+  					   :scheduled past
+  					   :deadline past
+  					   :order 12)
+  				    (:name "Por hacer"
+  					    ;:discard (:scheduled future :deadline future)
+  					   :todo "PORHACER"
+  					   :order 12)
+  				    (:name "Esperando"
+  					   :todo "BLOQUEADO"
+  					   :order 14)))))
+  		    (tags "trabajo/HECHO"
+  			  ((org-agenda-overriding-header " Tareas Hechas")))))
 
-		  ("z" "Vista personal"
-		   ((agenda "" ((org-agenda-span 3)
-				(org-super-agenda-groups
-				 '((:name "Hoy"
-					  :discard (:tag "@trabajo" :scheduled past :deadline past)
-					  :time-grid t
-					  :date today
-					  :scheduled today
-					  :order 1)
-				   (:name ""
-					  :tag "agenda"
-					  :todo "Aniversarios")))))
-		    (alltodo "" ((org-agenda-overriding-header "")
-				 (org-super-agenda-groups
-				  '((:discard (:tag "trabajo" ))
-				    (:name "Vencimiento hoy"
-					   :deadline today
-					   :order 5)
-				    (:name "Atrasado"
-					   :scheduled past
-					   :deadline past
-					   :order 11)
-				    (:name "Por hacer"
-					   :discard (:scheduled future :deadline future)
-					   :todo "PORHACER"
-					   :order 12)
-				    (:name "Esperando"
-					   :todo "BLOQUEADO"
-					   :order 14)))))
-		    (tags "personal/HECHO"
-			  ((org-agenda-overriding-header " Tareas Hechas")))))
-		  ))
-  
+  		  ("z" "Vista personal"
+  		   ((agenda "" ((org-agenda-span 3)
+  				(org-super-agenda-groups
+  				 '((:name "Hoy"
+  					  :discard (:tag "@trabajo" :scheduled past :deadline past)
+  					  :time-grid t
+  					  :date today
+  					  :scheduled today
+  					  :order 1)
+  				   (:name ""
+  					  :tag "agenda"
+  					  :todo "Aniversarios")))))
+  		    (alltodo "" ((org-agenda-overriding-header "")
+  				 (org-super-agenda-groups
+  				  '((:discard (:tag "trabajo" ))
+  				    (:name "Vencimiento hoy"
+  					   :deadline today
+  					   :order 5)
+  				    (:name "Atrasado"
+  					   :scheduled past
+  					   :deadline past
+  					   :order 11)
+  				    (:name "Por hacer"
+  					   :discard (:scheduled future :deadline future)
+  					   :todo "PORHACER"
+  					   :order 12)
+  				    (:name "Esperando"
+  					   :todo "BLOQUEADO"
+  					   :order 14)))))
+  		    (tags "personal/HECHO"
+  			  ((org-agenda-overriding-header " Tareas Hechas")))))
+  		  ))
+
+  (setq org-agenda-time-grid
+      '((daily)
+        ( 0500 0600 0700 0800 0900 1000
+          1100 1200 1300 1400 1500 1600
+          1700 1800 1900 2000 2100 2200)
+        "......" "----------------"))
 
   (setq calendar-month-name-array
-	["Enero" "Febrero" "Marzo" "Abril" "Mayo" "Junio"
-	 "Julio"    "Agosto"   "Septiembre" "Octubre" "Noviembre" "Diciembre"])
+  	["Enero" "Febrero" "Marzo" "Abril" "Mayo" "Junio"
+  	 "Julio"    "Agosto"   "Septiembre" "Octubre" "Noviembre" "Diciembre"])
 
   (setq calendar-day-name-array
-	["Domingo" "Lunes" "Martes" "Miércoles" "Jueves" "Viernes" "Sábado"])
+  	["Domingo" "Lunes" "Martes" "Miércoles" "Jueves" "Viernes" "Sábado"])
 
   (setq org-icalendar-timezone "America/Santiago") ;; timezone
   (setq calendar-week-start-day 1) ;; la semana empieza el lunes
@@ -1129,33 +1089,6 @@ Dividir la ventana de forma vertical en vez de horizontal en /Ediff/
 #+begin_src emacs-lisp
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 #+end_src
-*** magit-llm-commit-generator
-#+begin_src emacs-lisp
-  (use-package magit-gptcommit
-    :ensure t
-    :demand t
-    :after magit
-    :bind (:map git-commit-mode-map
-                ("C-c C-g" . magit-gptcommit-commit-accept))
-    :custom
-    (magit-gptcommit-llm-provider (make-llm-ollama
-  				 ;:host "localhost:11434"
-  				 :chat-model "qwen2.5-coder:1.5b"
-  				 :embedding-model "qwen2.5-coder:1.5b"))
-
-    :config
-    ;; Enable magit-gptcommit-mode to watch staged changes and generate commit message automatically in magit status buffer
-    ;; This mode is optional, you can also use `magit-gptcommit-generate' to generate commit message manually
-    ;; `magit-gptcommit-generate' should only execute on magit status buffer currently
-    ;; (magit-gptcommit-mode 1)
-
-    ;; Add gptcommit transient commands to `magit-commit'
-    ;; Eval (transient-remove-suffix 'magit-commit '(1 -1)) to remove gptcommit transient commands
-    (magit-gptcommit-status-buffer-setup))
-#+end_src
-
-#+RESULTS:
-: [nil 26574 63909 969882 nil elpaca-process-queues nil nil 644000 nil]
 
 *** git-gutter
 Esta herramienta agrega indicadores para identificar los cambios miesntras programo
