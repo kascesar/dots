@@ -15,7 +15,6 @@
   - [[#recent-files][Recent files]]
   - [[#ediff][ediff]]
 - [[#keybindings][Keybindings]]
-- [[#eaf-aplication-framework][Eaf-aplication framework]]
 - [[#package-manager--elpaca-][Package Manager -elpaca-]]
   - [[#ellama][ellama]]
   - [[#gtpel][gtpel]]
@@ -254,22 +253,9 @@ el por defecto.
     (global-set-key (kbd "C-c n i") 'org-roam-node-insert)
 #+END_SRC
 
-#+RESULTS:
-: org-roam-node-insert
-* Eaf-aplication framework
-#+begin_src emacs-lisp
-  (add-to-list 'load-path "~/.emacs.d/site-lisp/emacs-application-framework/")
-  (require 'eaf)
-  (require 'eaf-org-previewer)
-  (require 'eaf-pyqterminal)
-  (require 'eaf-git)
-  (require 'eaf-markdown-previewer)
-  (require 'eaf-pdf-viewer)
-#+end_src
-
 * Package Manager -elpaca-
 #+BEGIN_SRC emacs-lisp
-  (defvar elpaca-installer-version 0.8)
+  (defvar elpaca-installer-version 0.11)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
   (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
   (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
