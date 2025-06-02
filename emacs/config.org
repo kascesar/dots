@@ -14,6 +14,7 @@
   - [[#font][Font]]
   - [[#recent-files][Recent files]]
   - [[#ediff][ediff]]
+  - [[#quarto][quarto]]
 - [[#keybindings][Keybindings]]
 - [[#package-manager--elpaca-][Package Manager -elpaca-]]
   - [[#orderless][orderless]]
@@ -151,6 +152,8 @@ Descomentar la linea "mapc" para instalar los lenguajes
 
   ;; fill-column
   (setq fill-column 80)
+  (add-hook 'markdown-mode-hook #'auto-fill-mode)
+  (add-hook 'org-mode-hook 'turn-on-auto-fill)
 #+END_SRC
 
 ** Reload config
@@ -212,6 +215,14 @@ el por defecto.
   (setq ediff-merge-revisions-with-ancestor t)
   (setq ediff-show-clashes-only t))
 #+end_src
+** quarto
+cuando se abre un qmd, se activa el markdown-mode
+#+begin_src emacs-lisp
+(setq major-mode-remap-alist
+      '((markdown-mode . markdown-mode)))
+(add-to-list 'auto-mode-alist '("\\.qmd\\'" . markdown-mode))
+#+end_src
+
 * Keybindings
 #+BEGIN_SRC emacs-lisp
     ;; Additional configurations
@@ -252,7 +263,7 @@ el por defecto.
 #+END_SRC
 * Package Manager -elpaca-
 #+BEGIN_SRC emacs-lisp
-  (defvar elpaca-installer-version 0.8)
+  (defvar elpaca-installer-version 0.11)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
   (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
   (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
@@ -878,7 +889,7 @@ Configuración de org-roam estandar, par mi dropbox
 Permite reformatear el texto automaticamente al ancho preestablecido
 en fill-column 
 #+begin_src emacs-lisp
-  (add-hook 'org-mode-hook 'turn-on-auto-fill)
+  
 #+end_src
 
 *** olivetti
