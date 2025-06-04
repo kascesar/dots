@@ -18,6 +18,7 @@
 - [[#keybindings][Keybindings]]
 - [[#package-manager--elpaca-][Package Manager -elpaca-]]
   - [[#orderless][orderless]]
+  - [[#gess-language][gess-language]]
   - [[#tldr][TLDR]]
   - [[#projectile][Projectile]]
   - [[#flycheck][Flycheck]]
@@ -57,6 +58,9 @@
 - [[#latex][latex]]
 
 * Common configs
+#+begin_src emacs-lisp
+;; -*- lexical-binding: t; -*-
+#+end_src
 ** smooth scrolling
 
 #+begin_src emacs-lisp
@@ -306,13 +310,24 @@ cuando se abre un qmd, se activa el markdown-mode
   (elpaca-use-package-mode))
 #+END_SRC
 ** orderless
+
 #+begin_src emacs-lisp
 (use-package orderless
   :ensure t
   :custom
   (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles basic partial-completion)))))
-#+end_src 
+#+end_src
+** gess-language
+Paquete para verificar ortografía
+#+begin_src emacs-lisp
+  (use-package guess-language
+    :ensure t
+    :config
+    (setq guess-language-languages '(en es))
+    (add-hook 'text-mode-hook #'guess-language-mode)
+    (add-hook 'text-mode-hook #'flyspell-mode))
+#+end_src
 ** TLDR
 #+begin_src emacs-lisp
   (elpaca tldr

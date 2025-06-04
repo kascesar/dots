@@ -74,6 +74,12 @@ qmk flash -kb crkbd -km cesar
   ```shell
   npm install -g pyright
   ```
+### paquetes para que el corrector ortografico funcione
+
+```shell
+sudo apt install aspell-es hunspell hunspell-en-us hunspell-es
+```
+
 ### Instalar las fuentes
   ```shell
   M-x all-the-icons-install-fonts
