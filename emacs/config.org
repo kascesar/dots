@@ -44,8 +44,6 @@
     - [[#org-modern-indent][org-modern-indent]]
     - [[#org-roam][org-roam]]
     - [[#org-roam-ui][org-roam-ui]]
-    - [[#org-auto-fill][org-auto-fill]]
-    - [[#olivetti][olivetti]]
   - [[#calendar][Calendar]]
   - [[#terraform][Terraform]]
   - [[#python][Python]]
@@ -267,7 +265,7 @@ cuando se abre un qmd, se activa el markdown-mode
 #+END_SRC
 * Package Manager -elpaca-
 #+BEGIN_SRC emacs-lisp
-  (defvar elpaca-installer-version 0.11)
+  (defvar elpaca-installer-version 0.8)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
   (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
   (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
@@ -900,34 +898,7 @@ Configuración de org-roam estandar, par mi dropbox
           org-roam-ui-update-on-save t
           org-roam-ui-open-on-start t))
 #+end_src
-*** org-auto-fill
-Permite reformatear el texto automaticamente al ancho preestablecido
-en fill-column 
-#+begin_src emacs-lisp
-  
-#+end_src
 
-*** olivetti
-Oliveti permite centrar el texto en un documento para mejorar la lectura y la edicion del contenido
-#+begin_src emacs-lisp
-;  (use-package olivetti
-;      :ensure (:wait t)
-;      :demand t)
-;  (add-hook 'org-mode-hook 'olivetti-mode)
-;  (setq olivetti-body-width 0.7)
-
-(use-package olivetti
-  :ensure t
-  :hook (org-mode . my/org-mode-olivetti)
-  :config
-  (setq olivetti-body-width 0.9))
-
-(defun my/org-mode-olivetti ()
-  "Activar Olivetti en Org-Mode con ancho personalizado."
-  (olivetti-mode 1)
-  (setq olivetti-body-width 0.9))
-
-#+end_src
 
 ** Calendar
 
