@@ -20,3 +20,6 @@
 
 [github]
 	user = kascesar
+
+[init]
+    defaultBranch = main
