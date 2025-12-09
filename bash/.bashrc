@@ -12,7 +12,7 @@ if ! shopt -oq posix; then
 fi
 
 # python
-PIPENV_VENV_IN_PROJECT=1
+export PIPENV_VENV_IN_PROJECT=1
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 
 # emacs en la terminal cuando algun proceso me exige modificar un archivo
