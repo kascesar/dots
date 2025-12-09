@@ -4,6 +4,7 @@
 
 * Table of contents                                                              :TOC_4:
 - [[#common-configs][Common configs]]
+  - [[#beamer][beamer]]
   - [[#smooth-scrolling][smooth scrolling]]
   - [[#tree-sitter-languajes][tree-sitter languajes]]
   - [[#babel-lenguajes][Babel lenguajes]]
@@ -59,6 +60,14 @@
 #+begin_src emacs-lisp
 ;; -*- lexical-binding: t; -*-
 #+end_src
+** beamer
+#+begin_src emacs-lisp
+(require 'ox-beamer)
+#+end_src
+
+#+RESULTS:
+: ox-beamer
+
 ** smooth scrolling
 
 #+begin_src emacs-lisp
@@ -625,7 +634,7 @@ En el bufer puedes hacer las siguientes cosas
 - [X] agenda y super-agenda gestores y mejoras de agenda de org-mode
 - [X] modern agrega muchas mejoras visuales que emjoran la apariencia de los archivos org 
 - [X] modern-ident mejora la identacion de los bloques de codigo (no me funciona)
-- [X] bullets son unos cambios para las stars en org-mode 
+- [X] bullets son unos cambios para las stars en org-mode\0
   
 #+BEGIN_SRC emacs-lisp :results silent
   ;; Aspecto mejorado al identar
@@ -959,18 +968,16 @@ Aqui configuro LSP de tal forma que quede preparado para desarrollo en *Emacs*.
 
   # Pyright (alternativa LSP de Microsoft)
   # NOTA: Pyright es una herramienta Node.js, instálalo con npm:
-  npm install -g pyright
 #+END_SRC
 Ahora, configuramos el entorno de desarrollo de emacs para python
 #+BEGIN_SRC emacs-lisp :results silent
   ;; Configuración de LSP para Python
   (use-package lsp-pyright
     :ensure t
-    :custom
-    (lsp-pyright-langserver-command "pyright-langserver --stdio --log-level trace")  ;; Usamos un string único
     :hook (python-mode . (lambda ()
                            (require 'lsp-pyright)
                            (lsp))))
+  
   ;; YASnippet para snippets
   (elpaca yasnippet
     :ensure t)
