@@ -18,6 +18,7 @@
   - [[#quarto][quarto]]
 - [[#keybindings][Keybindings]]
 - [[#package-manager--elpaca-][Package Manager -elpaca-]]
+  - [[#path][path]]
   - [[#orderless][orderless]]
   - [[#gess-language][gess-language]]
   - [[#tldr][TLDR]]
@@ -58,8 +59,9 @@
 
 * Common configs
 #+begin_src emacs-lisp
-;; -*- lexical-binding: t; -*-
+  ;; -*- lexical-binding: t; -*-
 #+end_src
+
 ** beamer
 #+begin_src emacs-lisp
 (require 'ox-beamer)
@@ -316,6 +318,19 @@ cuando se abre un qmd, se activa el markdown-mode
   :ensure t
   (elpaca-use-package-mode))
 #+END_SRC
+** path
+#+begin_src emacs-lisp
+  (use-package exec-path-from-shell
+    :ensure t
+    :init
+    (when (memq window-system '(mac ns x))
+      (exec-path-from-shell-initialize)) ; Ojo: usa initialize, es más común que copy-env manual
+    :config
+    ;; AQUI es donde forzamos el PATH, DESPUÉS de importar el del sistema
+    (add-to-list 'exec-path (expand-file-name "~/.local/bin"))
+    (setenv "PATH" (concat (expand-file-name "~/.local/bin") ":" (getenv "PATH"))))
+#+end_src
+
 ** orderless
 
 #+begin_src emacs-lisp
