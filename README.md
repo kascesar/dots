@@ -67,13 +67,25 @@ qmk flash -kb crkbd -km cesar
 
 ### instalar dependencias para editar codigo de python
 
-  ```shell
-  pipx install mypy "python-lsp-server[all]" black isort ruff
-  ```
-  y pyright
-  ```shell
-  npm install -g pyright
-  ```
+	```shell
+	pipx install mypy "python-lsp-server[all]" black isort ruff
+	```
+	**Pyrigth -importante actualizar npm-**
+	```shell
+	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+	source ~/.bashrc
+	```
+usar una version recomendada (20)
+	```shell
+	nvm install 20
+	nvm use 20
+	```
+
+Instalar Pyright globalmente
+	```shell
+	npm install -g pyright
+	npm install -g pyright
+	```
 ### paquetes para que el corrector ortografico funcione
 
 ```shell
