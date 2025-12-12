@@ -66,36 +66,41 @@ qmk flash -kb crkbd -km cesar
 ## Emacs
 
 ### instalar dependencias para editar codigo de python
+```bash
+pipx install mypy "python-lsp-server[all]" black isort ruff
+```
 
-	```shell
-	pipx install mypy "python-lsp-server[all]" black isort ruff
-	```
-	**Pyrigth -importante actualizar npm-**
-	```shell
-	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-	source ~/.bashrc
-	```
+**Pyrigth -importante actualizar npm-**
+	
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc
+```
+
 usar una version recomendada (20)
-	```shell
-	nvm install 20
-	nvm use 20
-	```
+
+```bash
+nvm install 20
+nvm use 20
+```
 
 Instalar Pyright globalmente
-	```shell
-	npm install -g pyright
-	npm install -g pyright
-	```
+
+```bash
+npm install -g pyright
+npm install -g pyright
+```
+
 ### paquetes para que el corrector ortografico funcione
 
-```shell
+```bash
 sudo apt install aspell-es hunspell hunspell-en-us hunspell-es
 ```
 
 ### Instalar las fuentes
-  ```shell
-  M-x all-the-icons-install-fonts
-  ```
+```bash
+M-x all-the-icons-install-fonts
+```
 
 ## Git
 Configuración global de git, y delta, el cual uso en mi flujo diario de git.
