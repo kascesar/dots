@@ -44,8 +44,6 @@
     - [[#org-agenda--super-agenda][org-agenda & super-agenda]]
     - [[#org-modern][org-modern]]
     - [[#org-modern-indent][org-modern-indent]]
-    - [[#org-roam][org-roam]]
-    - [[#org-roam-ui][org-roam-ui]]
   - [[#calendar][Calendar]]
   - [[#terraform][Terraform]]
   - [[#python][Python]]
@@ -276,7 +274,7 @@ cuando se abre un qmd, se activa el markdown-mode
 #+END_SRC
 * Package Manager -elpaca-
 #+BEGIN_SRC emacs-lisp
-  (defvar elpaca-installer-version 0.8)
+  (defvar elpaca-installer-version 0.11)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
   (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
   (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
@@ -395,7 +393,6 @@ o el oscuro.
       :config
       ;(load-theme 'ef-rosa :no-confirm)
       (ef-themes-load-random))
-    (setq ef-themes-to-toggle '(ef-rosa ef-reverie))
 #+END_SRC
 ** Denote
 #+begin_src emacs-lisp
@@ -893,34 +890,6 @@ Configuraciones que permiten enbellecer el soporte de latex en emacs
     :config
     (add-hook 'org-mode-hook #'org-modern-indent-mode 80))
   (setq org-startup-indented t)
-#+end_src
-
-*** org-roam
-Configuración de org-roam estandar, par mi dropbox
-#+begin_src emacs-lisp :results silent
-  (elpaca org-roam
-    :ensure t)
-  (setq org-roam-v2-ack t)
-  (setq org-roam-directory (file-truename "~/Dropbox/org-roam/"))
-  (setq org-roam-db-autosync-mode t)
-  (setq org-roam-completion-everywhere t)
-#+end_src
-
-*** org-roam-ui
-#+begin_src emacs-lisp
-(use-package org-roam-ui
-  :ensure
-    (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
-    :after org-roam
-;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-;;         a hookable mode anymore, you're advised to pick something yourself
-;;         if you don't care about startup time, use
-;;  :hook (after-init . org-roam-ui-mode)
-    :config
-    (setq org-roam-ui-sync-theme t
-          org-roam-ui-follow t
-          org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start t))
 #+end_src
 
 
