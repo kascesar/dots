@@ -389,10 +389,9 @@ o el oscuro.
 #+BEGIN_SRC emacs-lisp
     (use-package ef-themes
       :ensure t
-      :demand t
-      :config
-      ;(load-theme 'ef-rosa :no-confirm)
-      (ef-themes-load-random))
+      :demand t)
+    (with-eval-after-load 'ef-themes
+      (ef-themes-load-random-light))
 #+END_SRC
 ** Denote
 #+begin_src emacs-lisp
