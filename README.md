@@ -2,9 +2,9 @@
 
 ## Software necesario
 
-### exa y bat
+### exa, bat y git-delta
 ```bash
-sudo apt install exa bat
+sudo apt install exa bat git-delta
 ```
 ### kitty -emulador de termina que uso-
 ```bash
