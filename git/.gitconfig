@@ -3,7 +3,6 @@
 # Por favor, adapta y descomenta las siguientes líneas:
     name = cesar augusto muñoz araya
     email = kas.cesar@gmail.com
-
 [core]
     pager = delta
 
@@ -12,7 +11,8 @@
 
 [delta]
     navigate = true  # use n and N to move between diff sections
-    dark = true      # or light = true, or omit for auto-detection
+    # dark = true      # or light = true, or omit for auto-detection
+    light = true
     side-by-side = true
 
 [merge]
