@@ -210,8 +210,8 @@ Descomentar la linea "mapc" para instalar los lenguajes
 ** ediff
 Configuracion de ediff tomada del [[https://protesilaos.com/emacs/dotemacs#h:89edea05-4d94-4ea1-b2a8-5ad01422618c][la configuracion de prot]] esta
 configuracion mejora enormemente la integracion natural de como se
-comporta un visor de diferencia de archvo volvindolo mas natiural quie
-el por defecto.
+comporta un visor de diferencia de archvo volviendolo más natural que
+el uso por defecto.
 #+begin_src emacs-lisp
 ;;;; `ediff'
 (use-package ediff
@@ -1015,7 +1015,7 @@ Ahora, configuramos el entorno de desarrollo de emacs para python
   (add-hook 'python-mode-hook #'flymake-ruff-load)
 
   ;; Opcional: Si quieres usar Pylint junto con Flycheck (aunque tú ya usas Pyright)
-  (add-hook 'python-mode-hook 'set-flycheck-python-pylint-executable)
+  ;(add-hook 'python-mode-hook 'set-flycheck-python-pylint-executable)
 
   ;; Integrar Company Mode para autocompletado con LSP
   (use-package company
