@@ -938,124 +938,94 @@ Agrega terraform-mode para formateo de sintaxys terraform
 
 #+end_src
 ** Python
-Aqui configuro LSP de tal forma que quede preparado para desarrollo en *Emacs*.
+Configuración moderna de desarrollo Python en Emacs usando LSP.
 
-/Pylsp/ Servidor de python de microsoft
-#+BEGIN_SRC sh :results silent
-  # Herramientas esenciales para LSP y formateo
-  pipx install mypy                # Type checking
-  pipx install "python-lsp-server[all]"  # Servidor LSP de Python (pylsp)
-  pipx install black               # Formateador automÃ¡tico
-  pipx install isort               # Organizador de imports
-  pipx install ruff                # Linter rÃ¡pido (reemplaza flake8 + isort)
+Herramientas necesarias:
 
-  # Pyright (alternativa LSP de Microsoft)
-  # NOTA: Pyright es una herramienta Node.js, instálalo con npm:
+#+BEGIN_SRC sh
+# Instalar herramientas globales
+pipx install pyright
+pipx install ruff
+
+# O si usas uv
+uv tool install pyright
+uv tool install ruff
 #+END_SRC
-Ahora, configuramos el entorno de desarrollo de emacs para python
+
+
+Configuración de Emacs:
+
 #+BEGIN_SRC emacs-lisp :results silent
-  ;; Configuración de LSP para Python
+
+  ;;;; Python moderno (Pyright + Ruff + LSP)
+
+  ;; LSP core
+  (use-package lsp-mode
+    :ensure t
+    :hook (python-mode . lsp-deferred)
+    :custom
+    (lsp-headerline-breadcrumb-enable t)
+    (lsp-enable-symbol-highlighting t)
+    (lsp-enable-on-type-formatting nil)
+    (lsp-enable-formatting nil))
+
+  ;; Pyright
   (use-package lsp-pyright
     :ensure t
+    :after lsp-mode
     :hook (python-mode . (lambda ()
-                           (require 'lsp-pyright)
-                           (lsp))))
-  
-  ;; YASnippet para snippets
-  (elpaca yasnippet
-    :ensure t)
+                           (require 'lsp-pyright))))
 
-  ;; LSP Mode y Pyright
-  (elpaca lsp-mode
-    :ensure t
-    :config
-    (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)  ;; Habilitar Imenu para navegación rápida
-    (require 'lsp-pyright))
-
-  ;; Activar LSP en Python
-  (add-hook 'python-mode-hook #'lsp-deferred)
-
-  ;; Usar Pipenv automáticamente cuando el archivo esté en un entorno Pipenv
-  (add-hook 'python-mode-hook #'pipenv-mode)
-
-  ;; Black para formateo automático
-  ;(use-package python-black
-  ;  :ensure t
-  ;  :hook (python-mode . python-black-on-save-mode)
-  ;  :custom
-  ;  (blacken-line-length 79))
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ;; Black - Formateo al guardar
-  (use-package python-black
-    :ensure t
-    :hook (python-mode . (lambda ()
-                         (python-black-on-save-mode)
-                         (setq blacken-line-length 79))) ; Fuerza 79 caracteres
-    :custom
-    (python-black-extra-args '("--line-length=79" "--fast"))) ; Args CLI explícitos
-
-  ;; Deshabilitar formateo del LSP
-  (setq lsp-enable-format nil)
-
-  ;; Orden de ejecución: isort → black
-  (add-hook 'python-mode-hook
-            (lambda ()
-              (add-hook 'before-save-hook 'py-isort-before-save nil 'local)
-              (add-hook 'before-save-hook 'python-black-buffer nil 'local)))
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  (setq blacken-line-length 79)
-  ;; Py-Isort para organizar imports automáticamente antes de guardar
-  (use-package py-isort
-    :ensure t
-    :hook (python-mode . py-isort-before-save))
-
-  ;; Flymake-ruff para linting (si estás usando Flymake en vez de Flycheck)
-  (add-to-list 'load-path "~/.emacs.d/flymake-ruff")
-  (require 'flymake-ruff)
-  (add-hook 'python-mode-hook #'flymake-ruff-load)
-
-  ;; Opcional: Si quieres usar Pylint junto con Flycheck (aunque tú ya usas Pyright)
-  ;(add-hook 'python-mode-hook 'set-flycheck-python-pylint-executable)
-
-  ;; Integrar Company Mode para autocompletado con LSP
+  ;; Autocompletado
   (use-package company
     :ensure t
     :hook (python-mode . company-mode)
-    :config
-    (setq company-idle-delay 0.2)  ;; Ajustar el retraso para autocompletado
-    (setq company-minimum-prefix-length 1)  ;; Autocompletar con solo una letra
-    (setq company-tooltip-limit 10))  ;; Limitar la cantidad de sugerencias en el menú
+    :custom
+    (company-idle-delay 0.2)
+    (company-minimum-prefix-length 1)
+    (company-tooltip-limit 10))
 
-  ;; Integrar LSP UI para ver la documentación y más con LSP
-
+  ;; UI de LSP
   (use-package lsp-ui
     :ensure t
     :hook (lsp-mode . lsp-ui-mode)
     :custom
-    (lsp-ui-doc-enable t)       ;; Habilitar la documentación emergente
-    (lsp-ui-doc-use-webkit t)   ;; Usar un visor web para la documentación
-    (lsp-ui-doc-include-signature t)  ;; Incluir la firma de la función en la doc
-    (lsp-ui-sideline-enable t)  ;; Mostrar la línea lateral de sugerencias
+    ;; Documentación flotante
+    (lsp-ui-doc-enable t)
     (lsp-ui-doc-show-with-cursor t)
-    (lsp-ui-doc-show-with-mouse t)
-    (lsp-ui-doc-delay 0.5)
+    (lsp-ui-doc-delay 0.3)
     (lsp-ui-doc-position 'at-point)
-    (lsp-headerline-breadcrumb-enable t)
-    (lsp-lens-enable t)
-    ;; (lsp-ui-sideline-delay 0.5) ;; Retardo de las sugerencias
-    )
-  ;(setq lsp-ui-doc-use-webkit t)
+
+    ;; Sideline limpio (solo diagnósticos)
+    (lsp-ui-sideline-enable t)
+    (lsp-ui-sideline-show-hover nil)
+    (lsp-ui-sideline-show-symbol nil)
+    (lsp-ui-sideline-show-code-actions nil)
+    (lsp-ui-sideline-show-diagnostics t)
+    (lsp-ui-sideline-delay 0.2))
+  ;; configs para lsp-ui
+  (setq lsp-ui-doc-use-childframe t)
+  (setq lsp-ui-doc-show-with-mouse t)
+  (setq lsp-ui-doc-show-with-cursor t)
+  (setq lsp-ui-doc-delay 0.2)
+  
+  ;; Ruff formatter + fixer
+  (defun my/python-ruff-format-on-save ()
+    (when (eq major-mode 'python-mode)
+      (call-process "ruff" nil nil nil "check" "--fix" buffer-file-name)
+      (call-process "ruff" nil nil nil "format" buffer-file-name)
+      (revert-buffer t t t)))
+
+  (add-hook 'before-save-hook #'my/python-ruff-format-on-save)
+
 #+END_SRC
 
-#+begin_src emacs-lisp :results silent
-  (add-hook 'python-mode-hook 'set-flycheck-python-pylint-executable)
-#+end_src
 
 ** git [3/3]
-Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
 - [X] magit es un gestor de repositorios git interactivo y muy poderoso
 - [X] git-gutter muestra en los archivos que lineas se agregan, elimina y modifica
 - [X] git-timemachine permite interactivamente las modificaciones se hicieron
+Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
 *** Magit
 #+BEGIN_SRC emacs-lisp
 (use-package transient :ensure t :demand t)
