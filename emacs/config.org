@@ -47,6 +47,7 @@
   - [[#calendar][Calendar]]
   - [[#terraform][Terraform]]
   - [[#python][Python]]
+  - [[#markdown][markdown]]
   - [[#git-33][git]]
     - [[#magit][Magit]]
     - [[#git-gutter][git-gutter]]
@@ -163,8 +164,11 @@ Descomentar la linea "mapc" para instalar los lenguajes
 
   ;; fill-column
   (setq fill-column 80)
-  (add-hook 'markdown-mode-hook #'auto-fill-mode)
   (add-hook 'org-mode-hook 'turn-on-auto-fill)
+
+  (add-hook 'org-mode-hook
+          (lambda ()
+            (setq fill-column 80)))
 #+END_SRC
 
 ** Reload config
@@ -1019,7 +1023,13 @@ Configuración de Emacs:
   (add-hook 'before-save-hook #'my/python-ruff-format-on-save)
 
 #+END_SRC
-
+** markdown
+#+begin_src emacs-lisp
+  (add-hook 'markdown-mode-hook #'auto-fill-mode)
+  (add-hook 'markdown-mode-hook
+          (lambda ()
+            (setq fill-column 80)))
+#+end_src
 
 ** git [3/3]
 - [X] magit es un gestor de repositorios git interactivo y muy poderoso
