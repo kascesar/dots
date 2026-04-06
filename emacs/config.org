@@ -453,6 +453,98 @@ o el oscuro.
 
 #+end_src
 ** Beacon
+#+begin_src emacs-lisp
+;;; --- CONFIGURACIÓN DE CURSOR Y BEACON (VERSIÓN FINAL FIEL AL ORIGINAL) ---
+
+(blink-cursor-mode 0)
+(setq-default cursor-type 'bar)
+
+(elpaca beacon
+  (require 'beacon)
+  (beacon-mode 1))
+
+;; --- PANEL DE CONTROL ---
+(defvar my-cursor-settings
+  '((idle-delay    . 0.6)   ; Tiempo para iniciar el pulso
+    (pulse-rate    . 0.6)   ; Frecuencia del pulso constante
+    (idle-size     . 15)    ; Tamaño del haz en modo espera
+    (switch-size   . 30))   ; Tamaño del haz al saltar de buffer/ventana
+  "Configuración del comportamiento del cursor.")
+
+(defun my-cursor-get (key) (cdr (assoc key my-cursor-settings)))
+
+;; --- MOTOR DE EFECTO ---
+
+(defun my-cursor-force-blink (mode)
+  "Ejecuta el brillo usando el color directo del frame (como el código original)."
+  (let ((size (if (eq mode 'switch) 
+                  (my-cursor-get 'switch-size) 
+                (my-cursor-get 'idle-size))))
+    ;; Seteamos el color EXACTAMENTE como en tu primera versión
+    (setq beacon-color (or (frame-parameter nil 'cursor-color) "#ffffff")
+          beacon-size size
+          beacon--last-location nil) ;; Forzamos que brille aunque no se mueva
+    (beacon-blink)
+    (setq my-cursor-last-blink (float-time))))
+
+;; --- LÓGICA DE TIEMPO Y ACTIVIDAD ---
+
+(defvar my-cursor-last-input (float-time))
+(defvar my-cursor-last-blink 0)
+
+(defun my-cursor-periodic-check ()
+  "Verifica inactividad y dispara el pulso si es necesario."
+  (let* ((now (float-time))
+         (idle-time (- now my-cursor-last-input))
+         (since-blink (- now my-cursor-last-blink)))
+    (when (and (>= idle-time (my-cursor-get 'idle-delay))
+               (>= since-blink (my-cursor-get 'pulse-rate)))
+      (my-cursor-force-blink 'idle))))
+
+;; --- ACTIVACIÓN ---
+
+;; Revisa cada 0.5s (ajusta a 0.1s si quieres más precisión)
+(run-with-timer 0 0.5 #'my-cursor-periodic-check)
+
+;; Resetear tiempo al mover el cursor o escribir
+(add-hook 'post-command-hook (lambda () (setq my-cursor-last-input (float-time))))
+
+;; Brillo grande al cambiar de ventana o buffer
+(add-hook 'window-selection-change-functions 
+          (lambda (_) (my-cursor-force-blink 'switch)))
+
+(add-hook 'buffer-list-update-hook 
+          (lambda () (unless (minibufferp) (my-cursor-force-blink 'switch))))
+#+end_src
+#+begin_src; emacs-lisp
+(blink-cursor-mode 0)
+(setq-default cursor-type 'bar)
+
+(elpaca beacon
+  (require 'beacon)
+  (beacon-mode 1))
+
+(setq beacon-size 12)
+
+(defvar my-last-input-time 0)
+
+(defun my-beacon-color-from-cursor ()
+  (setq beacon-color
+        (or (frame-parameter nil 'cursor-color) "#ffffff")))
+
+(defun my-beacon-periodic ()
+  (let ((idle (- (float-time) my-last-input-time)))
+    (when (>= idle 1.2)
+      (my-beacon-color-from-cursor)
+      (beacon-blink))))
+
+(defun my-beacon-track-input ()
+  ;; SOLO resetea tiempo, NO hace blink
+  (setq my-last-input-time (float-time)))
+
+(run-with-timer 0 1 #'my-beacon-periodic)
+(add-hook 'post-command-hook #'my-beacon-track-input)
+#+end_src
 #+BEGIN_SRC; emacs-lisp :results silent
   ;; Desactivar el parpadeo del cursor y cambiarlo a tipo barra
   (blink-cursor-mode 0)
