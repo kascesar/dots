@@ -1021,7 +1021,15 @@ Configuración de Emacs:
 - [X] magit es un gestor de repositorios git interactivo y muy poderoso
 - [X] git-gutter muestra en los archivos que lineas se agregan, elimina y modifica
 - [X] git-timemachine permite interactivamente las modificaciones se hicieron
-Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo
+Estos son los paquetes que suelo usar con git en mi dia a dia para desarrollo.
+
+Tips para cherrypick, merge, etc:
+
+1. Desde Magit, selecciona el archivo con el conflicto aprentando la letra =e=
+2. Dentro del UI desplegada, puedes iterar en los conflictos usando =p= (previo) y
+   =n= (siguiente)
+3. Aprentando =a= mantenemos los cambios del archivo actual. Con =b= los del archivo nuevo.
+   
 *** Magit
 #+BEGIN_SRC emacs-lisp
 (use-package transient :ensure t :demand t)
