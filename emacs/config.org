@@ -5,7 +5,6 @@
 * Table of contents                                                              :TOC_4:
 - [[#common-configs][Common configs]]
   - [[#beamer][beamer]]
-  - [[#smooth-scrolling][smooth scrolling]]
   - [[#tree-sitter-languajes][tree-sitter languajes]]
   - [[#babel-lenguajes][Babel lenguajes]]
   - [[#interfaz][Interfaz]]
@@ -38,12 +37,12 @@
   - [[#consult][Consult]]
   - [[#rainbow][rainbow]]
   - [[#org-01][ORG]]
-    - [[#latex-in-org-mode][latex in org mode]]
     - [[#org-elipsis][org-elipsis]]
     - [[#org-toc-table-of-contents][org-toc (table of contents)]]
     - [[#org-agenda--super-agenda][org-agenda & super-agenda]]
     - [[#org-modern][org-modern]]
     - [[#org-modern-indent][org-modern-indent]]
+    - [[#org-tree-slides][org-tree-slides]]
   - [[#calendar][Calendar]]
   - [[#terraform][Terraform]]
   - [[#python][Python]]
@@ -54,7 +53,6 @@
     - [[#git-timemachine][git-timemachine]]
 - [[#tempo][Tempo]]
 - [[#end][end]]
-- [[#latex][latex]]
 
 * Common configs
 #+begin_src emacs-lisp
@@ -69,11 +67,6 @@
 #+RESULTS:
 : ox-beamer
 
-** smooth scrolling
-
-#+begin_src emacs-lisp
-(pixel-scroll-precision-mode t)
-#+end_src
 ** tree-sitter languajes
 Descomentar la linea "mapc" para instalar los lenguajes
 #+begin_src emacs-lisp
@@ -350,7 +343,11 @@ Paquete para verificar ortografía
     :config
     (setq guess-language-languages '(en es))
     (add-hook 'text-mode-hook #'guess-language-mode)
-    (add-hook 'text-mode-hook #'flyspell-mode))
+    (add-hook 'text-mode-hook #'flyspell-mode)
+    (add-hook 'org-mode-hook (lambda ()
+  			     (guess-language-mode -1)
+  			     (flyspell-mode -1))))
+  
 #+end_src
 ** TLDR
 #+begin_src emacs-lisp
@@ -456,7 +453,7 @@ o el oscuro.
 
 #+end_src
 ** Beacon
-#+BEGIN_SRC emacs-lisp :results silent
+#+BEGIN_SRC; emacs-lisp :results silent
   ;; Desactivar el parpadeo del cursor y cambiarlo a tipo barra
   (blink-cursor-mode 0)
   (setq-default cursor-type 'bar)
@@ -651,31 +648,8 @@ En el bufer puedes hacer las siguientes cosas
 - [X] modern-ident mejora la identacion de los bloques de codigo (no me funciona)
 - [X] bullets son unos cambios para las stars en org-mode\0
   
-#+BEGIN_SRC emacs-lisp :results silent
-  ;; Aspecto mejorado al identar
-  ;(add-hook 'org-mode-hook 'org-indent-mode)
-  ;; recomendacion de codigo en org-mode
-  (defun org-mode-setup ()
-  (set (make-local-variable 'company-backends)
-       '((company-dabbrev company-yasnippet)))) ;; Para sugerencias de palabras y snippets
-
-  (add-hook 'org-mode-hook #'company-mode)
-  (add-hook 'org-mode-hook #'org-mode-setup)
-  (setq company-dabbrev-other-buffers t)
-
-  ;; ocultamos los caracteres especiales
-  (setq org-hide-emphasis-markers t)
-#+END_SRC
 
 #+begin_src emacs-lisp :results silent
-  (defun org-mode-setup ()
-  (set (make-local-variable 'company-backends)
-       '((company-dabbrev company-yasnippet))))
-
-  (add-hook 'org-mode-hook #'company-mode)
-  (add-hook 'org-mode-hook #'org-mode-setup)
-  (setq company-dabbrev-other-buffers t)
-
   ;; ocultamos los caracteres especiales
   (setq org-hide-emphasis-markers t)
 
@@ -730,22 +704,6 @@ En el bufer puedes hacer las siguientes cosas
   ;(setq org-log-done 'time)
   ;(setq org-log-into-drawer "state-book")
   (setq org-tags-column 81))
-#+end_src
-*** latex in org mode
-#+begin_src sh
-    sudo apt install texlive texlive-latex-extra dvipng
-  #+end_src
-
-#+begin_src emacs-lisp
-  (setq org-latex-create-formula-image-program 'dvipng)
-  (setq org-preview-latex-default-process 'dvipng)
-#+end_src
-
-Configuraciones que permiten enbellecer el soporte de latex en emacs
-#+begin_src emacs-lisp
-  (plist-put org-format-latex-options :scale 2.0)
-  (setq org-pretty-entities t)
-  (setq org-startup-with-latex-preview t)
 #+end_src
 *** org-elipsis
 #+BEGIN_SRC emacs-lisp :results silent
@@ -865,22 +823,24 @@ Configuraciones que permiten enbellecer el soporte de latex en emacs
 #+end_src
 
 *** org-modern
-#+begin_src emacs-lisp :results silent
+#+begin_src emacs-lisp
   (use-package org-modern
-   :ensure '(org-modern :host github :repo "minad/org-modern")
-   :custom
-   ;(org-modern-hide-stars nil)              
-   (org-modern-table nil)
-   (org-modern-list '((?* . "•") (?+ . "‣")))
-   (org-modern-checkbox '((?X . "✓") (?- . "✗") (?\s . "⬚")))
-   (org-modern-star '("◉" "●" "◎" "⊙" "⊚" "⊛" "∙" "∘" "☉"  "❍" "○" "◌" "⚬" "￮" "◦"))
-   
-   (org-modern-block-name '("" . ""))
-   :hook
-   (org-mode . org-modern-mode)
-   (org-agenda-finalize . org-modern-agenda))
-#+end_src
+    :ensure '(org-modern :host github :repo "minad/org-modern")
+    :custom
+    ;(org-modern-hide-stars nil)
+    (org-modern-table nil)
+    (org-modern-list
+     '((?* . "•")
+       (?+ . "‣"))
+       (?- . "▹"))
+    (org-modern-checkbox '((?X . "✓") (?- . "✗") (?\s . "⬚")))
+    (org-modern-star '("◉" "●" "◎" "⊙" "⊚" "⊛" "∙" "∘" "☉"  "❍" "○" "◌" "⚬" "￮" "◦"))
 
+    (org-modern-block-name '("" . ""))
+    :hook
+    (org-mode . org-modern-mode)
+    (org-agenda-finalize . org-modern-agenda))
+#+end_src
 *** org-modern-indent
 #+begin_src emacs-lisp
   (add-hook 'org-mode-hook 'org-indent-mode)
@@ -894,10 +854,34 @@ Configuraciones que permiten enbellecer el soporte de latex en emacs
     (add-hook 'org-mode-hook #'org-modern-indent-mode 80))
   (setq org-startup-indented t)
 #+end_src
+*** org-tree-slides
+#+begin_src emacs-lisp
+  (elpaca olivetti                      
+    (use-package olivetti
+      :custom
+      (olivetti-body-width 0.6)))
+  (elpaca org-tree-slide
+    (use-package org-tree-slide
+      :custom                                                                                                                                                                               
+      (org-image-actual-width nil)))
+  (with-eval-after-load 'org-tree-slide
+    ;; Navegación
+    (define-key org-tree-slide-mode-map (kbd "<f5>")
+      'org-tree-slide-move-previous-tree)                                                                                                                                                   
+    (define-key org-tree-slide-mode-map (kbd "<f6>")
+      'org-tree-slide-move-next-tree)                                                                                                                                                       
 
-
+    ;; Centrado y cursor al entrar/salir
+    (add-hook 'org-tree-slide-play-hook
+              (lambda ()
+                (olivetti-mode 1)
+                (setq-local truncate-lines t)))
+    (add-hook 'org-tree-slide-stop-hook
+              (lambda ()
+                (olivetti-mode -1)
+                (setq-local truncate-lines nil))))
+#+end_src
 ** Calendar
-
 #+BEGIN_SRC emacs-lisp
     (use-package calfw
     :ensure t
@@ -1020,15 +1004,17 @@ Configuración de Emacs:
       (call-process "ruff" nil nil nil "format" buffer-file-name)
       (revert-buffer t t t)))
 
-  (add-hook 'before-save-hook #'my/python-ruff-format-on-save)
+  (add-hook 'after-save-hook #'my/python-ruff-format-on-save)
 
 #+END_SRC
 ** markdown
 #+begin_src emacs-lisp
-  (add-hook 'markdown-mode-hook #'auto-fill-mode)
-  (add-hook 'markdown-mode-hook
+(add-hook 'markdown-mode-hook
           (lambda ()
-            (setq fill-column 80)))
+            (auto-fill-mode 1)
+            (setq fill-column 80)
+            (setq-local truncate-lines nil)
+            (olivetti-mode 1)))
 #+end_src
 
 ** git [3/3]
@@ -1104,13 +1090,3 @@ Herramienta que me permite observar un archivo de manera interactiva para ver su
 (use-package emacs :ensure nil :config (setq ring-bell-function #'ignore))
 #+END_SRC
 
-
-
-* latex
-
-
-$e^{i\pi} = -1$
-
-$$
-\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
-$$
