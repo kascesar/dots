@@ -357,10 +357,20 @@ Paquete para verificar ortografía
 #+end_src
 
 ** Projectile
+Projectile es un paquete para Emacs diseñado para la gestión de proyectos. Su
+"superpoder"  es que entiende la estructura de tus carpetas. Una vez que entras
+en un archivo que pertenece a un proyecto, Projectile te permite realizar
+acciones  sobre todo el proyecto sin que tengas que decirle dónde están los
+demás  archivos.
 #+begin_src emacs-lisp :results silent
   (elpaca projectile
-    :ensure t)
+    (projectile-mode +1)
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
+
+  ;; Para que usar "find", df o git ls-files por su desepeño superior
+  (setq projectile-indexing-method 'alien) 
 #+end_src
+
 ** Flycheck
 #+begin_src emacs-lisp :results silent
   (elpaca flycheck
@@ -465,7 +475,7 @@ o el oscuro.
 
 ;; --- PANEL DE CONTROL ---
 (defvar my-cursor-settings
-  '((idle-delay    . 0.6)   ; Tiempo para iniciar el pulso
+  '((idle-delay    . 0.3)   ; Tiempo para iniciar el pulso
     (pulse-rate    . 0.6)   ; Frecuencia del pulso constante
     (idle-size     . 15)    ; Tamaño del haz en modo espera
     (switch-size   . 30))   ; Tamaño del haz al saltar de buffer/ventana
@@ -666,6 +676,7 @@ o el oscuro.
             dashboard-insert-items
             dashboard-insert-footer))
   )
+  (setq dashboard-projects-backend 'projectile)
 #+END_SRC
 
 #+RESULTS:
