@@ -677,10 +677,9 @@ o el oscuro.
             dashboard-insert-footer))
   )
   (setq dashboard-projects-backend 'projectile)
-#+END_SRC
+  (setq org-agenda-files '("~/Dropbox/org-agenda/"))
 
-#+RESULTS:
-: [nil 26400 1981 776364 nil elpaca-process-queues nil nil 323000 nil]
+#+END_SRC
 
 ** Vertico
 #+begin_src emacs-lisp :results silent
