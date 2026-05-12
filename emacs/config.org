@@ -46,6 +46,9 @@
   - [[#calendar][Calendar]]
   - [[#terraform][Terraform]]
   - [[#python][Python]]
+  - [[#yaml][YAML]]
+  - [[#breadcrumb-contexto-jerárquico][Breadcrumb (contexto jerárquico)]]
+  - [[#sticky-scroll-yaml--json][Sticky scroll (YAML / JSON)]]
   - [[#markdown][markdown]]
   - [[#git-33][git]]
     - [[#magit][Magit]]
@@ -271,46 +274,45 @@ cuando se abre un qmd, se activa el markdown-mode
 #+END_SRC
 * Package Manager -elpaca-
 #+BEGIN_SRC emacs-lisp
-  (defvar elpaca-installer-version 0.11)
-  (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
-  (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
-  (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
-  (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-  				:ref nil :depth 1
-  				:files (:defaults "elpaca-test.el" (:exclude "extensions"))
-  				:build (:not elpaca--activate-package)))
-  (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-  	 (build (expand-file-name "elpaca/" elpaca-builds-directory))
-  	 (order (cdr elpaca-order))
-  	 (default-directory repo))
-    (add-to-list 'load-path (if (file-exists-p build) build repo))
-    (unless (file-exists-p repo)
-      (make-directory repo t)
-      (when (< emacs-major-version 28) (require 'subr-x))
-      (condition-case-unless-debug err
-  	  (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-  		   ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-  						   ,@(when-let ((depth (plist-get order :depth)))
-  						       (list (format "--depth=%d" depth) "--no-single-branch"))
-  						   ,(plist-get order :repo) ,repo))))
-  		   ((zerop (call-process "git" nil buffer t "checkout"
-  					 (or (plist-get order :ref) "--"))))
-  		   (emacs (concat invocation-directory invocation-name))
-  		   ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-  					 "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-  		   ((require 'elpaca))
-  		   ((elpaca-generate-autoloads "elpaca" repo)))
-  	      (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-  	    (error "%s" (with-current-buffer buffer (buffer-string))))
-  	((error) (warn "%s" err) (delete-directory repo 'recursive))))
-    (unless (require 'elpaca-autoloads nil t)
-      (require 'elpaca)
-      (elpaca-generate-autoloads "elpaca" repo)
-      (load "./elpaca-autoloads")))
-  (add-hook 'after-init-hook #'elpaca-process-queues)
-  (elpaca `(,@elpaca-order))
-  (elpaca elpaca-use-package
-  :ensure t
+(defvar elpaca-installer-version 0.12)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-sources-directory (expand-file-name "sources/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil :depth 1 :inherit ignore
+                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                              :build (:not elpaca-activate)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-sources-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (<= emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                  ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                  ,@(when-let* ((depth (plist-get order :depth)))
+                                                      (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                  ,(plist-get order :repo) ,repo))))
+                  ((zerop (call-process "git" nil buffer t "checkout"
+                                        (or (plist-get order :ref) "--"))))
+                  (emacs (concat invocation-directory invocation-name))
+                  ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                        "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                  ((require 'elpaca))
+                  ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
+(elpaca elpaca-use-package
   (elpaca-use-package-mode))
 #+END_SRC
 ** path
@@ -345,6 +347,9 @@ Paquete para verificar ortografía
     (add-hook 'text-mode-hook #'guess-language-mode)
     (add-hook 'text-mode-hook #'flyspell-mode)
     (add-hook 'org-mode-hook (lambda ()
+  			     (guess-language-mode -1)
+  			     (flyspell-mode -1)))
+    (add-hook 'yaml-ts-mode-hook (lambda ()
   			     (guess-language-mode -1)
   			     (flyspell-mode -1))))
   
@@ -487,15 +492,15 @@ o el oscuro.
 
 (defun my-cursor-force-blink (mode)
   "Ejecuta el brillo usando el color directo del frame (como el código original)."
-  (let ((size (if (eq mode 'switch) 
-                  (my-cursor-get 'switch-size) 
-                (my-cursor-get 'idle-size))))
-    ;; Seteamos el color EXACTAMENTE como en tu primera versión
-    (setq beacon-color (or (frame-parameter nil 'cursor-color) "#ffffff")
-          beacon-size size
-          beacon--last-location nil) ;; Forzamos que brille aunque no se mueva
-    (beacon-blink)
-    (setq my-cursor-last-blink (float-time))))
+  (when (fboundp 'beacon-blink)
+    (let ((size (if (eq mode 'switch)
+                    (my-cursor-get 'switch-size)
+                  (my-cursor-get 'idle-size))))
+      (setq beacon-color (or (frame-parameter nil 'cursor-color) "#ffffff")
+            beacon-size size
+            beacon--last-location nil)
+      (beacon-blink)
+      (setq my-cursor-last-blink (float-time)))))
 
 ;; --- LÓGICA DE TIEMPO Y ACTIVIDAD ---
 
@@ -677,9 +682,10 @@ o el oscuro.
             dashboard-insert-footer))
   )
   (setq dashboard-projects-backend 'projectile)
-  (setq org-agenda-files '("~/Dropbox/org-agenda/"))
-
 #+END_SRC
+
+#+RESULTS:
+: [nil 26400 1981 776364 nil elpaca-process-queues nil nil 323000 nil]
 
 ** Vertico
 #+begin_src emacs-lisp :results silent
@@ -830,6 +836,7 @@ En el bufer puedes hacer las siguientes cosas
     :config
     (org-super-agenda-mode))
 
+
   (setq org-agenda-skip-scheduled-if-done t
   		org-agenda-skip-deadline-if-done t
   		org-agenda-compact-blocks t
@@ -945,16 +952,13 @@ En el bufer puedes hacer las siguientes cosas
 #+end_src
 *** org-modern-indent
 #+begin_src emacs-lisp
-  (add-hook 'org-mode-hook 'org-indent-mode)
-  (use-package compat
-      :ensure (:wait t)
-      :demand t)
+(add-hook 'org-mode-hook 'org-indent-mode)
+(setq org-startup-indented t)
+
+(elpaca (org-modern-indent :host github :repo "jdtsmith/org-modern-indent")
   (use-package org-modern-indent
-    :load-path "~/.emacs.d/org-modern-indent/"
-    ;:after org-modern 
     :config
-    (add-hook 'org-mode-hook #'org-modern-indent-mode 80))
-  (setq org-startup-indented t)
+    (add-hook 'org-mode-hook #'org-modern-indent-mode 90)))
 #+end_src
 *** org-tree-slides
 #+begin_src emacs-lisp
@@ -1101,7 +1105,7 @@ Configuración de Emacs:
   
   ;; Ruff formatter + fixer
   (defun my/python-ruff-format-on-save ()
-    (when (eq major-mode 'python-mode)
+    (when (member major-mode '(python-mode python-ts-mode))
       (call-process "ruff" nil nil nil "check" "--fix" buffer-file-name)
       (call-process "ruff" nil nil nil "format" buffer-file-name)
       (revert-buffer t t t)))
@@ -1109,6 +1113,18 @@ Configuración de Emacs:
   (add-hook 'after-save-hook #'my/python-ruff-format-on-save)
 
 #+END_SRC
+** YAML
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.ya?ml\\'" . yaml-ts-mode))
+#+end_src
+
+** Sticky scroll (YAML / JSON)
+#+begin_src emacs-lisp
+(use-package sticky-scroll-mode
+  :ensure '(sticky-scroll-mode :host github :repo "jclasley/sticky-scroll-mode")
+  :hook ((yaml-ts-mode yaml-mode json-ts-mode json-mode) . sticky-scroll-mode))
+#+end_src
+
 ** markdown
 #+begin_src emacs-lisp
 (add-hook 'markdown-mode-hook
