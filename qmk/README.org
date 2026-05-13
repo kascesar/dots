@@ -1,0 +1,243 @@
+#+TITLE: Crkbd — Guía de uso
+#+AUTHOR: kascesar
+#+LANGUAGE: es
+#+OPTIONS: toc:t num:nil
+
+* Descripción general
+
+El [[https://github.com/foostan/crkbd][Corne Keyboard (crkbd)]] es un teclado ergonómico split de 42 teclas (3×6 + 3 pulgares por lado).
+Esta configuración tiene *5 capas* optimizadas para Emacs y un gestor de ventanas tipo tiling.
+
+El firmware se compila con:
+#+begin_src sh
+qmk compile -kb crkbd/rev1 -km kascesar
+#+end_src
+
+* Capas
+
+Cada diagrama sigue el mismo formato: cada celda tiene exactamente 6 caracteres de contenido.
+Las celdas vacías (~      ~) son teclas transparentes que pasan al layer inferior.
+
+** Layer 0 — Base (QWERTY)
+
+Capa de uso diario. Distribución QWERTY estándar con modificadores en los pulgares.
+
+#+begin_example
+,------+------+------+------+------+------.    ,------+------+------+------+------+------.
+| Tab  |  Q   |  W   |  E   |  R   |  T   |    |  Y   |  U   |  I   |  O   |  P   | Bksp |
+|------+------+------+------+------+------|    |------+------+------+------+------+------|
+| Shft |  A   |  S   |  D   |  F   |  G   |    |  H   |  J   |  K   |  L   |  ;   |  '   |
+|------+------+------+------+------+------|    |------+------+------+------+------+------|
+| Ctrl |  Z   |  X   |  C   |  V   |  B   |    |  N   |  M   |  ,   |  .   |  /   | Esc  |
+`--------------------+------+------+------|    |------+------+------+--------------------'
+                     | Alt  |LT1RET|LT4SPC|    |LT4SPC|LT2RET| GUI  |
+                     `------+------+------'    `------+------+------'
+#+end_example
+
+| Tecla    | Tap     | Hold           |
+|----------+---------+----------------|
+| ~LT1RET~ | Enter   | Activa Layer 1 |
+| ~LT4SPC~ | Espacio | Activa Layer 4 |
+| ~LT2RET~ | Enter   | Activa Layer 2 |
+
+** Layer 1 — Números y Navegación
+
+Se activa manteniendo ~LT1RET~ (pulgar interior izquierdo).
+
+#+begin_example
+,------+------+------+------+------+------.    ,------+------+------+------+------+------.
+| Tab  |  1   |  2   |  3   |  4   |  5   |    | PgUp | PgDn |  Up  | Home |  End | Bksp |
+|------+------+------+------+------+------|    |------+------+------+------+------+------|
+| Shft |  6   |  7   |  8   |  9   |  0   |    |      | Left | Down | Rght |      |      |
+|------+------+------+------+------+------|    |------+------+------+------+------+------|
+| Ctrl |      |      |      |      |      |    |      |      |      |      |      | Esc  |
+`--------------------+------+------+------|    |------+------+------+--------------------'
+                     | GUI  |[HOLD]|  Spc |    |  Ent | MO3  | RAlt |
+                     `------+------+------'    `------+------+------'
+#+end_example
+
+- *Lado izquierdo:* dígitos 1–5 en la fila superior y 6–0 en la fila media
+- *Lado derecho:* flechas direccionales, PgUp, PgDn, Home, End
+- ~MO3~: accede a [[*Layer 3 — Sistema / RGB][Layer 3]] mientras se mantiene presionado
+
+** Layer 2 — Símbolos
+
+Se activa manteniendo ~LT2RET~ (pulgar interior derecho).
+
+#+begin_example
+,------+------+------+------+------+------.    ,------+------+------+------+------+------.
+|  ~   |  !   |  @   |  #   |  $   |  %   |    |  *   |  +   |  ^   |  (   |  )   | Bksp |
+|------+------+------+------+------+------|    |------+------+------+------+------+------|
+| Shft |  `   |      |      |      |      |    |  /   |  -   |  =   |  [   |  ]   |      |
+|------+------+------+------+------+------|    |------+------+------+------+------+------|
+| Ctrl |  \   |  |   |  /   |  -   |  _   |    |  &   |      |      |  {   |  }   |      |
+`--------------------+------+------+------|    |------+------+------+--------------------'
+                     | GUI  | MO3  |  Spc |    |  Ent |[HOLD]| RAlt |
+                     `------+------+------'    `------+------+------'
+#+end_example
+
+- *Lado izquierdo:* símbolos frecuentes en programación (~, !, @, #, $, %, \, |, _, `)
+- *Lado derecho:* operadores aritméticos, paréntesis, corchetes y llaves
+- ~MO3~: accede a [[*Layer 3 — Sistema / RGB][Layer 3]] mientras se mantiene presionado
+
+** Layer 3 — Sistema / RGB
+
+Se activa combinando ~MO3~ desde Layer 1 o Layer 2.
+
+#+begin_example
+,------+------+------+------+------+------.    ,------+------+------+------+------+------.
+| Boot |      |      |      |      |      |    |      |      |      |      |      | Bksp |
+|------+------+------+------+------+------|    |------+------+------+------+------+------|
+| TOG  | HUE+ | SAT+ | VAL+ |      |      |    |      |      |      |      |      |      |
+|------+------+------+------+------+------|    |------+------+------+------+------+------|
+| MOD  | HUE- | SAT- | VAL- |      |      |    |      |      |      |      |      |      |
+`--------------------+------+------+------|    |------+------+------+--------------------'
+                     | GUI  |      |  Spc |    |  Ent |      | RAlt |
+                     `------+------+------'    `------+------+------'
+#+end_example
+
+| Tecla    | Acción                              |
+|----------+-------------------------------------|
+| ~Boot~   | Entra en modo bootloader (flashear) |
+| ~TOG~    | Enciende / apaga el RGB underglow   |
+| ~MOD~    | Cambia el modo de animación RGB     |
+| ~HUE+/−~ | Ajusta el tono de color             |
+| ~SAT+/−~ | Ajusta la saturación                |
+| ~VAL+/−~ | Ajusta el brillo                    |
+
+#+begin_quote
+*Para flashear:* activar Layer 3 (L1+MO3 o L2+MO3), luego presionar ~Boot~.
+El teclado entrará en modo DFU/bootloader.
+#+end_quote
+
+** Layer 4 — Emacs + Gestor de ventanas
+
+Se activa manteniendo cualquiera de los dos ~LT4SPC~ (pulgares exteriores).
+
+#+begin_example
+,------+------+------+------+------+------.    ,------+------+------+------+------+------.
+| Tab  |  X-0 |  X-1 |  X-3 |  X-2 |  X-k |    |Win+T |Win+S |Win+↑ |W+F11 |Win+Y |Win+Q |
+|------+------+------+------+------+------|    |------+------+------+------+------+------|
+| Shft |      |  XG  | F10  |  DE  |  IN  |    |      |Win+← |Win+↓ |Win+→ |      |      |
+|------+------+------+------+------+------|    |------+------+------+------+------+------|
+| Ctrl |      |      |      |      |      |    |      |      |      |      |      | Esc  |
+`--------------------+------+------+------|    |------+------+------+--------------------'
+                     | Alt  |      |[HOLD]|    |[HOLD]|Win+Y |      |
+                     `------+------+------'    `------+------+------'
+#+end_example
+
+*** Macros de Emacs (lado izquierdo)
+
+| Tecla  | Secuencia | Descripción                           |
+|--------+-----------+---------------------------------------|
+| ~X-0~  | ~C-x 0~   | Cierra la ventana actual              |
+| ~X-1~  | ~C-x 1~   | Cierra todas las otras ventanas       |
+| ~X-2~  | ~C-x 2~   | Divide la ventana horizontalmente     |
+| ~X-3~  | ~C-x 3~   | Divide la ventana verticalmente       |
+| ~X-k~  | ~C-x k~   | Mata (cierra) el buffer actual        |
+| ~XG~   | ~C-x g~          | Abre Magit                              |
+| ~DE~   | ~C-u -4 C-x TAB~ | Desindenta 4 espacios (línea/selección) |
+| ~IN~   | ~C-u 4 C-x TAB~  | Indenta 4 espacios (línea/selección)    |
+
+*** Gestor de ventanas — Win key (lado derecho)
+
+| Tecla    | Atajo      | Acción típica en tiling WM              |
+|----------+------------+-----------------------------------------|
+| ~Win+T~  | Super+T    | Abrir terminal                          |
+| ~Win+S~  | Super+S    | Buscar / lanzador de apps               |
+| ~Win+↑~  | Super+↑    | Mover ventana arriba / maximizar        |
+| ~W+F11~  | Super+F11  | (personalizado para tu WM)              |
+| ~Win+Y~  | Super+Y    | (personalizado para tu WM)              |
+| ~Win+Q~  | Super+Q    | Cerrar ventana                          |
+| ~Win+←~  | Super+←    | Mover / enfocar ventana a la izquierda  |
+| ~Win+↓~  | Super+↓    | Mover ventana abajo                     |
+| ~Win+→~  | Super+→    | Mover / enfocar ventana a la derecha    |
+
+* Resumen de activación de capas
+
+#+begin_example
+LT1RET (hold)        →  Layer 1  Numeros + Navegacion
+LT2RET (hold)        →  Layer 2  Simbolos
+LT4SPC (hold)        →  Layer 4  Emacs + Gestor de ventanas
+Layer 1 + MO3        →  Layer 3  Sistema / RGB
+Layer 2 + MO3        →  Layer 3  Sistema / RGB
+#+end_example
+
+* Compilar y flashear
+
+** Compilar
+
+#+begin_src sh
+qmk compile -kb crkbd/rev1 -km kascesar
+#+end_src
+
+El archivo generado es ~crkbd_rev1_kascesar.hex~ en la raíz de ~qmk_firmware/~.
+
+** Cómo entrar en modo bootloader
+
+Hay dos formas de poner una mitad en modo bootloader:
+
+- *Desde el teclado (recomendado):* activar [[*Layer 3 — Sistema / RGB][Layer 3]] (mantener LT1RET + MO3,
+  o LT2RET + MO3) y presionar ~Boot~ (esquina superior izquierda).
+- *Con el botón físico:* presionar dos veces rápido el botón de reset
+  en el Pro Micro / Elite-C de esa mitad.
+
+El teclado aparece como dispositivo USB en modo DFU o Caterina
+(dependiendo del controlador). Ejecutar ~qmk flash~ /antes/ de reiniciar
+la mitad si querés que el comando espere la conexión automáticamente.
+
+** Flashear la mitad izquierda
+
+Esta configuración no usa ~EE_HANDS~: ambas mitades reciben el *mismo
+firmware*. La mitad conectada por USB actúa como master.
+
+#+begin_src sh
+# 1. Conectar la mitad IZQUIERDA por USB
+# 2. Poner esa mitad en modo bootloader (Boot o botón reset)
+# 3. Ejecutar:
+qmk flash -kb crkbd/rev1 -km kascesar
+# El comando detecta el dispositivo automáticamente y flashea
+#+end_src
+
+** Flashear la mitad derecha
+
+#+begin_src sh
+# 1. Desconectar la mitad izquierda
+# 2. Conectar la mitad DERECHA por USB
+# 3. Poner esa mitad en modo bootloader (Boot o botón reset)
+# 4. Ejecutar el mismo comando:
+qmk flash -kb crkbd/rev1 -km kascesar
+#+end_src
+
+** Orden recomendado y verificación
+
+#+begin_example
+[ ] 1. Compilar:  qmk compile -kb crkbd/rev1 -km kascesar
+[ ] 2. Conectar mitad IZQUIERDA por USB
+[ ] 3. Entrar en bootloader (Boot o reset x2)
+[ ] 4. Flashear:  qmk flash -kb crkbd/rev1 -km kascesar
+[ ] 5. Esperar confirmación "File downloaded successfully"
+[ ] 6. Desconectar mitad izquierda
+[ ] 7. Conectar mitad DERECHA por USB
+[ ] 8. Entrar en bootloader (Boot o reset x2)
+[ ] 9. Flashear:  qmk flash -kb crkbd/rev1 -km kascesar
+[ ] 10. Esperar confirmación "File downloaded successfully"
+[ ] 11. Conectar ambas mitades con el cable TRRS
+[ ] 12. Conectar la mitad IZQUIERDA al computador por USB
+#+end_example
+
+#+begin_quote
+*Importante:* siempre conectar el cable TRRS (entre mitades) *antes* de
+conectar el USB al computador, y desconectar el USB *antes* de
+desconectar el TRRS. Conectar/desconectar TRRS con alimentación puede
+dañar los controladores.
+#+end_quote
+
+** Solución de problemas
+
+| Síntoma                          | Causa probable                        | Solución                                      |
+|----------------------------------+---------------------------------------+-----------------------------------------------|
+| Solo funciona una mitad          | La derecha no fue flasheada           | Flashear la mitad derecha                     |
+| Teclas invertidas (L/R swapped)  | Mitad incorrecta conectada al USB     | Usar la mitad *izquierda* como master         |
+| El dispositivo no aparece en DFU | Reset muy lento (Pro Micro Caterina)  | Presionar reset 2 veces seguidas rápidamente  |
+| ~avrdude~ no encuentra el puerto | Permisos de USB                       | ~sudo usermod -aG dialout $USER~ y reloguear  |
