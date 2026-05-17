@@ -31,6 +31,7 @@
   - [[#beacon][Beacon]]
   - [[#highlight-indent-guide][Highlight-indent-guide]]
   - [[#all-the-icons][All-the-icons]]
+  - [[#dirvish][Dirvish]]
   - [[#dashboard][Dashboard]]
   - [[#vertico][Vertico]]
   - [[#marginalia][Marginalia]]
@@ -623,12 +624,63 @@ o el oscuro.
   (use-package all-the-icons
    :ensure t
    :if (display-graphic-p))
-
-  (use-package all-the-icons-dired
-  :ensure t
-  :if (display-graphic-p))
-  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 #+END_SRC
+
+** Dirvish
+Gestor de archivos moderno sobre dired. Requiere en el sistema:
+=sudo dnf install fd-find ffmpegthumbnailer mediainfo=
+
+| Atajo | Acción                                            |
+|-------+---------------------------------------------------|
+| C-x d | Abre Dirvish (reemplaza dired normal)             |
+| C-c d | Abre panel lateral (Dirvish Side)                 |
+| TAB   | Expandir subdirectorio en árbol                   |
+| a     | Acceso rápido a favoritos (home, develop, notas…) |
+| M-t   | Toggle layout (panel de preview lateral)          |
+| y     | Menú de copiar/mover archivos                     |
+| v     | Menú de vc/git                                    |
+| s     | Ordenar archivos                                  |
+| M-j   | Saltar directorio con fd                          |
+
+#+begin_src emacs-lisp
+  (use-package dirvish
+    :ensure '(dirvish :host github :repo "alexluigit/dirvish")
+    :init
+    (dirvish-override-dired-mode)
+    :custom
+    (dirvish-quick-access-entries
+     '(("h" "~/"           "Home")
+       ("d" "~/Downloads/"  "Downloads")
+       ("D" "~/develop/"    "Develop")
+       ("n" "~/Dropbox/denote-notes/" "Notas")))
+    (dirvish-attributes
+     '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
+    (dirvish-mode-line-format
+     '(:left (sort symlink) :right (omit yank index)))
+    :config
+    (dirvish-side-follow-mode)
+    :bind
+    (("C-x d"  . dirvish)
+     ("C-c d"  . dirvish-side)
+     :map dirvish-mode-map
+     ("a"   . dirvish-quick-access)
+     ("f"   . dirvish-file-info-menu)
+     ("y"   . dirvish-yank-menu)
+     ("N"   . dirvish-narrow)
+     ("^"   . dirvish-history-last)
+     ("h"   . dirvish-history-jump)
+     ("s"   . dirvish-quicksort)
+     ("v"   . dirvish-vc-menu)
+     ("TAB" . dirvish-subtree-toggle)
+     ("M-f" . dirvish-history-go-forward)
+     ("M-b" . dirvish-history-go-backward)
+     ("M-l" . dirvish-ls-switches-menu)
+     ("M-m" . dirvish-mark-menu)
+     ("M-t" . dirvish-layout-toggle)
+     ("M-s" . dirvish-setup-menu)
+     ("M-e" . dirvish-emerge-menu)
+     ("M-j" . dirvish-fd-jump)))
+#+end_src
 ** Dashboard
 #+BEGIN_SRC emacs-lisp
     ;; Configuración del `dashboard` en Emacs usando `elpaca`
@@ -1140,7 +1192,8 @@ Configuración de Emacs:
                        (setq fill-column 80)
                        (setq-local truncate-lines nil)
                        (olivetti-mode 1)
-                       (display-line-numbers-mode -1))))
+                       (display-line-numbers-mode -1)
+                       (markdown-toggle-inline-images))))
 #+end_src
 
 ** git [3/3]
