@@ -939,8 +939,8 @@ En el bufer puedes hacer las siguientes cosas
     (org-modern-table nil)
     (org-modern-list
      '((?* . "•")
-       (?+ . "‣"))
-       (?- . "▹"))
+       (?+ . "‣")
+       (?- . "▹")))
     (org-modern-checkbox '((?X . "✓") (?- . "✗") (?\s . "⬚")))
     (org-modern-star '("◉" "●" "◎" "⊙" "⊚" "⊛" "∙" "∘" "☉"  "❍" "○" "◌" "⚬" "￮" "◦"))
 
@@ -953,11 +953,6 @@ En el bufer puedes hacer las siguientes cosas
 #+begin_src emacs-lisp
 (add-hook 'org-mode-hook 'org-indent-mode)
 (setq org-startup-indented t)
-
-(elpaca (org-modern-indent :host github :repo "jdtsmith/org-modern-indent")
-  (use-package org-modern-indent
-    :config
-    (add-hook 'org-mode-hook #'org-modern-indent-mode 90)))
 #+end_src
 *** org-tree-slides
 #+begin_src emacs-lisp
