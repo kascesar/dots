@@ -35,6 +35,12 @@ Dirección: `j=←  k=↓  l=→  i=↑`
 | Activar/desactivar floating | `Super+g` |
 | Toggle stacking | `Super+s` |
 
+### Dash nativo de GNOME
+
+| Acción | Atajo |
+|---|---|
+| Lanzar/enfocar app 1-9 del dash | `Super+1` … `Super+9` |
+
 ## Notas
 
 - Los workspaces en GNOME moderno son **horizontales**, por eso cambiar workspace solo aplica a izquierda/derecha.

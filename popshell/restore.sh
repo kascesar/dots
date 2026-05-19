@@ -88,5 +88,15 @@ gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-right "['<Contr
 gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-up    "['<Control><Shift><Super>Up',    '<Control><Shift><Super>i']"
 gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-down  "['<Control><Shift><Super>Down',  '<Control><Shift><Super>k']"
 
+# ==============================================================================
+# Dash to Panel — lanzar apps por numero (Super+1..9)
+# ==============================================================================
+
+echo "Configurando Super+numero para lanzar apps del panel..."
+
+for i in $(seq 1 9); do
+    gsettings set org.gnome.shell.keybindings "switch-to-application-$i" "['<Super>$i']"
+done
+
 echo ""
 echo "Listo. Todos los keybindings configurados."
