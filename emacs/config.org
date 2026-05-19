@@ -185,6 +185,7 @@ Descomentar la linea "mapc" para instalar los lenguajes
 ** Font
 #+begin_src emacs-lisp
 (set-frame-font "DejaVu Sans Mono-13" nil t)
+(set-face-attribute 'variable-pitch nil :family "Cantarell" :height 1.2)
 #+end_src
 
 ** Recent files
@@ -1149,7 +1150,7 @@ Configuración de Emacs:
     :mode ("\\.md\\'" "\\.markdown\\'")
     :custom
     ;; Oculta los marcadores (* ** ` ~~) igual que org-hide-emphasis-markers
-    (markdown-hide-markup t)
+    (markdown-hide-markup nil)
     ;; Resalta código nativo con tree-sitter/font-lock según el lenguaje
     (markdown-fontify-code-blocks-natively t)
     ;; Escala los headers H1-H6 visualmente
@@ -1158,17 +1159,43 @@ Configuración de Emacs:
     ;; Muestra un guión como viñeta en lugar de "-"
     (markdown-list-indent-width 2)
     :config
-    (set-face-attribute 'markdown-header-face-1 nil :height 1.6)
-    (set-face-attribute 'markdown-header-face-2 nil :height 1.3)
-    (set-face-attribute 'markdown-header-face-3 nil :height 1.0)
+    (set-face-attribute 'markdown-header-face-1 nil :height 2.0)
+    (set-face-attribute 'markdown-header-face-2 nil :height 1.6)
+    (set-face-attribute 'markdown-header-face-3 nil :height 1.3)
     (set-face-attribute 'markdown-header-face-4 nil :height 1.0)
     (set-face-attribute 'markdown-header-face-5 nil :height 1.0)
     (set-face-attribute 'markdown-header-face-6 nil :height 1.0)
+    (set-face-attribute 'markdown-code-face        nil :inherit 'fixed-pitch)
+    (set-face-attribute 'markdown-pre-face         nil :inherit 'fixed-pitch)
+    (set-face-attribute 'markdown-inline-code-face nil :inherit 'fixed-pitch)
+    (set-face-attribute 'markdown-url-face         nil :inherit 'fixed-pitch)
+    (add-hook 'markdown-mode-hook
+              (lambda ()
+                (font-lock-add-keywords nil
+                  '(("^\\s-*\\(?:---\\|\\*\\*\\*\\|___\\)\\s-*$"
+                     (0 '(face (:overline t) display (space :align-to right)) t)))
+                  t)))
+    (defun my/markdown-markup-subtle ()
+      (let* ((bg (face-attribute 'default :background))
+             (fg (face-attribute 'default :foreground))
+             (subtle (apply #'color-rgb-to-hex
+                            (cl-mapcar (lambda (a b) (+ (* 0.70 a) (* 0.30 b)))
+                                       (color-name-to-rgb bg)
+                                       (color-name-to-rgb fg)))))
+        (set-face-attribute 'markdown-markup-face nil :foreground subtle)))
+    (add-hook 'ef-themes-post-load-hook #'my/markdown-markup-subtle)
+    (my/markdown-markup-subtle)
+    (defun my/markdown-sync-reading-style (&rest _)
+      (if markdown-hide-markup
+          (progn (variable-pitch-mode 1)
+                 (setq-local line-spacing 0.3))
+        (progn (variable-pitch-mode -1)
+               (setq-local line-spacing 0.6))))
+    (advice-add 'markdown-toggle-markup-hiding :after #'my/markdown-sync-reading-style)
     :hook
     (markdown-mode . (lambda ()
-                       (auto-fill-mode 1)
-                       (setq fill-column 80)
                        (setq-local truncate-lines nil)
+                       (setq-local line-spacing 0.6)
                        (olivetti-mode 1)
                        (display-line-numbers-mode -1)
                        (markdown-toggle-inline-images))))
