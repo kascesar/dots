@@ -128,6 +128,7 @@ Descomentar la linea "mapc" para instalar los lenguajes
   (global-visual-line-mode nil)
   (setq inhibit-startup-screen t)    ;; Desactiva la pantalla de inicio
   (setq inhibit-startup-message t)   ;; Desactiva el mensaje de inicio
+  (setq vc-follow-symlinks t)        ;; Sigue symlinks sin preguntar
 #+END_SRC
 ** Ajuste de lineas
 #+begin_src emacs-lisp :results silent
@@ -1153,9 +1154,16 @@ Configuración de Emacs:
     (markdown-fontify-code-blocks-natively t)
     ;; Escala los headers H1-H6 visualmente
     (markdown-header-scaling t)
-    (markdown-header-scaling-values '(1.8 1.5 1.3 1.1 1.0 0.9))
+    (markdown-header-scaling-values '(1.6 1.3 1.0 1.0 1.0 1.0))
     ;; Muestra un guión como viñeta en lugar de "-"
     (markdown-list-indent-width 2)
+    :config
+    (set-face-attribute 'markdown-header-face-1 nil :height 1.6)
+    (set-face-attribute 'markdown-header-face-2 nil :height 1.3)
+    (set-face-attribute 'markdown-header-face-3 nil :height 1.0)
+    (set-face-attribute 'markdown-header-face-4 nil :height 1.0)
+    (set-face-attribute 'markdown-header-face-5 nil :height 1.0)
+    (set-face-attribute 'markdown-header-face-6 nil :height 1.0)
     :hook
     (markdown-mode . (lambda ()
                        (auto-fill-mode 1)
