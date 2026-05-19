@@ -129,6 +129,7 @@ Descomentar la linea "mapc" para instalar los lenguajes
   (setq inhibit-startup-screen t)    ;; Desactiva la pantalla de inicio
   (setq inhibit-startup-message t)   ;; Desactiva el mensaje de inicio
   (setq vc-follow-symlinks t)        ;; Sigue symlinks sin preguntar
+  (pixel-scroll-precision-mode 1)
 #+END_SRC
 ** Ajuste de lineas
 #+begin_src emacs-lisp :results silent
