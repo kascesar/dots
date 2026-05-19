@@ -47,11 +47,11 @@ gsettings set org.gnome.shell.extensions.pop-shell focus-down  "['<Super>Down', 
 gsettings set org.gnome.shell.extensions.pop-shell focus-right "['<Super>Right', '<Super>KP_Right', '<Super>l']"
 gsettings set org.gnome.shell.extensions.pop-shell focus-up    "['<Super>Up',    '<Super>KP_Up',    '<Super>i']"
 
-# Mover tile en adjustment mode (Super+Enter para entrar) — Super+arrow/jkli
-gsettings set org.gnome.shell.extensions.pop-shell tile-move-left  "['<Super>j']"
-gsettings set org.gnome.shell.extensions.pop-shell tile-move-down  "['<Super>k']"
-gsettings set org.gnome.shell.extensions.pop-shell tile-move-right "['<Super>l']"
-gsettings set org.gnome.shell.extensions.pop-shell tile-move-up    "['<Super>i']"
+# Mover tile en adjustment mode (Super+Enter para entrar) — flechas o Super+jkli
+gsettings set org.gnome.shell.extensions.pop-shell tile-move-left  "['Left',  '<Super>j']"
+gsettings set org.gnome.shell.extensions.pop-shell tile-move-down  "['Down',  '<Super>k']"
+gsettings set org.gnome.shell.extensions.pop-shell tile-move-right "['Right', '<Super>l']"
+gsettings set org.gnome.shell.extensions.pop-shell tile-move-up    "['Up',    '<Super>i']"
 
 # Mover tile globalmente sin adjustment mode — Super+Shift+arrow/jkli
 gsettings set org.gnome.shell.extensions.pop-shell tile-move-left-global  "['<Super><Shift>Left',  '<Super><Shift>KP_Left',  '<Super><Shift>j']"
@@ -91,6 +91,12 @@ gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-down  "['<Contr
 # ==============================================================================
 # Dash to Panel — lanzar apps por numero (Super+1..9)
 # ==============================================================================
+
+# toggle-tiled-left usa Ctrl+Super+Left por defecto, lo que bloquea switch-to-workspace-left
+gsettings set org.gnome.mutter.keybindings toggle-tiled-left "[]"
+
+echo "Configurando Super+W para mostrar escritorios..."
+gsettings set org.gnome.shell.keybindings toggle-overview "['<Super>w']"
 
 echo "Configurando Super+numero para lanzar apps del panel..."
 
