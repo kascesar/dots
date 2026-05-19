@@ -3,13 +3,24 @@
 Config principal en `config.org` (org-babel literate config), cargada desde `init.el`.
 Gestor de paquetes: **elpaca**.
 
+## Instalación
+
+```bash
+bash install.sh
+```
+
+El script crea los symlinks necesarios para que Emacs cargue la config desde este repo.
+Si es una instalación nueva, compilar Emacs 31 primero (ver sección al final).
+
 ---
 
 ## Keybindings globales personalizados
 
 | Atajo | Acción |
 |---|---|
-| `M-←/→/↑/↓` | Mover entre ventanas |
+| `M-j/k/l/i` | Mover cursor ←↓→↑ (teclado 60%) |
+| `M-J/K/L/I` | Cambiar ventana ←↓→↑ (teclado 60%) |
+| `M-←/↓/→/↑` | Cambiar ventana (flechas) |
 | `C-z` | Undo (reemplaza suspend-frame) |
 | `C-+` / `C--` | Aumentar / disminuir fuente |
 | `C-scroll` | Zoom con mouse |
@@ -19,6 +30,23 @@ Gestor de paquetes: **elpaca**.
 | `C-c r` | Archivos recientes (consult) |
 | `C-c i` | Toggle imenu-list lateral |
 | `C-c l/a/c` | org-store-link / org-agenda / org-capture |
+
+### Navegación en Dired
+
+| Atajo | Acción |
+|---|---|
+| `i` | Línea anterior |
+| `k` | Línea siguiente |
+| `l` | Abrir archivo o directorio |
+| `j` | Subir al directorio padre |
+
+### Navegación en Dashboard
+
+| Atajo | Acción |
+|---|---|
+| `i` | Ítem anterior |
+| `k` | Ítem siguiente |
+| `l` | Abrir ítem |
 
 ---
 
@@ -34,26 +62,6 @@ Gestor de paquetes: **elpaca**.
 | `M-s M-o` | Buscar por heading/outline |
 
 En el mini-buffer de `consult-buffer`: `b SPC` filtra buffers, `f` archivos, `p` proyectos, `m SPC` bookmarks.
-
----
-
-## Gestor de archivos — Dirvish
-
-Reemplaza dired. Abre con `C-x d` (full) o `C-c d` (panel lateral).
-
-| Atajo | Acción |
-|---|---|
-| `C-x d` | Abre Dirvish |
-| `C-c d` | Panel lateral (side) |
-| `TAB` | Expandir subdirectorio inline |
-| `a` | Accesos rápidos (home / downloads / develop / notas) |
-| `M-t` | Toggle layout con panel de preview |
-| `y` | Menú copiar/mover |
-| `v` | Menú git/vc |
-| `s` | Ordenar archivos |
-| `M-j` | Saltar a directorio con `fd` |
-
-Dependencias del sistema: `fd-find ffmpegthumbnailer mediainfo` (ya instalados).
 
 ---
 
@@ -90,8 +98,6 @@ Al guardar un `.py` se ejecuta automáticamente `ruff check --fix` y `ruff forma
 
 Requiere en el sistema:
 ```bash
-pipx install pyright ruff
-# o con uv:
 uv tool install pyright ruff
 ```
 
@@ -134,3 +140,32 @@ Directorio: `~/Dropbox/denote-notes/`
 - **git-gutter** — indicadores `M` `+` `-` en el margen izquierdo, activo globalmente
 - **git-timemachine** — recorre versiones del archivo interactivamente
 - Repositorios escaneados desde `~/develop` (profundidad 3)
+
+---
+
+## Compilar Emacs 31 (Fedora)
+
+Emacs 31 no está en los repos oficiales, hay que compilarlo.
+
+```bash
+# Dependencias
+sudo dnf install -y gcc make ncurses-devel gtk3-devel libXpm-devel \
+    libjpeg-devel libpng-devel libtiff-devel giflib-devel \
+    gnutls-devel jansson-devel harfbuzz-devel sqlite-devel \
+    libgccjit-devel libtree-sitter-devel texinfo
+
+# Compilar
+git clone --depth 1 --branch emacs-31 https://git.savannah.gnu.org/git/emacs.git
+cd emacs
+./autogen.sh
+./configure --with-pgtk --with-native-compilation --with-tree-sitter --with-json
+make -j$(nproc)
+sudo make install
+```
+
+Después de instalar, copiar el `.desktop` al lugar que GNOME detecta:
+
+```bash
+sudo cp /usr/local/share/applications/emacs.desktop /usr/share/applications/
+sudo update-desktop-database /usr/share/applications/
+```

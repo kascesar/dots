@@ -1,6 +1,7 @@
 #+TITLE: Global configs
 #+DESCRIPTION: Emacs configs
 #+AUTHOR: Cesar Munoz
+#+PROPERTY: header-args:emacs-lisp :lexical t
 
 * Table of contents                                                              :TOC_4:
 - [[#common-configs][Common configs]]
@@ -31,7 +32,6 @@
   - [[#beacon][Beacon]]
   - [[#highlight-indent-guide][Highlight-indent-guide]]
   - [[#all-the-icons][All-the-icons]]
-  - [[#dirvish][Dirvish]]
   - [[#dashboard][Dashboard]]
   - [[#vertico][Vertico]]
   - [[#marginalia][Marginalia]]
@@ -155,6 +155,13 @@ Descomentar la linea "mapc" para instalar los lenguajes
   (setq dired-omit-files "^\\...+$")
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode 1)))
 
+  ;; Navegacion con jkli en dired (estilo teclado 60%)
+  (with-eval-after-load 'dired
+    (define-key dired-mode-map (kbd "i") #'dired-previous-line)
+    (define-key dired-mode-map (kbd "k") #'dired-next-line)
+    (define-key dired-mode-map (kbd "l") #'dired-find-file)
+    (define-key dired-mode-map (kbd "j") #'dired-up-directory))
+
   ;; dont ask when kill buffer
   (global-set-key [remap kill-buffer] #'kill-this-buffer)
 
@@ -239,11 +246,21 @@ cuando se abre un qmd, se activa el markdown-mode
     ;; Additional configurations
     ;;(global-set-key (kbd "C-x k") 'kill-this-buffer)
     (global-set-key (kbd "C-x k") 'kill-current-buffer)
-    ;; Move between windows using Meta key
-    (global-set-key [M-left] 'windmove-left)
-    (global-set-key [M-right] 'windmove-right)
-    (global-set-key [M-up] 'windmove-up)
-    (global-set-key [M-down] 'windmove-down)
+    ;; Navegacion de cursor con M-jkli (equivalente a flechas, teclado 60%)
+    (global-set-key (kbd "M-j") #'backward-char)
+    (global-set-key (kbd "M-k") #'next-line)
+    (global-set-key (kbd "M-i") #'previous-line)
+    (global-set-key (kbd "M-l") #'forward-char)
+
+    ;; Cambiar de ventana con M-flechas y M-JKLI
+    (global-set-key [M-left]  #'windmove-left)
+    (global-set-key [M-right] #'windmove-right)
+    (global-set-key [M-up]    #'windmove-up)
+    (global-set-key [M-down]  #'windmove-down)
+    (global-set-key (kbd "M-J") #'windmove-left)
+    (global-set-key (kbd "M-K") #'windmove-down)
+    (global-set-key (kbd "M-I") #'windmove-up)
+    (global-set-key (kbd "M-L") #'windmove-right)
 
     ;; Zoom in/out with mouse
     (global-set-key [C-mouse-4] 'text-scale-increase)
@@ -626,61 +643,6 @@ o el oscuro.
    :if (display-graphic-p))
 #+END_SRC
 
-** Dirvish
-Gestor de archivos moderno sobre dired. Requiere en el sistema:
-=sudo dnf install fd-find ffmpegthumbnailer mediainfo=
-
-| Atajo | Acción                                            |
-|-------+---------------------------------------------------|
-| C-x d | Abre Dirvish (reemplaza dired normal)             |
-| C-c d | Abre panel lateral (Dirvish Side)                 |
-| TAB   | Expandir subdirectorio en árbol                   |
-| a     | Acceso rápido a favoritos (home, develop, notas…) |
-| M-t   | Toggle layout (panel de preview lateral)          |
-| y     | Menú de copiar/mover archivos                     |
-| v     | Menú de vc/git                                    |
-| s     | Ordenar archivos                                  |
-| M-j   | Saltar directorio con fd                          |
-
-#+begin_src emacs-lisp
-  (use-package dirvish
-    :ensure '(dirvish :host github :repo "alexluigit/dirvish")
-    :init
-    (dirvish-override-dired-mode)
-    :custom
-    (dirvish-quick-access-entries
-     '(("h" "~/"           "Home")
-       ("d" "~/Downloads/"  "Downloads")
-       ("D" "~/develop/"    "Develop")
-       ("n" "~/Dropbox/denote-notes/" "Notas")))
-    (dirvish-attributes
-     '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
-    (dirvish-mode-line-format
-     '(:left (sort symlink) :right (omit yank index)))
-    :config
-    (dirvish-side-follow-mode)
-    :bind
-    (("C-x d"  . dirvish)
-     ("C-c d"  . dirvish-side)
-     :map dirvish-mode-map
-     ("a"   . dirvish-quick-access)
-     ("f"   . dirvish-file-info-menu)
-     ("y"   . dirvish-yank-menu)
-     ("N"   . dirvish-narrow)
-     ("^"   . dirvish-history-last)
-     ("h"   . dirvish-history-jump)
-     ("s"   . dirvish-quicksort)
-     ("v"   . dirvish-vc-menu)
-     ("TAB" . dirvish-subtree-toggle)
-     ("M-f" . dirvish-history-go-forward)
-     ("M-b" . dirvish-history-go-backward)
-     ("M-l" . dirvish-ls-switches-menu)
-     ("M-m" . dirvish-mark-menu)
-     ("M-t" . dirvish-layout-toggle)
-     ("M-s" . dirvish-setup-menu)
-     ("M-e" . dirvish-emerge-menu)
-     ("M-j" . dirvish-fd-jump)))
-#+end_src
 ** Dashboard
 #+BEGIN_SRC emacs-lisp
     ;; Configuración del `dashboard` en Emacs usando `elpaca`
@@ -733,6 +695,14 @@ Gestor de archivos moderno sobre dired. Requiere en el sistema:
             dashboard-insert-footer))
   )
   (setq dashboard-projects-backend 'projectile)
+
+  ;; Navegacion con jkli en dashboard
+  (add-hook 'dashboard-mode-hook
+            (lambda ()
+              (local-set-key (kbd "i") #'dashboard-previous-line)
+              (local-set-key (kbd "k") #'dashboard-next-line)
+              (local-set-key (kbd "l") #'dashboard-return)
+              (local-set-key (kbd "j") #'dashboard-next-line)))
 #+END_SRC
 
 #+RESULTS:
