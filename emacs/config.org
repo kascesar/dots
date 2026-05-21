@@ -398,9 +398,12 @@ demás  archivos.
 
 ** Flycheck
 #+begin_src emacs-lisp :results silent
-  (elpaca flycheck
-    :ensure t
-    :init(global-flycheck-mode))
+(elpaca flycheck
+  :ensure t
+  :init (global-flycheck-mode)
+  :config
+  (setq flycheck-disabled-checkers '(python-mypy))
+  (add-hook 'eglot-managed-mode-hook (lambda () (flycheck-mode -1))))
 #+end_src
 
 ** Imenu-list
@@ -1056,13 +1059,15 @@ Configuración moderna de desarrollo Python en Emacs usando LSP.
 Herramientas necesarias:
 
 #+BEGIN_SRC sh
-# Instalar herramientas globales
-pipx install pyright
-pipx install ruff
+  # Instalar herramientas globales
+  pipx install pyright
+  pipx install ruff
+  pipx install pyrefly
 
-# O si usas uv
-uv tool install pyright
-uv tool install ruff
+  # O si usas uv
+  uv tool install pyright
+  uv tool install ruff
+  uv tool install pyrefly
 #+END_SRC
 
 
@@ -1070,26 +1075,21 @@ Configuración de Emacs:
 
 #+BEGIN_SRC emacs-lisp :results silent
 
-  ;;;; Python moderno (Pyright + Ruff + LSP)
+  ;;;; Python moderno (Pyrefly + Eglot + Ruff)
 
-  ;; LSP core
-  (use-package lsp-mode
-    :ensure t
-    :hook (python-mode . lsp-deferred)
+  ;; LSP core — built-in desde Emacs 29
+  (use-package eglot
+    :ensure nil
+    :hook ((python-mode . eglot-ensure)
+           (python-ts-mode . eglot-ensure))
     :custom
-    (lsp-headerline-breadcrumb-enable t)
-    (lsp-enable-symbol-highlighting t)
-    (lsp-enable-on-type-formatting nil)
-    (lsp-enable-formatting nil))
+    (eglot-autoshutdown t)
+    (eglot-connect-timeout 30)
+    :config
+    (add-to-list 'eglot-server-programs
+      `((python-mode python-ts-mode) . ("pyrefly" "lsp"))))
 
-  ;; Pyright
-  (use-package lsp-pyright
-    :ensure t
-    :after lsp-mode
-    :hook (python-mode . (lambda ()
-                           (require 'lsp-pyright))))
-
-  ;; Autocompletado
+  ;; Autocompletado — company sigue funcionando igual
   (use-package company
     :ensure t
     :hook (python-mode . company-mode)
@@ -1098,37 +1098,19 @@ Configuración de Emacs:
     (company-minimum-prefix-length 1)
     (company-tooltip-limit 10))
 
-  ;; UI de LSP
-  (use-package lsp-ui
+  ;; Documentación flotante — reemplaza lsp-ui-doc
+  (use-package eldoc-box
     :ensure t
-    :hook (lsp-mode . lsp-ui-mode)
+    :hook (eglot-managed-mode . eldoc-box-hover-mode)
     :custom
-    ;; Documentación flotante
-    (lsp-ui-doc-enable t)
-    (lsp-ui-doc-show-with-cursor t)
-    (lsp-ui-doc-delay 0.3)
-    (lsp-ui-doc-position 'at-point)
+    (eldoc-box-delay 0.3))
 
-    ;; Sideline limpio (solo diagnósticos)
-    (lsp-ui-sideline-enable t)
-    (lsp-ui-sideline-show-hover nil)
-    (lsp-ui-sideline-show-symbol nil)
-    (lsp-ui-sideline-show-code-actions nil)
-    (lsp-ui-sideline-show-diagnostics t)
-    (lsp-ui-sideline-delay 0.2))
-  ;; configs para lsp-ui
-  (setq lsp-ui-doc-use-childframe t)
-  (setq lsp-ui-doc-show-with-mouse t)
-  (setq lsp-ui-doc-show-with-cursor t)
-  (setq lsp-ui-doc-delay 0.2)
-  
-  ;; Ruff formatter + fixer
+  ;; Ruff formatter + fixer (sin cambios)
   (defun my/python-ruff-format-on-save ()
     (when (member major-mode '(python-mode python-ts-mode))
       (call-process "ruff" nil nil nil "check" "--fix" buffer-file-name)
       (call-process "ruff" nil nil nil "format" buffer-file-name)
       (revert-buffer t t t)))
-
   (add-hook 'after-save-hook #'my/python-ruff-format-on-save)
 
 #+END_SRC
