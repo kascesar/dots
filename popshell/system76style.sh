@@ -81,6 +81,9 @@ echo "Configurando keybindings nativos de GNOME..."
 # Cambiar de workspace — Ctrl+Super+arrow/jl
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-left  "['<Control><Super>Left',  '<Control><Super>j']"
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-right "['<Control><Super>Right', '<Control><Super>l']"
+# Limpiar j/i de up/down para evitar conflicto con el layout jkli (j=izq, no j=abajo)
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-down  "['<Control><Super>Down',  '<Control><Super>KP_Down']"
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-up    "['<Control><Super>Up',    '<Control><Super>KP_Up']"
 
 # Mover ventana a otro workspace — Ctrl+Shift+Super+arrow/jkli
 gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-left  "['<Control><Shift><Super>Left',  '<Control><Shift><Super>j']"

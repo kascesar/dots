@@ -7,10 +7,10 @@ Las flechas y las letras `j/k/l/i` usan exactamente los mismos modificadores —
 
 ```bash
 # Primera ejecución: instala el paquete
-bash restore.sh
+bash system76style.sh
 
 # Cerrar sesión y volver a entrar, luego:
-bash restore.sh --keybindings
+bash system76style.sh --keybindings
 ```
 
 ## Keybindings
@@ -20,7 +20,7 @@ Dirección: `j=←  k=↓  l=→  i=↑`
 | Acción | Modificador | Flechas | Teclado 60% |
 |---|---|---|---|
 | Foco de ventana | `Super` | `Super+←↓→↑` | `Super+j/k/l/i` |
-| Redimensionar tile | `Shift` | `Shift+←↓→↑` | `Shift+j/k/l/i` |
+| Redimensionar tile *(adjustment mode)* | `Shift` | `Shift+←↓→↑` | `Shift+j/k/l/i` |
 | Mover tile globalmente | `Super+Shift` | `Super+Shift+←↓→↑` | `Super+Shift+j/k/l/i` |
 | Cambiar workspace | `Ctrl+Super` | `Ctrl+Super+←→` | `Ctrl+Super+j/l` |
 | Mover ventana a workspace | `Ctrl+Shift+Super` | `Ctrl+Shift+Super+←↓→↑` | `Ctrl+Shift+Super+j/k/l/i` |
@@ -35,10 +35,11 @@ Dirección: `j=←  k=↓  l=→  i=↑`
 | Activar/desactivar floating | `Super+g` |
 | Toggle stacking | `Super+s` |
 
-### Dash nativo de GNOME
+### GNOME
 
 | Acción | Atajo |
 |---|---|
+| Vista general (overview) | `Super+w` |
 | Lanzar/enfocar app 1-9 del dash | `Super+1` … `Super+9` |
 
 ## Notas
