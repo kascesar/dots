@@ -6,4 +6,8 @@ if command -v batcat &>/dev/null; then
 elif command -v bat &>/dev/null; then
     alias cat="bat --style changes,header,rule,snip --theme 'Monokai Extended Origin' "
 fi
-alias ls="exa --icons --group-directories-first -l "
+if command -v eza &>/dev/null; then
+    alias ls="eza --icons --group-directories-first -l "
+elif command -v exa &>/dev/null; then
+    alias ls="exa --icons --group-directories-first -l "
+fi
