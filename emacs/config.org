@@ -1196,13 +1196,17 @@ Configuración de Emacs:
         (progn (variable-pitch-mode -1)
                (setq-local line-spacing 0.6))))
     (advice-add 'markdown-toggle-markup-hiding :after #'my/markdown-sync-reading-style)
+    (advice-add 'markdown-toggle-markup-hiding :after
+                (lambda (&rest _)
+                  (if markdown-hide-markup
+                      (markdown-display-inline-images)
+                    (markdown-remove-inline-images))))
     :hook
     (markdown-mode . (lambda ()
                        (setq-local truncate-lines nil)
                        (setq-local line-spacing 0.6)
                        (olivetti-mode 1)
-                       (display-line-numbers-mode -1)
-                       (markdown-toggle-inline-images))))
+                       (display-line-numbers-mode -1))))
 #+end_src
 
 ** git [3/3]
