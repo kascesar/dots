@@ -1,0 +1,3 @@
+filetype: gitcommit
+detect:
+    filename: "(COMMIT_EDITMSG|MERGE_MSG|TAG_EDITMSG|NOTES_EDITMSG)"

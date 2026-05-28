@@ -1,113 +1,33 @@
 # dots
 
-## Software necesario
+Configuraciones personales de flujo de trabajo. Diseñado para funcionar de forma descentralizada — los archivos críticos son symlinks al repo, por lo que un `git pull` en cualquier equipo aplica los cambios inmediatamente.
 
-### exa, bat y git-delta
-```bash
-sudo apt install exa bat git-delta
-```
-### kitty -emulador de termina que uso-
-```bash
-curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
-```
+## Inicio rápido
 
 ```bash
-ln -sf ~/.local/kitty.app/bin/kitty ~/.local/kitty.app/bin/kitten ~/.local/bin/
+# 1. Instalar dependencias de software (solo al formatear el equipo)
+bash install-deps.sh
+
+# 2. Aplicar configuraciones y symlinks
+bash setup.sh
 ```
 
-```bash
-cp ~/.local/kitty.app/share/applications/kitty.desktop ~/.local/share/applications/
-```
+## Estructura
 
-```bash
-sed -i "s|Icon=kitty|Icon=$(readlink -f ~)/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" ~/.local/share/applications/kitty*.desktop
-```
+| Carpeta | Contenido |
+|---|---|
+| `bash/` | `.bashrc`, `.bash_aliases`, configuración de oh-my-posh |
+| `emacs/` | Config literate en `config.org`, script de symlinks |
+| `git/` | `.gitconfig` con delta como pager |
+| `kitty/` | `kitty.conf` y tema de colores |
+| `micro/` | Editor de terminal, configurado como editor de commits |
+| `popshell/` | Keybindings de Pop!_Shell para teclado 60% |
+| `qmk/` | Firmware de teclado (independiente del resto) |
 
-```bash
-sed -i "s|Exec=kitty|Exec=$(readlink -f ~)/.local/kitty.app/bin/kitty|g" ~/.local/share/applications/kitty*.desktop
-```
+Cada carpeta tiene su propio README con detalles de dependencias y configuración específica.
 
-```bash
-sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator ~/.local/bin/kitty 40
-```
+## Cómo funciona
 
-Ahora podemos elegi que _emulador de terminal_ por defecto del sistema queremos con:
-```bash
-sudo update-alternatives --config x-terminal-emulator
-```
-*NOTA*: Recuerda poner la configuracion de kitty en `~/.config/kitty/kitty.conf`
-
-### oh-my-posh
-
-Instalar con:
-```bash
-curl -s https://ohmyposh.dev/install.sh | bash -s
-```
-Ademas, neceitamos instalar las fuentes necesarias
-luego de instalar _oh my posh_
-```bash
-oh-my-posh font install meslo
-```
-
----
-
-## Qmk
-
-* Compilar *firmawar QMK*
-```shell
-qmk compile -kb crkbd -km cesar
-```
-
-* Flashear KeyBoard
-```shell
-qmk flash -kb crkbd -km cesar
-```
-
-## Emacs
-
-### instalar dependencias para editar codigo de python
-```bash
-pipx install mypy "python-lsp-server[all]" black isort ruff
-```
-
-**Pyrigth -importante actualizar npm-**
-	
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-source ~/.bashrc
-```
-
-usar una version recomendada (20)
-
-```bash
-nvm install 20
-nvm use 20
-```
-
-Instalar Pyright globalmente
-
-```bash
-npm install -g pyright
-npm install -g pyright
-```
-
-### paquetes para que el corrector ortografico funcione
-
-```bash
-sudo apt install aspell-es hunspell hunspell-en-us hunspell-es
-```
-
-### Instalar las fuentes
-```bash
-M-x all-the-icons-install-fonts
-```
-
-## Git
-Configuración global de git, y delta, el cual uso en mi flujo diario de git.
-
-* copia la configuracion al $HOME
-```bash
-cp .gitconfig ~/
-```
-
-Luego necesitamos instalar la dependnecia [*delta*](https://dandavison.github.io/delta/installation.html)
+- `setup.sh` — crea los symlinks de cada config al lugar correcto del OS. Seguro de correr múltiples veces; hace backup de archivos preexistentes (`.bak`).
+- `install-deps.sh` — instala el software necesario. Soporta `dnf` (Fedora) y `apt` (Ubuntu/Debian).
+- Emacs **no se instala** con el script — ver `emacs/README.md` para compilarlo manualmente.

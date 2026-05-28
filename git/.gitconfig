@@ -5,6 +5,7 @@
     email = kas.cesar@gmail.com
 [core]
     pager = delta
+    editor = micro
 
 [interactive]
     diffFilter = delta --color-only

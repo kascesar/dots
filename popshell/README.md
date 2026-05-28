@@ -3,7 +3,20 @@
 Configuración de Pop!_Shell para Fedora con keybindings optimizados para teclado 60% (sin flechas).
 Las flechas y las letras `j/k/l/i` usan exactamente los mismos modificadores — comportamiento idéntico.
 
-## Uso
+## Dependencias
+
+| Software | Fedora | Ubuntu |
+|---|---|---|
+| Pop!_Shell | `gnome-shell-extension-pop-shell` | `gnome-shell-extension-pop-shell` |
+
+```bash
+# Fedora
+sudo dnf install gnome-shell-extension-pop-shell
+```
+
+Los keybindings se aplican automáticamente con `setup.sh` desde la raíz del repo (si la extensión está activa).
+
+## Uso manual
 
 ```bash
 # Primera ejecución: instala el paquete
