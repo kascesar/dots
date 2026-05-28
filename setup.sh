@@ -31,8 +31,12 @@ symlink "$DOTS/git/.gitconfig" "$HOME/.gitconfig"
 
 echo ""
 echo "==> micro..."
-symlink "$DOTS/micro/settings.json"        "$HOME/.config/micro/settings.json"
+symlink "$DOTS/micro/settings.json"         "$HOME/.config/micro/settings.json"
 symlink "$DOTS/micro/syntax/gitcommit.yaml" "$HOME/.config/micro/syntax/gitcommit.yaml"
+
+echo ""
+echo "==> yazi..."
+symlink "$DOTS/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
 
 echo ""
 echo "==> kitty..."

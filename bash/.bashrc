@@ -23,3 +23,12 @@ export PATH="~/.local/bin/:$PATH"
 
 # prompt con oh my posh
 eval "$(oh-my-posh init bash --config ~/.posh_config.yaml)"
+
+# yazi — cambia el directorio del shell al salir de yazi
+function y() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+    command yazi "$@" --cwd-file="$tmp"
+    IFS= read -r -d '' cwd < "$tmp"
+    [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+    command rm -f -- "$tmp"
+}

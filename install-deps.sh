@@ -24,7 +24,23 @@ echo ""
 # Ubuntu : bat (binario: batcat), eza, git-delta,                  micro, kitty
 # ==============================================================================
 echo "==> Instalando paquetes..."
-pkg_install bat eza git-delta micro kitty hunspell hunspell-en hunspell-es
+pkg_install bat eza git-delta micro kitty hunspell hunspell-en hunspell-es \
+    ffmpeg jq fd-find ripgrep fzf zoxide wl-clipboard ImageMagick p7zip
+
+# yazi — requiere repo externo
+echo ""
+echo "==> Instalando yazi..."
+if [ "$PM" = "dnf" ]; then
+    sudo dnf copr enable -y lihaohong/yazi
+    sudo dnf install -y yazi
+elif [ "$PM" = "apt" ]; then
+    curl -sS https://debian.griffo.io/EA0F721D231FDD3A0A17B9AC7808B4DD62C41256.asc \
+        | gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/debian.griffo.io.gpg
+    echo "deb https://debian.griffo.io/apt $(lsb_release -sc 2>/dev/null) main" \
+        | sudo tee /etc/apt/sources.list.d/debian.griffo.io.list
+    sudo apt update
+    sudo apt install -y yazi
+fi
 
 # ==============================================================================
 # oh-my-posh — no está en repositorios estándar

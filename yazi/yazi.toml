@@ -1,0 +1,17 @@
+[opener]
+edit = [
+    { run = 'micro "$@"', block = true, desc = "Editar" },
+]
+folder = [
+    { run = 'xdg-open "$@"', orphan = true, desc = "Abrir en gestor de archivos" },
+]
+default = [
+    { run = 'xdg-open "$@"', orphan = true, desc = "Abrir con aplicación por defecto" },
+]
+
+[open]
+prepend_rules = [
+    { mime = "inode/directory", use = "folder"  },
+    { mime = "text/*",          use = "edit"    },
+    { mime = "*",               use = "default" },
+]

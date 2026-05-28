@@ -22,6 +22,7 @@ bash setup.sh
 | `kitty/` | `kitty.conf` y tema de colores |
 | `micro/` | Editor de terminal, configurado como editor de commits |
 | `popshell/` | Keybindings de Pop!_Shell para teclado 60% |
+| `yazi/` | Gestor de archivos de terminal |
 | `qmk/` | Firmware de teclado (independiente del resto) |
 
 Cada carpeta tiene su propio README con detalles de dependencias y configuración específica.
