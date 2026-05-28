@@ -19,7 +19,7 @@ export VIRTUAL_ENV_DISABLE_PROMPT=1
 export EDITOR="emacsclient -t -a ''"
 
 # agrega mis binarios de usuario al path
-export PATH="~/.local/bin/:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 
 # prompt con oh my posh
 eval "$(oh-my-posh init bash --config ~/.posh_config.yaml)"
