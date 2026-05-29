@@ -55,6 +55,19 @@ Dirección: `j=←  k=↓  l=→  i=↑`
 | Vista general (overview) | `Super+w` |
 | Lanzar/enfocar app 1-9 del dash | `Super+1` … `Super+9` |
 
+## Estado del proyecto
+
+Pop!_Shell es mantenido por System76, pero su foco actual está en **COSMIC Desktop** (su propio DE en Rust, independiente de GNOME). El desarrollo de Pop!_Shell es cada vez más impulsado por la comunidad — System76 merge contribuciones externas pero no lidera features nuevas.
+
+El riesgo concreto es la compatibilidad con futuras versiones de GNOME: cada versión mayor puede romper APIs internas que requieren parches.
+
+### Alternativas activamente mantenidas por la comunidad
+
+| Extensión | Repositorio | Notas |
+|---|---|---|
+| **Tiling Shell** | [domferr/tilingshell](https://github.com/domferr/tilingshell) | Desarrollo activo, soporte GNOME moderno |
+| **Forge** | [jmmaranan/forge](https://github.com/jmmaranan/forge) | Tiling manual estilo i3/sway |
+
 ## Notas
 
 - Los workspaces en GNOME moderno son **horizontales**, por eso cambiar workspace solo aplica a izquierda/derecha.
