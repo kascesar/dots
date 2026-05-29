@@ -1,0 +1,23 @@
+# Navegacion con jkli (teclado 60% sin flechas): j=← k=↓ l=→ i=↑
+# Las flechas siguen funcionando — estos bindings tienen prioridad por prepend.
+# l=enter ya coincide con el default, se incluye por claridad.
+
+[[mgr.prepend_keymap]]
+on  = "j"
+run = "leave"
+desc = "Ir al directorio padre"
+
+[[mgr.prepend_keymap]]
+on  = "k"
+run = "arrow next"
+desc = "Archivo siguiente"
+
+[[mgr.prepend_keymap]]
+on  = "l"
+run = "enter"
+desc = "Entrar al directorio / abrir archivo"
+
+[[mgr.prepend_keymap]]
+on  = "i"
+run = "arrow prev"
+desc = "Archivo anterior"

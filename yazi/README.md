@@ -7,14 +7,27 @@ Gestor de archivos de terminal. Se invoca con `y` en lugar de `yazi` para que al
 | Archivo | Destino |
 |---|---|
 | `yazi.toml` | `~/.config/yazi/yazi.toml` |
+| `keymap.toml` | `~/.config/yazi/keymap.toml` |
 
-El symlink lo crea `setup.sh` desde la raíz del repo.
+Los symlinks los crea `setup.sh` desde la raíz del repo.
 
 ## Comportamiento configurado
 
 - **Editor:** `micro` (bloquea yazi hasta cerrar el editor)
 - **Enter en carpeta:** abre el gestor de archivos del sistema vía `xdg-open`
-- **Navegar dentro de carpeta:** `l` o `→` (comportamiento estándar de yazi)
+- **Otros archivos:** `xdg-open` con la aplicación por defecto del sistema
+
+## Keybindings (teclado 60%)
+
+Dirección: `j=←  k=↓  l=→  i=↑` — mismo layout que Pop!_Shell y el resto del sistema.
+Las flechas siguen funcionando igual en cualquier teclado.
+
+| Tecla | Acción |
+|---|---|
+| `j` / `←` | Subir al directorio padre |
+| `k` / `↓` | Archivo siguiente |
+| `l` / `→` | Entrar al directorio / abrir archivo |
+| `i` / `↑` | Archivo anterior |
 
 ## Dependencias
 

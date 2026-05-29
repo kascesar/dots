@@ -36,7 +36,8 @@ symlink "$DOTS/micro/syntax/gitcommit.yaml" "$HOME/.config/micro/syntax/gitcommi
 
 echo ""
 echo "==> yazi..."
-symlink "$DOTS/yazi/yazi.toml" "$HOME/.config/yazi/yazi.toml"
+symlink "$DOTS/yazi/yazi.toml"    "$HOME/.config/yazi/yazi.toml"
+symlink "$DOTS/yazi/keymap.toml" "$HOME/.config/yazi/keymap.toml"
 
 echo ""
 echo "==> kitty..."
