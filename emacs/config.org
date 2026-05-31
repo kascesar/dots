@@ -186,7 +186,7 @@ Descomentar la linea "mapc" para instalar los lenguajes
 ** Font
 #+begin_src emacs-lisp
 (set-frame-font "DejaVu Sans Mono-13" nil t)
-(set-face-attribute 'variable-pitch nil :family "Cantarell" :height 1.2)
+(set-face-attribute 'variable-pitch nil :family "Noto Sans" :height 1.2)
 #+end_src
 
 ** Recent files
@@ -785,8 +785,8 @@ En el bufer puedes hacer las siguientes cosas
   
 
 #+begin_src emacs-lisp :results silent
-  ;; ocultamos los caracteres especiales
-  (setq org-hide-emphasis-markers t)
+  ;; markers visibles en edición, se ocultan solo en modo lectura
+  (setq org-hide-emphasis-markers nil)
 
   ;; configuraciones de tags y estado de las tareas
 
@@ -981,6 +981,164 @@ En el bufer puedes hacer las siguientes cosas
 #+begin_src emacs-lisp
 (add-hook 'org-mode-hook 'org-indent-mode)
 (setq org-startup-indented t)
+#+end_src
+*** org-visual
+#+begin_src emacs-lisp
+;; Face dedicada para markers de énfasis — el color se sincroniza con el tema
+(defface my/org-marker-face '((t)) "Face for org emphasis markers.")
+
+;; Subtle color para metadata, delimitadores de bloque y markers de énfasis
+(defun my/org-markup-subtle ()
+  (let* ((bg (face-attribute 'default :background))
+         (fg (face-attribute 'default :foreground))
+         (subtle (apply #'color-rgb-to-hex
+                        (cl-mapcar (lambda (a b) (+ (* 0.75 a) (* 0.25 b)))
+                                   (color-name-to-rgb bg)
+                                   (color-name-to-rgb fg)))))
+    (set-face-attribute 'org-meta-line        nil :foreground subtle)
+    (set-face-attribute 'org-block-begin-line nil :foreground subtle)
+    (set-face-attribute 'org-block-end-line   nil :foreground subtle)
+    (set-face-attribute 'my/org-marker-face   nil :foreground subtle)
+    ;; Fixed-pitch aquí para sobrevivir cambios de tema
+    (set-face-attribute 'org-block            nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-code             nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-verbatim         nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-table            nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-formula          nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-meta-line        nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-block-begin-line nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-block-end-line   nil :inherit 'fixed-pitch)))
+(with-eval-after-load 'ef-themes
+  (add-hook 'ef-themes-post-load-hook #'my/org-markup-subtle))
+(with-eval-after-load 'org
+  (my/org-markup-subtle))
+
+;; Header scaling — independiente para que no dependa del cálculo de color
+(defun my/org-scale-headers ()
+  (set-face-attribute 'org-level-1 nil :height 2.0 :weight 'bold)
+  (set-face-attribute 'org-level-2 nil :height 1.6 :weight 'bold)
+  (set-face-attribute 'org-level-3 nil :height 1.3)
+  (set-face-attribute 'org-level-4 nil :height 1.1))
+(add-hook 'org-mode-hook #'my/org-scale-headers)
+(with-eval-after-load 'ef-themes
+  (add-hook 'ef-themes-post-load-hook #'my/org-scale-headers))
+
+;; Toggle modo lectura — equivalente a markdown-toggle-markup-hiding
+(defvar-local my/org-reading-mode nil)
+(defvar-local my/org-reading-overlays nil)
+(defvar-local my/org-reading-face-cookies nil)
+
+;; display "" sobreescribe display "◉" de org-modern — invisible no gana contra display
+(defvar my/org-reading-fl-keywords
+  '(;; Estrellas de headings: * ** *** → desaparecen con el espacio
+    ("^\\(\\*+ \\)"
+     (1 '(face nil display "") t))
+    ;; Bullets de lista: - item / + item
+    ("^[ \t]*\\([-+] \\)"
+     (1 '(face nil display "") t))))
+
+(defun my/org-clear-reading-display ()
+  "Elimina las text properties display=\"\" que pusimos al activar lectura."
+  (with-silent-modifications
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "^\\(\\*+ \\)\\|^[ \t]*\\([-+] \\)" nil t)
+        (let ((beg (or (match-beginning 1) (match-beginning 2)))
+              (end (or (match-end 1) (match-end 2))))
+          (remove-text-properties beg end '(display nil)))))))
+
+(defun my/org-add-block-overlays ()
+  (save-excursion
+    (let ((case-fold-search t))
+      (goto-char (point-min))
+      (while (re-search-forward "^[ \t]*#\\+\\(?:begin\\|end\\|results\\)[_:].*$" nil t)
+        (let ((ov (make-overlay (match-beginning 0)
+                                (min (1+ (match-end 0)) (point-max)))))
+          (overlay-put ov 'invisible t)
+          (push ov my/org-reading-overlays))))))
+
+(defun my/org-remove-block-overlays ()
+  (mapc #'delete-overlay my/org-reading-overlays)
+  (setq-local my/org-reading-overlays nil))
+
+(defun my/org-fix-code-font ()
+  (let ((mono (face-attribute 'fixed-pitch :family nil t)))
+    (setq-local my/org-reading-face-cookies
+      (mapcar (lambda (f) (face-remap-add-relative f :family mono))
+              '(font-lock-builtin-face
+                font-lock-comment-face
+                font-lock-comment-delimiter-face
+                font-lock-constant-face
+                font-lock-doc-face
+                font-lock-function-name-face
+                font-lock-keyword-face
+                font-lock-string-face
+                font-lock-type-face
+                font-lock-variable-name-face
+                font-lock-warning-face)))))
+
+(defun my/org-unfix-code-font ()
+  (mapc #'face-remap-remove-relative my/org-reading-face-cookies)
+  (setq-local my/org-reading-face-cookies nil))
+
+(defun my/org-toggle-reading-mode ()
+  (interactive)
+  (setq-local my/org-reading-mode (not my/org-reading-mode))
+  (my/org-remove-block-overlays)
+  (if my/org-reading-mode
+      (progn
+        (setq-local org-hide-emphasis-markers t)
+        (variable-pitch-mode 1)
+        (org-display-inline-images)
+        (org-indent-mode -1)
+        (my/org-scale-headers)
+        (my/org-fix-code-font)
+        (font-lock-add-keywords nil my/org-reading-fl-keywords 'append)
+        (font-lock-flush)
+        (let ((buf (current-buffer)))
+          (run-with-idle-timer 0.1 nil
+            (lambda ()
+              (when (buffer-live-p buf)
+                (with-current-buffer buf
+                  (my/org-add-block-overlays)))))))
+    (progn
+      (setq-local org-hide-emphasis-markers nil)
+      (variable-pitch-mode -1)
+      (org-remove-inline-images)
+      (org-indent-mode 1)
+      (my/org-unfix-code-font)
+      (font-lock-remove-keywords nil my/org-reading-fl-keywords)
+      (my/org-clear-reading-display)
+      (font-lock-flush))))
+
+;; Hook visual
+(add-hook 'org-mode-hook
+          (lambda ()
+            (setq-local truncate-lines nil)
+            (setq-local line-spacing 0.6)
+            (olivetti-mode 1)
+            (display-line-numbers-mode -1)
+            (font-lock-add-keywords nil
+              '(("\\(\\*\\)[^*\n]+\\(\\*\\)"
+                 (1 'my/org-marker-face prepend)
+                 (2 'my/org-marker-face prepend))
+                ("\\(/\\)[^/\n]+\\(/\\)"
+                 (1 'my/org-marker-face prepend)
+                 (2 'my/org-marker-face prepend))
+                ("\\(_\\)[^_\n]+\\(_\\)"
+                 (1 'my/org-marker-face prepend)
+                 (2 'my/org-marker-face prepend))
+                ("\\(=\\)[^=\n]+\\(=\\)"
+                 (1 'my/org-marker-face prepend)
+                 (2 'my/org-marker-face prepend))
+                ("\\(~\\)[^~\n]+\\(~\\)"
+                 (1 'my/org-marker-face prepend)
+                 (2 'my/org-marker-face prepend))
+                ("\\(\\+\\)[^+\n]+\\(\\+\\)"
+                 (1 'my/org-marker-face prepend)
+                 (2 'my/org-marker-face prepend)))
+              'append)
+            (local-set-key (kbd "C-c C-x RET") #'my/org-toggle-reading-mode)))
 #+end_src
 *** org-tree-slides
 #+begin_src emacs-lisp
@@ -1187,7 +1345,8 @@ Configuración de Emacs:
                                        (color-name-to-rgb bg)
                                        (color-name-to-rgb fg)))))
         (set-face-attribute 'markdown-markup-face nil :foreground subtle)))
-    (add-hook 'ef-themes-post-load-hook #'my/markdown-markup-subtle)
+    (with-eval-after-load 'ef-themes
+      (add-hook 'ef-themes-post-load-hook #'my/markdown-markup-subtle))
     (my/markdown-markup-subtle)
     (defun my/markdown-sync-reading-style (&rest _)
       (if markdown-hide-markup
