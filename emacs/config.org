@@ -838,7 +838,7 @@ En el bufer puedes hacer las siguientes cosas
   ;; When a TODO item enters DONE, add a CLOSED: property with current date-time stamp and into drawer
   ;(setq org-log-done 'time)
   ;(setq org-log-into-drawer "state-book")
-  (setq org-tags-column 81))
+  (setq org-tags-column 0))
 #+end_src
 *** org-elipsis
 #+BEGIN_SRC emacs-lisp :results silent
@@ -964,6 +964,7 @@ En el bufer puedes hacer las siguientes cosas
     :ensure '(org-modern :host github :repo "minad/org-modern")
     :custom
     ;(org-modern-hide-stars nil)
+    (org-modern-keyword nil)
     (org-modern-table nil)
     (org-modern-list
      '((?* . "•")
@@ -1013,15 +1014,20 @@ En el bufer puedes hacer las siguientes cosas
 (with-eval-after-load 'org
   (my/org-markup-subtle))
 
-;; Header scaling — independiente para que no dependa del cálculo de color
+;; Header scaling — buffer-local, solo activo en reading mode
+(defvar-local my/org-reading-header-cookies nil)
+
 (defun my/org-scale-headers ()
-  (set-face-attribute 'org-level-1 nil :height 2.0 :weight 'bold)
-  (set-face-attribute 'org-level-2 nil :height 1.6 :weight 'bold)
-  (set-face-attribute 'org-level-3 nil :height 1.3)
-  (set-face-attribute 'org-level-4 nil :height 1.1))
-(add-hook 'org-mode-hook #'my/org-scale-headers)
-(with-eval-after-load 'ef-themes
-  (add-hook 'ef-themes-post-load-hook #'my/org-scale-headers))
+  (setq-local my/org-reading-header-cookies
+    (list
+      (face-remap-add-relative 'org-level-1 :height 2.0 :weight 'bold)
+      (face-remap-add-relative 'org-level-2 :height 1.6 :weight 'bold)
+      (face-remap-add-relative 'org-level-3 :height 1.3)
+      (face-remap-add-relative 'org-level-4 :height 1.1))))
+
+(defun my/org-unscale-headers ()
+  (mapc #'face-remap-remove-relative my/org-reading-header-cookies)
+  (setq-local my/org-reading-header-cookies nil))
 
 ;; Toggle modo lectura — equivalente a markdown-toggle-markup-hiding
 (defvar-local my/org-reading-mode nil)
@@ -1051,7 +1057,7 @@ En el bufer puedes hacer las siguientes cosas
   (save-excursion
     (let ((case-fold-search t))
       (goto-char (point-min))
-      (while (re-search-forward "^[ \t]*#\\+\\(?:begin\\|end\\|results\\)[_:].*$" nil t)
+      (while (re-search-forward "^[ \t]*#\\+.*$" nil t)
         (let ((ov (make-overlay (match-beginning 0)
                                 (min (1+ (match-end 0)) (point-max)))))
           (overlay-put ov 'invisible t)
@@ -1075,7 +1081,8 @@ En el bufer puedes hacer las siguientes cosas
                 font-lock-string-face
                 font-lock-type-face
                 font-lock-variable-name-face
-                font-lock-warning-face)))))
+                font-lock-warning-face
+                org-table)))))
 
 (defun my/org-unfix-code-font ()
   (mapc #'face-remap-remove-relative my/org-reading-face-cookies)
@@ -1088,6 +1095,10 @@ En el bufer puedes hacer las siguientes cosas
   (if my/org-reading-mode
       (progn
         (setq-local org-hide-emphasis-markers t)
+        (setq-local line-spacing 0.2)
+        (let ((org-modern-table t))
+          (org-modern-mode -1)
+          (org-modern-mode 1))
         (variable-pitch-mode 1)
         (org-display-inline-images)
         (org-indent-mode -1)
@@ -1103,10 +1114,15 @@ En el bufer puedes hacer las siguientes cosas
                   (my/org-add-block-overlays)))))))
     (progn
       (setq-local org-hide-emphasis-markers nil)
+      (setq-local line-spacing nil)
+      (let ((org-modern-table nil))
+        (org-modern-mode -1)
+        (org-modern-mode 1))
       (variable-pitch-mode -1)
       (org-remove-inline-images)
       (org-indent-mode 1)
       (my/org-unfix-code-font)
+      (my/org-unscale-headers)
       (font-lock-remove-keywords nil my/org-reading-fl-keywords)
       (my/org-clear-reading-display)
       (font-lock-flush))))
@@ -1115,7 +1131,6 @@ En el bufer puedes hacer las siguientes cosas
 (add-hook 'org-mode-hook
           (lambda ()
             (setq-local truncate-lines nil)
-            (setq-local line-spacing 0.6)
             (olivetti-mode 1)
             (display-line-numbers-mode -1)
             (font-lock-add-keywords nil
