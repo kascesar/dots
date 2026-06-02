@@ -53,6 +53,11 @@ gsettings set org.gnome.shell.extensions.pop-shell tile-move-down  "['Down',  '<
 gsettings set org.gnome.shell.extensions.pop-shell tile-move-right "['Right', '<Super>l']"
 gsettings set org.gnome.shell.extensions.pop-shell tile-move-up    "['Up',    '<Super>i']"
 
+# Navegar workspace vertical (monitor en portrait) — Ctrl+Shift+Super+i/k
+# Las flechas Up/Down se excluyen aqui para no colisionar con tile-move-*-global
+gsettings set org.gnome.shell.extensions.pop-shell pop-workspace-up   "['<Control><Shift><Super>i']"
+gsettings set org.gnome.shell.extensions.pop-shell pop-workspace-down "['<Control><Shift><Super>k']"
+
 # Mover tile globalmente sin adjustment mode — Super+Shift+arrow/jkli
 gsettings set org.gnome.shell.extensions.pop-shell tile-move-left-global  "['<Super><Shift>Left',  '<Super><Shift>KP_Left',  '<Super><Shift>j']"
 gsettings set org.gnome.shell.extensions.pop-shell tile-move-down-global  "['<Super><Shift>Down',  '<Super><Shift>KP_Down',  '<Super><Shift>k']"
@@ -65,11 +70,11 @@ gsettings set org.gnome.shell.extensions.pop-shell tile-resize-down  "['<Shift>D
 gsettings set org.gnome.shell.extensions.pop-shell tile-resize-right "['<Shift>Right', '<Shift>KP_Right', '<Shift>l']"
 gsettings set org.gnome.shell.extensions.pop-shell tile-resize-up    "['<Shift>Up',    '<Shift>KP_Up',    '<Shift>i']"
 
-# Mover ventana a otro monitor — Ctrl+Alt+Super+arrow (sin letra equivalente)
-gsettings set org.gnome.shell.extensions.pop-shell pop-monitor-left  "['<Control><Alt><Super>Left',  '<Control><Alt><Super>KP_Left']"
-gsettings set org.gnome.shell.extensions.pop-shell pop-monitor-right "['<Control><Alt><Super>Right', '<Control><Alt><Super>KP_Right']"
-gsettings set org.gnome.shell.extensions.pop-shell pop-monitor-up    "['<Control><Alt><Super>Up',    '<Control><Alt><Super>KP_Up']"
-gsettings set org.gnome.shell.extensions.pop-shell pop-monitor-down  "['<Control><Alt><Super>Down',  '<Control><Alt><Super>KP_Down']"
+# Mover ventana a otro monitor — Ctrl+Alt+Super+arrow/jkli
+gsettings set org.gnome.shell.extensions.pop-shell pop-monitor-left  "['<Control><Alt><Super>Left',  '<Control><Alt><Super>KP_Left',  '<Control><Alt><Super>j']"
+gsettings set org.gnome.shell.extensions.pop-shell pop-monitor-right "['<Control><Alt><Super>Right', '<Control><Alt><Super>KP_Right', '<Control><Alt><Super>l']"
+gsettings set org.gnome.shell.extensions.pop-shell pop-monitor-up    "['<Control><Alt><Super>Up',    '<Control><Alt><Super>KP_Up',    '<Control><Alt><Super>i']"
+gsettings set org.gnome.shell.extensions.pop-shell pop-monitor-down  "['<Control><Alt><Super>Down',  '<Control><Alt><Super>KP_Down',  '<Control><Alt><Super>k']"
 
 # ==============================================================================
 # GNOME — keybindings nativos
@@ -89,8 +94,8 @@ gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-up    "['<Con
 # Mover ventana a otro workspace — Ctrl+Shift+Super+arrow/jkli
 gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-left  "['<Control><Shift><Super>Left',  '<Control><Shift><Super>j']"
 gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-right "['<Control><Shift><Super>Right', '<Control><Shift><Super>l']"
-gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-up    "['<Control><Shift><Super>Up',    '<Control><Shift><Super>i']"
-gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-down  "['<Control><Shift><Super>Down',  '<Control><Shift><Super>k']"
+gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-up    "['<Control><Shift><Super>Up']"
+gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-down  "['<Control><Shift><Super>Down']"
 
 # ==============================================================================
 # Dash to Panel — lanzar apps por numero (Super+1..9)
