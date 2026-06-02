@@ -1033,10 +1033,6 @@ En el bufer puedes hacer las siguientes cosas
   (mapc #'face-remap-remove-relative my/org-reading-header-cookies)
   (setq-local my/org-reading-header-cookies nil))
 
-;; Oculta los * de headings globalmente en todos los buffers org
-(font-lock-add-keywords 'org-mode
-  '(("^\\(\\*+ \\)" (1 '(face nil display "") t))) t)
-
 ;; Toggle modo lectura — equivalente a markdown-toggle-markup-hiding
 (defvar-local my/org-reading-mode nil)
 (defvar-local my/org-reading-overlays nil)
@@ -1107,6 +1103,7 @@ En el bufer puedes hacer las siguientes cosas
         (org-indent-mode -1)
         (my/org-scale-headers)
         (my/org-fix-code-font)
+        (font-lock-add-keywords nil '(("^\\(\\*+ \\)" (1 '(face nil display "") t))) t)
         (font-lock-flush)
         (let ((buf (current-buffer)))
           (run-with-idle-timer 0.1 nil
@@ -1126,12 +1123,14 @@ En el bufer puedes hacer las siguientes cosas
       (org-indent-mode 1)
       (my/org-unfix-code-font)
       (my/org-unscale-headers)
+      (font-lock-remove-keywords nil '(("^\\(\\*+ \\)" (1 '(face nil display "") t))))
       (font-lock-flush))))
 
 ;; Hook visual
 (add-hook 'org-mode-hook
           (lambda ()
             (setq-local truncate-lines nil)
+            (olivetti-mode 1)
             (display-line-numbers-mode -1)
             (font-lock-add-keywords nil
               '(("\\(\\*\\)[^*\n]+\\(\\*\\)"
