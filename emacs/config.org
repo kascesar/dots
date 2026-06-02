@@ -366,7 +366,9 @@ Paquete para verificar ortografía
   (use-package guess-language
     :ensure t
     :config
-    (setq guess-language-languages '(en es))
+    (setq guess-language-languages '(es))
+    (setq guess-language-langcodes
+          '((es . ("es_ES" "Spanish"))))
     (add-hook 'text-mode-hook #'guess-language-mode)
     (add-hook 'text-mode-hook #'flyspell-mode)
     (add-hook 'org-mode-hook (lambda ()
@@ -1000,6 +1002,8 @@ En el bufer puedes hacer las siguientes cosas
     (set-face-attribute 'org-block-begin-line nil :foreground subtle)
     (set-face-attribute 'org-block-end-line   nil :foreground subtle)
     (set-face-attribute 'my/org-marker-face   nil :foreground subtle)
+    (set-face-attribute 'org-quote            nil :slant 'italic :foreground fg)
+    (set-face-attribute 'org-verse            nil :slant 'italic)
     ;; Fixed-pitch aquí para sobrevivir cambios de tema
     (set-face-attribute 'org-block            nil :inherit 'fixed-pitch)
     (set-face-attribute 'org-code             nil :inherit 'fixed-pitch)
@@ -1029,39 +1033,37 @@ En el bufer puedes hacer las siguientes cosas
   (mapc #'face-remap-remove-relative my/org-reading-header-cookies)
   (setq-local my/org-reading-header-cookies nil))
 
+;; Oculta los * de headings globalmente en todos los buffers org
+(font-lock-add-keywords 'org-mode
+  '(("^\\(\\*+ \\)" (1 '(face nil display "") t))) t)
+
 ;; Toggle modo lectura — equivalente a markdown-toggle-markup-hiding
 (defvar-local my/org-reading-mode nil)
 (defvar-local my/org-reading-overlays nil)
 (defvar-local my/org-reading-face-cookies nil)
 
-;; display "" sobreescribe display "◉" de org-modern — invisible no gana contra display
-(defvar my/org-reading-fl-keywords
-  '(;; Estrellas de headings: * ** *** → desaparecen con el espacio
-    ("^\\(\\*+ \\)"
-     (1 '(face nil display "") t))
-    ;; Bullets de lista: - item / + item
-    ("^[ \t]*\\([-+] \\)"
-     (1 '(face nil display "") t))))
-
-(defun my/org-clear-reading-display ()
-  "Elimina las text properties display=\"\" que pusimos al activar lectura."
-  (with-silent-modifications
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward "^\\(\\*+ \\)\\|^[ \t]*\\([-+] \\)" nil t)
-        (let ((beg (or (match-beginning 1) (match-beginning 2)))
-              (end (or (match-end 1) (match-end 2))))
-          (remove-text-properties beg end '(display nil)))))))
 
 (defun my/org-add-block-overlays ()
   (save-excursion
     (let ((case-fold-search t))
+      ;; Oculta todas las líneas #+
       (goto-char (point-min))
       (while (re-search-forward "^[ \t]*#\\+.*$" nil t)
         (let ((ov (make-overlay (match-beginning 0)
                                 (min (1+ (match-end 0)) (point-max)))))
           (overlay-put ov 'invisible t)
-          (push ov my/org-reading-overlays))))))
+          (push ov my/org-reading-overlays)))
+      ;; Estilo visual para bloques quote
+      (goto-char (point-min))
+      (while (re-search-forward "^[ \t]*#\\+begin_quote" nil t)
+        (forward-line 1)
+        (let ((start (point)))
+          (when (re-search-forward "^[ \t]*#\\+end_quote" nil t)
+            (let ((ov (make-overlay start (line-beginning-position))))
+              (overlay-put ov 'face '(:slant italic))
+              (overlay-put ov 'line-prefix "  │ ")
+              (overlay-put ov 'wrap-prefix "    ")
+              (push ov my/org-reading-overlays))))))))
 
 (defun my/org-remove-block-overlays ()
   (mapc #'delete-overlay my/org-reading-overlays)
@@ -1096,6 +1098,7 @@ En el bufer puedes hacer las siguientes cosas
       (progn
         (setq-local org-hide-emphasis-markers t)
         (setq-local line-spacing 0.2)
+        (flyspell-mode -1)
         (let ((org-modern-table t))
           (org-modern-mode -1)
           (org-modern-mode 1))
@@ -1104,7 +1107,6 @@ En el bufer puedes hacer las siguientes cosas
         (org-indent-mode -1)
         (my/org-scale-headers)
         (my/org-fix-code-font)
-        (font-lock-add-keywords nil my/org-reading-fl-keywords 'append)
         (font-lock-flush)
         (let ((buf (current-buffer)))
           (run-with-idle-timer 0.1 nil
@@ -1115,6 +1117,7 @@ En el bufer puedes hacer las siguientes cosas
     (progn
       (setq-local org-hide-emphasis-markers nil)
       (setq-local line-spacing nil)
+      (flyspell-mode 1)
       (let ((org-modern-table nil))
         (org-modern-mode -1)
         (org-modern-mode 1))
@@ -1123,15 +1126,12 @@ En el bufer puedes hacer las siguientes cosas
       (org-indent-mode 1)
       (my/org-unfix-code-font)
       (my/org-unscale-headers)
-      (font-lock-remove-keywords nil my/org-reading-fl-keywords)
-      (my/org-clear-reading-display)
       (font-lock-flush))))
 
 ;; Hook visual
 (add-hook 'org-mode-hook
           (lambda ()
             (setq-local truncate-lines nil)
-            (olivetti-mode 1)
             (display-line-numbers-mode -1)
             (font-lock-add-keywords nil
               '(("\\(\\*\\)[^*\n]+\\(\\*\\)"
@@ -1366,9 +1366,11 @@ Configuración de Emacs:
     (defun my/markdown-sync-reading-style (&rest _)
       (if markdown-hide-markup
           (progn (variable-pitch-mode 1)
-                 (setq-local line-spacing 0.3))
+                 (setq-local line-spacing 0.3)
+                 (flyspell-mode -1))
         (progn (variable-pitch-mode -1)
-               (setq-local line-spacing 0.6))))
+               (setq-local line-spacing 0.6)
+               (flyspell-mode 1))))
     (advice-add 'markdown-toggle-markup-hiding :after #'my/markdown-sync-reading-style)
     (advice-add 'markdown-toggle-markup-hiding :after
                 (lambda (&rest _)
