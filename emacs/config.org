@@ -1366,10 +1366,12 @@ Configuración de Emacs:
       (if markdown-hide-markup
           (progn (variable-pitch-mode 1)
                  (setq-local line-spacing 0.3)
-                 (flyspell-mode -1))
+                 (flyspell-mode -1)
+                 (valign-mode 1))
         (progn (variable-pitch-mode -1)
                (setq-local line-spacing 0.6)
-               (flyspell-mode 1))))
+               (flyspell-mode 1)
+               (valign-mode -1))))
     (advice-add 'markdown-toggle-markup-hiding :after #'my/markdown-sync-reading-style)
     (advice-add 'markdown-toggle-markup-hiding :after
                 (lambda (&rest _)
@@ -1382,6 +1384,12 @@ Configuración de Emacs:
                        (setq-local line-spacing 0.6)
                        (olivetti-mode 1)
                        (display-line-numbers-mode -1))))
+
+  (use-package valign
+    :ensure t
+    :after org
+    :custom
+    (valign-fancy-bar t))
 #+end_src
 
 ** git [3/3]
