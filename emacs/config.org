@@ -800,6 +800,7 @@ En el bufer puedes hacer las siguientes cosas
   :config
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
+  (setq org-support-shift-select t)
 
   (setq org-todo-keywords
         '((sequence "PORHACER(p!)"
@@ -1152,7 +1153,37 @@ En el bufer puedes hacer las siguientes cosas
                  (1 'my/org-marker-face prepend)
                  (2 'my/org-marker-face prepend)))
               'append)
-            (local-set-key (kbd "C-c C-x RET") #'my/org-toggle-reading-mode)))
+            (font-lock-add-keywords nil
+              (mapcar (lambda (kw)
+                        `(,(concat "\\b" kw "\\b") 0 ',(org-get-todo-face kw) t))
+                      '("PORHACER" "ENPROCESO" "BLOQUEADO" "DETENIDO" "HECHO" "ARCHIVAR"))
+              'append)
+            (local-set-key (kbd "C-c C-x RET") #'my/org-toggle-reading-mode)
+            (local-set-key (kbd "C-c t") #'my/org-set-keyword-at-point)))
+
+(defun my/org-set-keyword-at-point ()
+  (interactive)
+  (let* ((keywords '((?p "PORHACER")
+                     (?e "ENPROCESO")
+                     (?b "BLOQUEADO")
+                     (?d "DETENIDO")
+                     (?h "HECHO")
+                     (?a "ARCHIVAR")))
+         (prompt (mapconcat (lambda (k)
+                              (concat "[" (char-to-string (car k)) "] "
+                                      (propertize (cadr k) 'face (org-get-todo-face (cadr k)))))
+                            keywords "  "))
+         (ch (read-char-choice (concat "Estado: " prompt "  ") (mapcar #'car keywords)))
+         (keyword (cadr (assq ch keywords)))
+         (word (thing-at-point 'word t))
+         (in-keyword (cl-member word keywords :test (lambda (w k) (string= w (cadr k))))))
+    (if in-keyword
+        (let ((bounds (bounds-of-thing-at-point 'word)))
+          (delete-region (car bounds) (cdr bounds))
+          (insert keyword))
+      (insert keyword))
+    (when (org-at-table-p)
+      (org-table-align))))
 #+end_src
 *** org-tree-slides
 #+begin_src emacs-lisp
