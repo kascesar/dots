@@ -1050,6 +1050,13 @@ En el bufer puedes hacer las siguientes cosas
                                 (min (1+ (match-end 0)) (point-max)))))
           (overlay-put ov 'invisible t)
           (push ov my/org-reading-overlays)))
+      ;; Oculta filas de especificación de columna en tablas (<c>, <l>, etc.)
+      (goto-char (point-min))
+      (while (re-search-forward "^[ \t]*|\\([ \t]*<[lrcm]?[0-9]*>[ \t]*|\\)+[ \t]*$" nil t)
+        (let ((ov (make-overlay (match-beginning 0)
+                                (min (1+ (match-end 0)) (point-max)))))
+          (overlay-put ov 'invisible t)
+          (push ov my/org-reading-overlays)))
       ;; Estilo visual para bloques quote
       (goto-char (point-min))
       (while (re-search-forward "^[ \t]*#\\+begin_quote" nil t)
@@ -1158,39 +1165,47 @@ En el bufer puedes hacer las siguientes cosas
                         `(,(concat "\\b" kw "\\b") 0 ',(org-get-todo-face kw) t))
                       '("PORHACER" "ENPROCESO" "BLOQUEADO" "DETENIDO" "HECHO" "ARCHIVAR"))
               'append)
+            (font-lock-add-keywords nil
+              (mapcar (lambda (k)
+                        `(,(regexp-quote (caddr k)) 0 ',(org-get-todo-face (cadr k)) t))
+                      my/org-keyword-symbols)
+              'append)
             (local-set-key (kbd "C-c C-x RET") #'my/org-toggle-reading-mode)
             (local-set-key (kbd "C-c t") #'my/org-set-keyword-at-point)))
 
+(defconst my/org-keyword-symbols
+  '((?p "PORHACER"  "○")
+    (?e "ENPROCESO" "◑")
+    (?b "BLOQUEADO" "⊗")
+    (?d "DETENIDO"  "⏸")
+    (?h "HECHO"     "✓")
+    (?a "ARCHIVAR"  "⊡")))
+
 (defun my/org-set-keyword-at-point ()
   (interactive)
-  (let* ((keywords '((?p "PORHACER")
-                     (?e "ENPROCESO")
-                     (?b "BLOQUEADO")
-                     (?d "DETENIDO")
-                     (?h "HECHO")
-                     (?a "ARCHIVAR")))
-         (prompt (mapconcat (lambda (k)
-                              (concat "[" (char-to-string (car k)) "] "
-                                      (propertize (cadr k) 'face (org-get-todo-face (cadr k)))))
-                            keywords "  "))
-         (ch (read-char-choice (concat "Estado: " prompt "  ") (mapcar #'car keywords)))
-         (keyword (cadr (assq ch keywords)))
-         (word (thing-at-point 'word t))
-         (in-keyword (cl-member word keywords :test (lambda (w k) (string= w (cadr k))))))
-    (if in-keyword
-        (let ((bounds (bounds-of-thing-at-point 'word)))
-          (delete-region (car bounds) (cdr bounds))
-          (insert keyword))
-      (insert keyword))
+  (let* ((prompt (mapconcat (lambda (k)
+                              (let ((face (org-get-todo-face (cadr k))))
+                                (concat "[" (char-to-string (car k)) "] "
+                                        (propertize (caddr k) 'face face) " "
+                                        (propertize (cadr k) 'face face))))
+                            my/org-keyword-symbols "  "))
+         (ch (read-char-choice (concat "Estado: " prompt "  ") (mapcar #'car my/org-keyword-symbols)))
+         (entry   (assq ch my/org-keyword-symbols))
+         (symbol  (caddr entry))
+         (symbols (mapcar #'caddr my/org-keyword-symbols))
+         (char-str (when (char-after) (string (char-after))))
+         (on-symbol (member char-str symbols)))
+    (when on-symbol (delete-char 1))
+    (insert symbol)
     (when (org-at-table-p)
       (org-table-align))))
 #+end_src
 *** org-tree-slides
 #+begin_src emacs-lisp
-  (elpaca olivetti                      
+  (elpaca olivetti
     (use-package olivetti
       :custom
-      (olivetti-body-width 0.6)))
+      (olivetti-body-width 0.9)))
   (elpaca org-tree-slide
     (use-package org-tree-slide
       :custom                                                                                                                                                                               
