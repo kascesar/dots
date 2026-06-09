@@ -12,6 +12,10 @@ Configuración del shell: `.bashrc`, `.bash_aliases` y prompt con oh-my-posh.
 
 Los symlinks los crea `setup.sh` desde la raíz del repo.
 
+## Vista previa
+
+![oh-my-posh prompt](posh_config.png)
+
 ## Dependencias
 
 | Software | Fedora | Ubuntu | Uso |
