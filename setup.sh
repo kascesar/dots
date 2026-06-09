@@ -53,8 +53,18 @@ echo "==> pop!_shell..."
 if gnome-extensions list 2>/dev/null | grep -q "pop-shell@system76.com"; then
     bash "$DOTS/popshell/system76style.sh" --keybindings
 else
-    echo "  Pop!_Shell no detectada — omitiendo."
-    echo "  Instala la extensión y luego ejecuta: bash popshell/system76style.sh"
+    echo "  Pop!_Shell no detectada — instala primero con install-deps.sh."
+    echo "  Luego cierra sesion, vuelve a entrar, y ejecuta setup.sh de nuevo."
+fi
+
+echo ""
+echo "==> blur my shell..."
+if gnome-extensions list 2>/dev/null | grep -q "blur-my-shell@aunetx"; then
+    gnome-extensions enable blur-my-shell@aunetx
+    dconf load /org/gnome/shell/extensions/blur-my-shell/ < "$DOTS/popshell/blur-my-shell.dconf"
+    echo "  blur-my-shell: configuracion aplicada."
+else
+    echo "  Blur My Shell no detectada — instala primero con install-deps.sh."
 fi
 
 echo ""

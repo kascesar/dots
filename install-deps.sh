@@ -100,5 +100,44 @@ else
     oh-my-posh font install meslo
 fi
 
+
+# ==============================================================================
+# Extensiones GNOME
+# Requiere sesion grafica activa (DISPLAY/WAYLAND_DISPLAY).
+# ==============================================================================
+if [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]; then
+    echo ""
+    echo "==> Extensiones GNOME..."
+
+    # Pop!_Shell — disponible via paquete del sistema
+    if gnome-extensions list 2>/dev/null | grep -q "pop-shell@system76.com"; then
+        echo "  pop-shell: ya instalada"
+    else
+        echo "  Instalando Pop!_Shell..."
+        if [ "$PM" = "dnf" ]; then
+            sudo dnf install -y gnome-shell-extension-pop-shell
+        elif [ "$PM" = "apt" ]; then
+            sudo apt install -y gnome-shell-extension-pop-shell
+        fi
+        echo "  IMPORTANTE: Cierra sesion y vuelve a entrar para que GNOME detecte Pop!_Shell."
+    fi
+
+    # Blur My Shell — descarga desde extensions.gnome.org
+    if gnome-extensions list 2>/dev/null | grep -q "blur-my-shell@aunetx"; then
+        echo "  blur-my-shell: ya instalada"
+    else
+        echo "  Instalando Blur My Shell..."
+        GNOME_VER=$(gnome-shell --version 2>/dev/null | awk '{print $3}' | cut -d'.' -f1)
+        curl -fsSL "https://extensions.gnome.org/download-extension/blur-my-shell@aunetx.shell-extension.zip?shell_version=${GNOME_VER}" \
+            -o /tmp/blur-my-shell.zip \
+        && gnome-extensions install --force /tmp/blur-my-shell.zip \
+        && rm -f /tmp/blur-my-shell.zip \
+        || echo "  Advertencia: no se pudo instalar Blur My Shell, continúa manualmente."
+    fi
+else
+    echo ""
+    echo "==> Extensiones GNOME: sesion grafica no detectada — omitiendo."
+fi
+
 echo ""
 echo "Listo. Ejecuta setup.sh para aplicar las configuraciones."
