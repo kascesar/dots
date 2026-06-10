@@ -1,0 +1,5 @@
+{
+  "h1": { "bold": true, "color": "#ECFD65", "prefix": "", "suffix": "", "block_suffix": "\n" },
+  "h2": { "bold": true, "color": "#EE6FF8", "prefix": "", "suffix": "", "block_suffix": "\n" },
+  "h3": { "bold": true, "color": "#FFBA28", "prefix": "  ", "suffix": "", "block_suffix": "\n" }
+}

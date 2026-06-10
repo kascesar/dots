@@ -58,6 +58,33 @@ else
 fi
 
 echo ""
+echo "==> cheatsheet..."
+symlink "$DOTS/cheatsheet/cheatsheet"    "$HOME/.local/bin/cheatsheet"
+symlink "$DOTS/cheatsheet/cheatsheet.md" "$HOME/cheatsheet.md"
+
+# Ventanas nuevas centradas en Mutter
+gsettings set org.gnome.mutter center-new-windows true
+
+# Atajo Super+H → cheatsheet (añade custom1 sin pisar keybindings existentes)
+EXISTING=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings \
+    | tr -d "[]'" | tr ',' '\n' | grep -v '^$' | xargs)
+KB_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/"
+if echo "$EXISTING" | grep -qF "custom1"; then
+    echo "  atajo custom1 ya existe — omitiendo"
+else
+    NEW_LIST=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings \
+        | sed "s|]$|, '$KB_PATH']|")
+    gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "$NEW_LIST"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:"$KB_PATH" \
+        name    'Cheatsheet'
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:"$KB_PATH" \
+        command "$HOME/.local/bin/cheatsheet"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:"$KB_PATH" \
+        binding '<Super>h'
+    echo "  Super+H → cheatsheet registrado"
+fi
+
+echo ""
 echo "==> blur my shell..."
 if gnome-extensions list 2>/dev/null | grep -q "blur-my-shell@aunetx"; then
     gnome-extensions enable blur-my-shell@aunetx

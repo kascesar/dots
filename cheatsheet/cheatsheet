@@ -1,0 +1,29 @@
+#!/bin/sh
+PIDFILE=/tmp/cheatsheet-kitty.pid
+
+if [ -f "$PIDFILE" ]; then
+    OLD_PID=$(cat "$PIDFILE")
+    if kill -0 "$OLD_PID" 2>/dev/null; then
+        kill "$OLD_PID"
+        rm -f "$PIDFILE"
+        exit 0
+    fi
+    rm -f "$PIDFILE"
+fi
+
+# Resolver ruta real del script (atraviesa el symlink)
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+STYLE="$SCRIPT_DIR/glow-style.json"
+MD="$HOME/cheatsheet.md"
+
+cd "$HOME"
+"$HOME/.local/bin/kitty" --class=cheatsheet \
+  --override remember_window_size=no \
+  --override initial_window_width=100c \
+  --override initial_window_height=32c \
+  --override hide_window_decorations=yes \
+  --override background_opacity=0.9 \
+  --override window_padding_width=12 \
+  sh -c "glow -s '$STYLE' '$MD'; sleep infinity" &
+
+echo $! > "$PIDFILE"
