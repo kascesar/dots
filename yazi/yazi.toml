@@ -12,6 +12,7 @@ default = [
 [open]
 prepend_rules = [
     { mime = "inode/directory", use = "folder"  },
+    { mime = "text/html",       use = "default" },
     { mime = "text/*",          use = "edit"    },
     { mime = "*",               use = "default" },
 ]

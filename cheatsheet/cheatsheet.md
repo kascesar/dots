@@ -32,7 +32,7 @@
 
 | Atajo | Acción |
 |-------|--------|
-| `h j k l` | Navegar (←↓↑→) |
+| `j k l i` | Navegar (←↓→↑) |
 | `H` / `L` | Ir a directorio anterior / siguiente (historial) |
 | `g g` | Ir al primer archivo |
 | `G` | Ir al último archivo |
