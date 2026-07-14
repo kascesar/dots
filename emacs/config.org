@@ -1438,6 +1438,31 @@ Configuración de Emacs:
     (valign-fancy-bar t))
 #+end_src
 
+** notas caligráficas (palmer / spencerian)
+Extensiones =.palmer= y =.spencerian= que heredan todo el tratamiento de
+markdown (son modos derivados de =markdown-mode=), y solo cambian la fuente del
+buffer a la caligrafía correspondiente. Las fuentes se instalan con
+=emacs/install.sh=.
+#+begin_src emacs-lisp
+  ;; ponytail: derivar de markdown-mode hereda hooks, faces y config de markdown.
+  ;; buffer-face-mode aplica la fuente solo en estos buffers.
+  ;; Si activas el modo lectura (variable-pitch), la fuente vuelve a variable-pitch;
+  ;; suficiente para notas. Añadir un face propio solo si molesta.
+  (define-derived-mode palmer-mode markdown-mode "Palmer"
+    "Notas markdown con fuente Palmer."
+    (setq-local buffer-face-mode-face '(:family "Mix Palmer" :height 220))
+    (buffer-face-mode 1))
+
+  (define-derived-mode spencerian-mode markdown-mode "Spencerian"
+    "Notas markdown con fuente Jamaica."
+    (setq-local buffer-face-mode-face
+                '(:family "FONTSPRING DEMO - Jamaica Script" :height 220))
+    (buffer-face-mode 1))
+
+  (add-to-list 'auto-mode-alist '("\\.palmer\\'"     . palmer-mode))
+  (add-to-list 'auto-mode-alist '("\\.spencerian\\'" . spencerian-mode))
+#+end_src
+
 ** git [3/3]
 - [X] magit es un gestor de repositorios git interactivo y muy poderoso
 - [X] git-gutter muestra en los archivos que lineas se agregan, elimina y modifica
