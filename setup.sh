@@ -60,7 +60,7 @@ fi
 echo ""
 echo "==> cheatsheet..."
 symlink "$DOTS/cheatsheet/cheatsheet"    "$HOME/.local/bin/cheatsheet"
-symlink "$DOTS/cheatsheet/cheatsheet.md" "$HOME/cheatsheet.md"
+symlink "$DOTS/cheatsheet/cheatsheet.md" "$HOME/.cheatsheet.md"
 
 # Ventanas nuevas centradas en Mutter
 gsettings set org.gnome.mutter center-new-windows true
