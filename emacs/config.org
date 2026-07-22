@@ -1395,7 +1395,8 @@ Configuración de Emacs:
               (lambda ()
                 (font-lock-add-keywords nil
                   '(("^\\s-*\\(?:---\\|\\*\\*\\*\\|___\\)\\s-*$"
-                     (0 '(face (:overline t) display (space :align-to right)) t)))
+                     (0 '(face (:overline t) display (space :align-to right)) t))
+                    (my/md-match-admonition (0 my/md-admonition-face prepend)))
                   t)))
     (defun my/markdown-markup-subtle ()
       (let* ((bg (face-attribute 'default :background))
@@ -1408,6 +1409,104 @@ Configuración de Emacs:
     (with-eval-after-load 'ef-themes
       (add-hook 'ef-themes-post-load-hook #'my/markdown-markup-subtle))
     (my/markdown-markup-subtle)
+
+    ;; Admoniciones estilo GitHub (> [!NOTE]) y RST (.. note::) en cajas de color.
+    ;; note/tip → verde · warning/caution → amarillo · danger/important → rojo.
+    (defface my/md-note    '((t :extend t)) "Caja verde: note/tip.")
+    (defface my/md-warning '((t :extend t)) "Caja amarilla: warning/caution.")
+    (defface my/md-danger  '((t :extend t)) "Caja roja: danger/important.")
+
+    (defvar-local my/md-admonition-face nil
+      "Face que `my/md-match-admonition' calcula para el bloque en curso.")
+
+    (defun my/md-match-admonition (limit)
+      "Matcher font-lock: cubre un bloque de admonición GitHub o RST hasta LIMIT.
+Además oculta los marcadores (> y .. x::) con `invisible 'markdown-markup', que
+markdown muestra/esconde con `markdown-toggle-markup-hiding' (modo lectura)."
+      (when (re-search-forward
+             (concat "^\\(?:"
+                     ">[ \t]*\\[!\\(NOTE\\|TIP\\|WARNING\\|CAUTION\\|IMPORTANT\\|DANGER\\)\\]"
+                     "\\|"
+                     "\\.\\.[ \t]+\\(note\\|tip\\|warning\\|caution\\|important\\|danger\\)::"
+                     "\\)")
+             limit t)
+        (let ((github (match-beginning 1))
+              (kw (downcase (or (match-string 1) (match-string 2))))
+              (mk-end (match-end 0))       ; fin del marcador [!X] o .. x::
+              (beg (line-beginning-position))
+              end)
+          (setq my/md-admonition-face
+                (pcase kw
+                  ((or "note" "tip") 'my/md-note)
+                  ((or "warning" "caution") 'my/md-warning)
+                  (_ 'my/md-danger)))       ; important / danger
+          (forward-line 1)
+          (if github
+              (while (and (< (point) limit) (looking-at "^>")) (forward-line 1))
+            ;; RST: cuerpo indentado o en blanco hasta la 1ª línea sin indentar
+            (while (and (< (point) limit)
+                        (looking-at "^\\(?:[ \t]+\\S-\\|[ \t]*$\\)"))
+              (forward-line 1)))
+          (setq end (point))
+          (with-silent-modifications
+            (if github
+                (save-excursion
+                  ;; cabecera: si sólo lleva el marcador, colapsa la línea entera
+                  (goto-char beg)
+                  (put-text-property
+                   beg (if (save-excursion (goto-char mk-end) (looking-at "[ \t]*$"))
+                           (min (1+ (line-end-position)) end)
+                         mk-end)
+                   'invisible 'markdown-markup)
+                  ;; cuerpo: oculta el "> " de cada línea
+                  (forward-line 1)
+                  (while (< (point) end)
+                    (when (looking-at "^> ?")
+                      (put-text-property (match-beginning 0) (match-end 0)
+                                         'invisible 'markdown-markup))
+                    (forward-line 1)))
+              ;; RST: oculta el prefijo ".. x:: " y conserva el título
+              (put-text-property
+               beg (save-excursion (goto-char mk-end) (skip-chars-forward " \t") (point))
+               'invisible 'markdown-markup)))
+          (set-match-data (list beg end))
+          t)))
+
+    (defun my/md-admonition-colors ()
+      "Tiñe las cajas mezclando el color base con el fondo del tema activo."
+      (let ((bg (face-attribute 'default :background)))
+        (cl-flet ((mix (color pct)
+                    (apply #'color-rgb-to-hex
+                           (cl-mapcar (lambda (a b) (+ (* pct a) (* (- 1.0 pct) b)))
+                                      (color-name-to-rgb color)
+                                      (color-name-to-rgb bg)))))
+          (set-face-attribute 'my/md-note    nil :background (mix "#2f9e44" 0.18))
+          (set-face-attribute 'my/md-warning nil :background (mix "#e6a700" 0.20))
+          (set-face-attribute 'my/md-danger  nil :background (mix "#e03131" 0.18)))))
+    (with-eval-after-load 'ef-themes
+      (add-hook 'ef-themes-post-load-hook #'my/md-admonition-colors))
+    (my/md-admonition-colors)
+
+    (defun my/md-admonition-selftest ()
+      "Comprobación mínima del matcher. Ejecuta con \\[execute-extended-command]."
+      (interactive)
+      (with-temp-buffer
+        (insert "> [!WARNING]\n> ojo\n\ntras\n")
+        (goto-char (point-min))
+        (cl-assert (my/md-match-admonition (point-max)))
+        (cl-assert (eq my/md-admonition-face 'my/md-warning))
+        ;; el "> " de la cabecera y del cuerpo quedan marcados invisibles
+        (cl-assert (eq (get-text-property (point-min) 'invisible) 'markdown-markup))
+        (cl-assert (eq (get-text-property (- (point-max) 3) 'invisible) 'markdown-markup))
+        (erase-buffer)
+        (insert ".. note:: hola\n   cuerpo\n\nfuera\n")
+        (goto-char (point-min))
+        (cl-assert (my/md-match-admonition (point-max)))
+        (cl-assert (eq my/md-admonition-face 'my/md-note))
+        ;; ".. note:: " invisible, el título "hola" visible
+        (cl-assert (eq (get-text-property (point-min) 'invisible) 'markdown-markup))
+        (cl-assert (null (get-text-property (- (line-end-position) 1) 'invisible))))
+      (message "admonition selftest OK"))
     (defun my/markdown-sync-reading-style (&rest _)
       (if markdown-hide-markup
           (progn (variable-pitch-mode 1)
