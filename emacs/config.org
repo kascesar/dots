@@ -167,13 +167,12 @@ Descomentar la linea "mapc" para instalar los lenguajes
   ;; dont ask when kill buffer
   (global-set-key [remap kill-buffer] #'kill-this-buffer)
 
-  ;; fill-column
-  (setq fill-column 80)
+  ;; fill-column: se deja intacto el default global de Emacs (70), para no tocar
+  ;; los modos de codigo. El 80 se fija buffer-local solo en los modos de prosa.
   (add-hook 'org-mode-hook 'turn-on-auto-fill)
-
   (add-hook 'org-mode-hook
-          (lambda ()
-            (setq fill-column 80)))
+            (lambda ()
+              (setq-local fill-column 80)))
 #+END_SRC
 
 ** Reload config
@@ -1528,6 +1527,9 @@ markdown muestra/esconde con `markdown-toggle-markup-hiding' (modo lectura)."
                        (setq-local truncate-lines nil)
                        (setq-local line-spacing 0.6)
                        (olivetti-mode 1)
+                       ;; corta la linea en el espacio previo a `fill-column'
+                       (setq-local fill-column 80)
+                       (auto-fill-mode 1)
                        (display-line-numbers-mode -1))))
 
   (use-package valign
