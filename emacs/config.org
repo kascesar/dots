@@ -433,6 +433,451 @@ o el oscuro.
     (with-eval-after-load 'ef-themes
       (ef-themes-load-random-light))
 #+END_SRC
+** modeline
+Mode line propia, portada de la de [[https://github.com/protesilaos/dotfiles][Protesilaos]] (=prot-modeline.el=). La idea
+central es que casi todos los segmentos se dibujan *solo en la ventana
+enfocada* (=mode-line-window-selected-p=), así no se repiten los indicadores
+globales en cada split.
+
+Adaptaciones respecto al original: sin iconos, ~flycheck~ en lugar de
+~flymake~, ~ef-themes~ en lugar de ~modus-themes~, y sin ~eglot~ /
+~notmuch~ / ~spacious-padding~.
+
+Nota: este formato no incluye ~mode-line-modes~, así que la lista de minor
+modes desaparece a propósito.
+
+*** Helpers y faces
+#+begin_src emacs-lisp
+  (defcustom my/modeline-string-truncate-length 9
+    "Largo a partir del cual se truncan las cadenas de la mode line."
+    :type 'natnum
+    :group 'mode-line)
+
+  (defun my/modeline--window-narrow-p ()
+    "Non-nil si la ventana es estrecha (cf. `split-width-threshold')."
+    (and (numberp split-width-threshold)
+         (< (window-total-width) split-width-threshold)))
+
+  (defun my/modeline--string-truncate-p (str)
+    "Non-nil si STR debe truncarse en esta ventana."
+    (and (stringp str)
+         (not (string-blank-p str))
+         (my/modeline--window-narrow-p)
+         (> (length str) my/modeline-string-truncate-length)
+         (not (one-window-p :no-minibuffer))))
+
+  (defun my/modeline-string-cut-middle (str)
+    "Recorta el medio de STR si procede, si no devuelve STR."
+    (let ((half (floor my/modeline-string-truncate-length 2)))
+      (if (my/modeline--string-truncate-p str)
+          (concat (substring str 0 half) "..." (substring str (- half)))
+        str)))
+
+  (defun my/modeline--first-char (str)
+    "Primer carácter de STR."
+    (substring str 0 1))
+
+  (defun my/modeline-string-abbreviate-but-last (str nthlast)
+    "Abrevia STR por guiones/underscores dejando NTHLAST palabras intactas."
+    (if (my/modeline--string-truncate-p str)
+        (let* ((all (split-string str "[_-]"))
+               (butlast-strings (nbutlast (copy-sequence all) nthlast))
+               (last-strings (last (copy-sequence all) nthlast))
+               (head (mapconcat #'my/modeline--first-char butlast-strings "-"))
+               (tail (mapconcat #'identity last-strings "-")))
+          (if (string-empty-p head) tail (concat head "-" tail)))
+      str))
+
+  ;; El color lo pone el tema en `my/modeline-set-faces'; aquí solo se declaran.
+  (defface my/modeline-indicator-button nil
+    "Base para los indicadores con fondo."
+    :group 'mode-line)
+
+  (dolist (color '("red" "green" "yellow" "blue" "magenta" "cyan" "gray"))
+    (custom-declare-face (intern (format "my/modeline-indicator-%s" color))
+                         '((t :inherit bold)) (format "Indicador %s." color)
+                         :group 'mode-line)
+    (custom-declare-face (intern (format "my/modeline-indicator-%s-bg" color))
+                         '((t :inherit (bold my/modeline-indicator-button)))
+                         (format "Indicador %s con fondo." color)
+                         :group 'mode-line))
+#+end_src
+
+*** Segmentos
+#+begin_src emacs-lisp
+  (defvar-local my/modeline-narrow
+      '(:eval
+        (when (and (mode-line-window-selected-p)
+                   (buffer-narrowed-p)
+                   (not (memq major-mode '(Info-mode help-mode special-mode))))
+          (propertize " Narrow " 'face 'my/modeline-indicator-cyan-bg)))
+    "Indica que el buffer está estrechado.")
+
+  (defvar-local my/modeline-buffer-status
+      '(:eval
+        (when (file-remote-p default-directory)
+          (propertize " @ " 'face 'my/modeline-indicator-red-bg
+                      'mouse-face 'mode-line-highlight)))
+    "Indica que el archivo es remoto (TRAMP).")
+
+  (defvar-local my/modeline-read-only
+      '(:eval
+        (when buffer-read-only
+          (propertize " RO " 'face 'my/modeline-indicator-gray-bg
+                      'mouse-face 'mode-line-highlight)))
+    "Indica buffer de solo lectura.")
+
+  (defun my/modeline-buffer-identification-face ()
+    "Face para el nombre del buffer según foco y estado de modificación."
+    (let ((modified (and (buffer-file-name) (buffer-modified-p))))
+      (cond
+       ((and (mode-line-window-selected-p) modified) '(italic mode-line-buffer-id))
+       (modified 'italic)
+       ((mode-line-window-selected-p) 'mode-line-buffer-id))))
+
+  (defun my/modeline-buffer-name-help-echo ()
+    "Tooltip con el nombre y la ruta del buffer."
+    (concat (propertize (buffer-name) 'face 'mode-line-buffer-id) "\n"
+            (propertize (or (buffer-file-name)
+                            (format "Sin archivo.\nDirectorio: %s" default-directory))
+                        'face 'font-lock-doc-face)))
+
+  (defvar-local my/modeline-buffer-identification
+      '(:eval
+        (propertize (my/modeline-string-cut-middle (buffer-name))
+                    'face (my/modeline-buffer-identification-face)
+                    'mouse-face 'mode-line-highlight
+                    'help-echo (my/modeline-buffer-name-help-echo)))
+    "Nombre del buffer y su estado de modificación.")
+
+  (defun my/modeline-major-mode-name ()
+    "Nombre del `major-mode' capitalizado y sin el sufijo -mode."
+    (capitalize (string-replace "-mode" "" (symbol-name major-mode))))
+
+  (defun my/modeline-major-mode-help-echo ()
+    "Tooltip con el símbolo del modo y su padre."
+    (if-let* ((parent (get major-mode 'derived-mode-parent)))
+        (format "Símbolo: `%s'.  Deriva de: `%s'" major-mode parent)
+      (format "Símbolo: `%s'." major-mode)))
+
+  (defvar-local my/modeline-major-mode
+      (list
+       (propertize "%[" 'face 'my/modeline-indicator-red)
+       '(:eval
+         (propertize (my/modeline-string-abbreviate-but-last
+                      (my/modeline-major-mode-name) 2)
+                     'mouse-face 'mode-line-highlight
+                     'help-echo (my/modeline-major-mode-help-echo)))
+       (propertize "%]" 'face 'my/modeline-indicator-red))
+    "Major mode actual.")
+
+  (defvar-local my/modeline-process
+      (list '("" mode-line-process))
+    "Proceso en curso del buffer.")
+#+end_src
+
+*** Rama de git
+Réplica del bloque =git= de mi prompt de oh-my-posh (=bash/.posh_config.yaml=):
+rama, ahead/behind, cambios del working tree en rojo, separador =|=, staged en
+verde y stash. Usa los *mismos glifos Nerd Font* que el prompt.
+
+Regla de oro: el =:eval= de la mode line *nunca* lanza un proceso. Se dibuja
+leyendo una caché que se refresca en hooks concretos y en un timer inactivo.
+#+begin_src emacs-lisp
+  ;; La fuente principal (DejaVu Sans Mono) no cubre el Private Use Area donde
+  ;; viven los glifos Nerd Font, asi que se anade un fallback solo para ese rango.
+  (defun my/modeline--setup-nerd-font ()
+    "Usa una Nerd Font para U+E000-U+F8FF sin tocar la fuente principal."
+    (when-let* ((font (seq-find (lambda (f) (member f (font-family-list)))
+                                '("FiraCode Nerd Font Mono"
+                                  "MesloLGS Nerd Font Mono"
+                                  "Symbols Nerd Font Mono"))))
+      (set-fontset-font t '(#xe000 . #xf8ff) font nil 'prepend)))
+  (my/modeline--setup-nerd-font)
+  (add-hook 'server-after-make-frame-hook #'my/modeline--setup-nerd-font)
+
+  ;; Mismos codepoints que bash/.posh_config.yaml
+  (defvar my/modeline-git-icons
+    '((branch . "") (working . "")
+      (staged . "") (stash . ""))
+    "Glifos Nerd Font compartidos con el prompt de oh-my-posh.")
+
+  (defvar my/modeline-vc-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map [mode-line down-mouse-1] 'vc-diff)
+      (define-key map [mode-line down-mouse-3] 'vc-root-diff)
+      map)
+    "Keymap del indicador de git.")
+
+  (defvar my/modeline-git--cache (make-hash-table :test #'equal)
+    "Raíz del repo -> plist con su estado. Lo lee el :eval, lo escribe el refresh.")
+
+  (defun my/modeline-git--root ()
+    "Raíz del repo del buffer actual. No lanza procesos."
+    (when-let* ((dir (or (and buffer-file-name (file-name-directory buffer-file-name))
+                         default-directory)))
+      (locate-dominating-file dir ".git")))
+
+  (defun my/modeline-git--stash-count (root)
+    "Número de stashes leyendo el reflog, para no lanzar un segundo proceso git."
+    ;; ponytail: falla en worktrees (donde .git es un archivo); devuelve 0 y ya.
+    (let ((f (expand-file-name ".git/logs/refs/stash" root)))
+      (if (file-readable-p f)
+          (with-temp-buffer
+            (insert-file-contents f)
+            (count-lines (point-min) (point-max)))
+        0)))
+
+  (defun my/modeline-git--parse (output root)
+    "Convierte OUTPUT de `git status --porcelain=v2 --branch' en un plist."
+    (let ((branch nil) (ahead 0) (behind 0)
+          (s-add 0) (s-mod 0) (s-del 0)
+          (w-mod 0) (w-del 0) (untracked 0) (unmerged 0))
+      (dolist (line (split-string output "\n" t))
+        (cond
+         ((string-prefix-p "# branch.head " line)
+          (setq branch (substring line 14)))
+         ((string-prefix-p "# branch.ab " line)
+          (when (string-match "\\+\\([0-9]+\\) -\\([0-9]+\\)" line)
+            (setq ahead (string-to-number (match-string 1 line))
+                  behind (string-to-number (match-string 2 line)))))
+         ((string-prefix-p "? " line) (cl-incf untracked))
+         ((string-prefix-p "u " line) (cl-incf unmerged))
+         ;; "1 XY ..." y "2 XY ..." : X = staged, Y = working tree
+         ((and (> (length line) 3)
+               (memq (aref line 0) '(?1 ?2))
+               (eq (aref line 1) ?\s))
+          (pcase (aref line 2)
+            ((or ?A ?C) (cl-incf s-add))
+            ((or ?M ?R) (cl-incf s-mod))
+            (?D (cl-incf s-del)))
+          (pcase (aref line 3)
+            ((or ?M ?R) (cl-incf w-mod))
+            (?D (cl-incf w-del))))))
+      (list :branch branch :ahead ahead :behind behind
+            :s-add s-add :s-mod s-mod :s-del s-del
+            :w-mod w-mod :w-del w-del
+            :untracked untracked :unmerged unmerged
+            :stash (my/modeline-git--stash-count root))))
+
+  (defun my/modeline-git-refresh (&rest _)
+    "Recalcula el estado git del repo actual y refresca la mode line."
+    (when-let* ((root (my/modeline-git--root)))
+      (let* ((default-directory root)
+             (out (with-temp-buffer
+                    (when (zerop (call-process "git" nil t nil
+                                               "status" "--porcelain=v2" "--branch"))
+                      (buffer-string)))))
+        (when out
+          (puthash root (my/modeline-git--parse out root) my/modeline-git--cache)
+          (force-mode-line-update t)))))
+
+  ;; ponytail: git sincrono en hooks + timer inactivo. Si en un repo enorme se
+  ;; nota el tiron, el upgrade es lanzarlo con `make-process' en asincrono.
+  (dolist (h '(after-save-hook find-file-hook after-revert-hook))
+    (add-hook h #'my/modeline-git-refresh))
+  (with-eval-after-load 'magit
+    (add-hook 'magit-post-refresh-hook #'my/modeline-git-refresh))
+  (run-with-idle-timer 3 t #'my/modeline-git-refresh)
+
+  (defun my/modeline-git--counts (pairs)
+    "Formatea PAIRS ((símbolo . n)...) omitiendo los ceros, como oh-my-posh."
+    (mapconcat (lambda (p) (format "%s%d" (car p) (cdr p)))
+               (seq-filter (lambda (p) (> (cdr p) 0)) pairs)
+               " "))
+
+  (defun my/modeline-git--icon (key face)
+    "Glifo KEY propertizado con FACE."
+    (propertize (alist-get key my/modeline-git-icons "") 'face face))
+
+  (defvar-local my/modeline-vc-branch
+      '(:eval
+        (when-let* (((mode-line-window-selected-p))
+                    (root (my/modeline-git--root))
+                    (st (gethash root my/modeline-git--cache))
+                    (branch (plist-get st :branch)))
+          (let* ((work (my/modeline-git--counts
+                        `(("~" . ,(plist-get st :w-mod))
+                          ("-" . ,(plist-get st :w-del))
+                          ("?" . ,(plist-get st :untracked)))))
+                 (stage (my/modeline-git--counts
+                         `(("+" . ,(plist-get st :s-add))
+                           ("~" . ,(plist-get st :s-mod))
+                           ("-" . ,(plist-get st :s-del)))))
+                 (ahead (plist-get st :ahead))
+                 (behind (plist-get st :behind))
+                 (unmerged (plist-get st :unmerged))
+                 (stash (plist-get st :stash))
+                 ;; color de la rama derivado de la propia cache: nada de
+                 ;; `vc-state' aqui, que puede costar en pleno redisplay.
+                 (face (cond ((> unmerged 0) 'my/modeline-indicator-red)
+                             ((not (string-empty-p work)) 'my/modeline-indicator-yellow)
+                             ((not (string-empty-p stage)) 'my/modeline-indicator-green)
+                             (t 'my/modeline-indicator-cyan))))
+            (concat
+             (propertize (concat (alist-get 'branch my/modeline-git-icons "") " " branch)
+                         'face face
+                         'mouse-face 'mode-line-highlight
+                         'help-echo "mouse-1: `vc-diff'\nmouse-3: `vc-root-diff'"
+                         'local-map my/modeline-vc-map)
+             (when (> ahead 0)
+               (propertize (format " ⇡%d" ahead) 'face 'my/modeline-indicator-cyan))
+             (when (> behind 0)
+               (propertize (format " ⇣%d" behind) 'face 'my/modeline-indicator-cyan))
+             (unless (string-empty-p work)
+               (concat " " (my/modeline-git--icon 'working 'my/modeline-indicator-red)
+                       " " work))
+             (when (and (not (string-empty-p work)) (not (string-empty-p stage)))
+               (propertize " |" 'face 'my/modeline-indicator-magenta))
+             (unless (string-empty-p stage)
+               (concat " " (my/modeline-git--icon 'staged 'my/modeline-indicator-green)
+                       " " stage))
+             (when (> unmerged 0)
+               (propertize (format " x%d" unmerged) 'face 'my/modeline-indicator-red))
+             (when (> stash 0)
+               (concat " " (my/modeline-git--icon 'stash 'my/modeline-indicator-yellow)
+                       (number-to-string stash)))))))
+    "Estado del repo al estilo del prompt de oh-my-posh.")
+#+end_src
+
+*** Flycheck
+Sustituye al segmento de ~flymake~ del original, que aquí no aplica.
+#+begin_src emacs-lisp
+  (declare-function flycheck-count-errors "flycheck" (errors))
+
+  (defun my/modeline--flycheck-counter (level indicator face)
+    "Devuelve el contador de LEVEL con INDICATOR y FACE, o nil si es cero."
+    (when-let* ((n (alist-get level (flycheck-count-errors flycheck-current-errors))))
+      (concat (propertize indicator 'face 'my/modeline-indicator-gray)
+              (propertize (number-to-string n) 'face face
+                          'mouse-face 'mode-line-highlight
+                          'help-echo "mouse-1: lista de errores"
+                          'local-map (let ((map (make-sparse-keymap)))
+                                       (define-key map [mode-line down-mouse-1]
+                                                   'flycheck-list-errors)
+                                       map)))))
+
+  (defvar-local my/modeline-flycheck
+      '(:eval
+        (when (and (bound-and-true-p flycheck-mode) (mode-line-window-selected-p))
+          (pcase flycheck-last-status-change
+            ('running     (propertize "..." 'face 'my/modeline-indicator-gray))
+            ('errored     (propertize "ERR" 'face 'my/modeline-indicator-red))
+            ('interrupted (propertize "---" 'face 'my/modeline-indicator-gray))
+            ('no-checker  nil)
+            (_ (mapconcat
+                #'identity
+                (delq nil (list (my/modeline--flycheck-counter
+                                 'error "!" 'my/modeline-indicator-red)
+                                (my/modeline--flycheck-counter
+                                 'warning "!" 'my/modeline-indicator-yellow)
+                                (my/modeline--flycheck-counter
+                                 'info "·" 'my/modeline-indicator-green)))
+                " ")))))
+    "Contadores de diagnósticos de flycheck, solo en la ventana enfocada.")
+
+  (defvar-local my/modeline-position
+      '(:eval
+        (when (mode-line-window-selected-p)
+          ;; %l y %c los expande el propio redisplay (mas barato que
+          ;; `line-number-at-pos'). Respeta line-number-mode/column-number-mode.
+          (list (when line-number-mode
+                  (propertize "%l" 'face 'my/modeline-indicator-gray))
+                (when (and line-number-mode column-number-mode)
+                  (propertize ":" 'face 'my/modeline-indicator-gray))
+                (when column-number-mode
+                  (propertize "%c" 'face 'my/modeline-indicator-gray)))))
+    "Fila y columna del punto, solo en la ventana enfocada.")
+
+  (defvar-local my/modeline-misc-info
+      '(:eval (when (mode-line-window-selected-p) mode-line-misc-info))
+    "`mode-line-misc-info' solo en la ventana enfocada.")
+#+end_src
+
+*** Formato y colores del tema
+#+begin_src emacs-lisp
+  ;; Crítico: sin esto los :eval de los constructos no se evalúan.
+  (dolist (construct '(my/modeline-narrow
+                       my/modeline-buffer-status
+                       my/modeline-read-only
+                       my/modeline-buffer-identification
+                       my/modeline-major-mode
+                       my/modeline-process
+                       my/modeline-vc-branch
+                       my/modeline-flycheck
+                       my/modeline-position
+                       my/modeline-misc-info))
+    (put construct 'risky-local-variable t))
+
+  (setq mode-line-compact nil)
+  (setq mode-line-right-align-edge 'right-margin)
+
+  (setq-default mode-line-format
+                '("%e"
+                  my/modeline-narrow
+                  my/modeline-buffer-status
+                  my/modeline-read-only
+                  "  "
+                  my/modeline-buffer-identification
+                  "  "
+                  my/modeline-major-mode
+                  my/modeline-process
+                  "  "
+                  my/modeline-vc-branch
+                  "  "
+                  mode-line-format-right-align ; Emacs 30+
+                  my/modeline-position
+                  "  "
+                  my/modeline-flycheck
+                  "  "
+                  my/modeline-misc-info))
+
+  ;; `ef-themes-with-colors' usa `cl-remove-duplicates' y, si falta, NO señala
+  ;; el error: lo devuelve como string y el recoloreo falla en silencio.
+  (require 'cl-lib)
+
+  ;; `ef-themes-with-colors' es una macro: el defun debe expandirse con
+  ;; ef-themes ya cargado, de ahí el with-eval-after-load.
+  (with-eval-after-load 'ef-themes
+    (defun my/modeline-set-faces ()
+      "Recolorea los indicadores con la paleta del tema activo."
+      (ef-themes-with-colors
+        (custom-set-faces
+         `(my/modeline-indicator-red ((,c :inherit bold :foreground ,red)))
+         `(my/modeline-indicator-green ((,c :inherit bold :foreground ,green)))
+         `(my/modeline-indicator-yellow ((,c :inherit bold :foreground ,yellow)))
+         `(my/modeline-indicator-blue ((,c :inherit bold :foreground ,blue)))
+         `(my/modeline-indicator-magenta ((,c :inherit bold :foreground ,magenta)))
+         `(my/modeline-indicator-cyan ((,c :inherit bold :foreground ,cyan)))
+         `(my/modeline-indicator-gray ((,c :inherit (bold shadow))))
+         `(my/modeline-indicator-red-bg ((,c :inherit (bold my/modeline-indicator-button) :background ,bg-red-intense :foreground ,fg-main)))
+         `(my/modeline-indicator-green-bg ((,c :inherit (bold my/modeline-indicator-button) :background ,bg-green-intense :foreground ,fg-main)))
+         `(my/modeline-indicator-yellow-bg ((,c :inherit (bold my/modeline-indicator-button) :background ,bg-yellow-intense :foreground ,fg-main)))
+         `(my/modeline-indicator-blue-bg ((,c :inherit (bold my/modeline-indicator-button) :background ,bg-blue-intense :foreground ,fg-main)))
+         `(my/modeline-indicator-magenta-bg ((,c :inherit (bold my/modeline-indicator-button) :background ,bg-magenta-intense :foreground ,fg-main)))
+         `(my/modeline-indicator-cyan-bg ((,c :inherit (bold my/modeline-indicator-button) :background ,bg-cyan-intense :foreground ,fg-main)))
+         `(my/modeline-indicator-gray-bg ((,c :inherit (bold my/modeline-indicator-button) :background ,bg-inactive :foreground ,fg-main))))))
+    (add-hook 'ef-themes-post-load-hook #'my/modeline-set-faces)
+    ;; El tema ya puede estar cargado cuando llegamos aquí.
+    (my/modeline-set-faces))
+
+  (defun my/modeline-selftest ()
+    "Comprobación mínima de los helpers puros de la mode line."
+    (interactive)
+    (let ((my/modeline-string-truncate-length 9))
+      ;; sin truncar cuando la ventana no es estrecha
+      (cl-assert (string= (my/modeline-string-cut-middle "buffer-largo.py")
+                          "buffer-largo.py"))
+      ;; forzando el predicado de truncado
+      (cl-letf (((symbol-function 'my/modeline--string-truncate-p) (lambda (_) t)))
+        (cl-assert (string= (my/modeline-string-cut-middle "abcdefghijkl") "abcd...ijkl"))
+        (cl-assert (string= (my/modeline-string-abbreviate-but-last
+                             "emacs-lisp-data" 1)
+                            "e-l-data"))
+        (cl-assert (string= (my/modeline-string-abbreviate-but-last "python" 1)
+                            "python"))))
+    (message "modeline selftest OK"))
+#+end_src
 ** Denote
 #+begin_src emacs-lisp
   (use-package denote
