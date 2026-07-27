@@ -21,3 +21,5 @@ fi
 # agrego el alias al que asocio el funcionamiento
 alias files=yazi
 alias folder=yazi
+
+alias calibre-sync='rclone bisync Calibre:calibre ~/Calibre'
