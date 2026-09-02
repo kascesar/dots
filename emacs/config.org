@@ -26,6 +26,12 @@
   - [[#flycheck][Flycheck]]
   - [[#imenu-list][Imenu-list]]
   - [[#ef-themes][Ef-themes]]
+  - [[#modeline][modeline]]
+    - [[#helpers-y-faces][Helpers y faces]]
+    - [[#segmentos][Segmentos]]
+    - [[#rama-de-git][Rama de git]]
+    - [[#flycheck-1][Flycheck]]
+    - [[#formato-y-colores-del-tema][Formato y colores del tema]]
   - [[#denote][Denote]]
   - [[#denote-org][Denote-org]]
   - [[#denote-consult][denote-consult]]
@@ -43,13 +49,14 @@
     - [[#org-agenda--super-agenda][org-agenda & super-agenda]]
     - [[#org-modern][org-modern]]
     - [[#org-modern-indent][org-modern-indent]]
+    - [[#org-visual][org-visual]]
     - [[#org-tree-slides][org-tree-slides]]
   - [[#calendar][Calendar]]
   - [[#terraform][Terraform]]
   - [[#python][Python]]
   - [[#yaml][YAML]]
-  - [[#sticky-scroll-yaml--json][Sticky scroll (YAML / JSON)]]
   - [[#markdown][markdown]]
+  - [[#notas-caligráficas-palmer--spencerian][notas caligráficas (palmer / spencerian)]]
   - [[#git-33][git]]
     - [[#magit][Magit]]
     - [[#git-gutter][git-gutter]]
@@ -961,7 +968,7 @@ Sustituye al segmento de ~flymake~ del original, que aquí no aplica.
 
 (defun my-cursor-force-blink (mode)
   "Ejecuta el brillo usando el color directo del frame (como el código original)."
-  (when (fboundp 'beacon-blink)
+  (when (and (fboundp 'beacon-blink) (not (bound-and-true-p org-tree-slide-mode)))
     (let ((size (if (eq mode 'switch)
                     (my-cursor-get 'switch-size)
                   (my-cursor-get 'idle-size))))
@@ -1800,13 +1807,6 @@ Configuración de Emacs:
 ** YAML
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.ya?ml\\'" . yaml-ts-mode))
-#+end_src
-
-** Sticky scroll (YAML / JSON)
-#+begin_src emacs-lisp
-(use-package sticky-scroll-mode
-  :ensure '(sticky-scroll-mode :host github :repo "jclasley/sticky-scroll-mode")
-  :hook ((yaml-ts-mode yaml-mode json-ts-mode json-mode) . sticky-scroll-mode))
 #+end_src
 
 ** markdown
