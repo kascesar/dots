@@ -945,138 +945,75 @@ Sustituye al segmento de ~flymake~ del original, que aquí no aplica.
 #+end_src
 ** Beacon
 #+begin_src emacs-lisp
-;;; --- CONFIGURACIÓN DE CURSOR Y BEACON (VERSIÓN FINAL FIEL AL ORIGINAL) ---
-
-(blink-cursor-mode 0)
-(setq-default cursor-type 'bar)
-
-(elpaca beacon
-  (require 'beacon)
-  (beacon-mode 1))
-
-;; --- PANEL DE CONTROL ---
-(defvar my-cursor-settings
-  '((idle-delay    . 0.3)   ; Tiempo para iniciar el pulso
-    (pulse-rate    . 0.6)   ; Frecuencia del pulso constante
-    (idle-size     . 15)    ; Tamaño del haz en modo espera
-    (switch-size   . 30))   ; Tamaño del haz al saltar de buffer/ventana
-  "Configuración del comportamiento del cursor.")
-
-(defun my-cursor-get (key) (cdr (assoc key my-cursor-settings)))
-
-;; --- MOTOR DE EFECTO ---
-
-(defun my-cursor-force-blink (mode)
-  "Ejecuta el brillo usando el color directo del frame (como el código original)."
-  (when (and (fboundp 'beacon-blink) (not (bound-and-true-p org-tree-slide-mode)))
-    (let ((size (if (eq mode 'switch)
-                    (my-cursor-get 'switch-size)
-                  (my-cursor-get 'idle-size))))
-      (setq beacon-color (or (frame-parameter nil 'cursor-color) "#ffffff")
-            beacon-size size
-            beacon--last-location nil)
-      (beacon-blink)
-      (setq my-cursor-last-blink (float-time)))))
-
-;; --- LÓGICA DE TIEMPO Y ACTIVIDAD ---
-
-(defvar my-cursor-last-input (float-time))
-(defvar my-cursor-last-blink 0)
-
-(defun my-cursor-periodic-check ()
-  "Verifica inactividad y dispara el pulso si es necesario."
-  (let* ((now (float-time))
-         (idle-time (- now my-cursor-last-input))
-         (since-blink (- now my-cursor-last-blink)))
-    (when (and (>= idle-time (my-cursor-get 'idle-delay))
-               (>= since-blink (my-cursor-get 'pulse-rate)))
-      (my-cursor-force-blink 'idle))))
-
-;; --- ACTIVACIÓN ---
-
-;; Revisa cada 0.5s (ajusta a 0.1s si quieres más precisión)
-(run-with-timer 0 0.5 #'my-cursor-periodic-check)
-
-;; Resetear tiempo al mover el cursor o escribir
-(add-hook 'post-command-hook (lambda () (setq my-cursor-last-input (float-time))))
-
-;; Brillo grande al cambiar de ventana o buffer
-(add-hook 'window-selection-change-functions 
-          (lambda (_) (my-cursor-force-blink 'switch)))
-
-(add-hook 'buffer-list-update-hook 
-          (lambda () (unless (minibufferp) (my-cursor-force-blink 'switch))))
-#+end_src
-#+begin_src; emacs-lisp
-(blink-cursor-mode 0)
-(setq-default cursor-type 'bar)
-
-(elpaca beacon
-  (require 'beacon)
-  (beacon-mode 1))
-
-(setq beacon-size 12)
-
-(defvar my-last-input-time 0)
-
-(defun my-beacon-color-from-cursor ()
-  (setq beacon-color
-        (or (frame-parameter nil 'cursor-color) "#ffffff")))
-
-(defun my-beacon-periodic ()
-  (let ((idle (- (float-time) my-last-input-time)))
-    (when (>= idle 1.2)
-      (my-beacon-color-from-cursor)
-      (beacon-blink))))
-
-(defun my-beacon-track-input ()
-  ;; SOLO resetea tiempo, NO hace blink
-  (setq my-last-input-time (float-time)))
-
-(run-with-timer 0 1 #'my-beacon-periodic)
-(add-hook 'post-command-hook #'my-beacon-track-input)
-#+end_src
-#+BEGIN_SRC; emacs-lisp :results silent
-  ;; Desactivar el parpadeo del cursor y cambiarlo a tipo barra
   (blink-cursor-mode 0)
   (setq-default cursor-type 'bar)
 
-  ;; Configuración de beacon usando elpaca
   (elpaca beacon
-    :ensure t
-  ;; Configurar el color del resplandor a un rozado muy fuerte
-  (setq beacon-color "#FF69B4")
-
-  ;; Reducir el tamaño del resplandor
-  (setq beacon-size 20)
-
-  ;; Variable para almacenar el tiempo desde el último movimiento del cursor
-  (defvar my-last-cursor-move-time 0)
-
-  ;; Función para mostrar el resplandor periódicamente cuando el cursor está quieto
-  (defun my-beacon-periodic-blink ()
-  "Muestra el resplandor si el cursor ha estado quieto por más de 1 segundo."
-  (let ((idle-time (- (float-time) my-last-cursor-move-time)))
-        (when (>= idle-time 1)  ;; Verificar si el cursor ha estado inactivo por 1 segundo
-          (beacon-blink))))
-
-    ;; Función para manejar el movimiento del cursor y el resplandor inmediato
-  (defun my-beacon-on-cursor-move ()
-      "Muestra el resplandor inmediatamente al mover el cursor y actualiza el tiempo."
-      ;; Actualizar el tiempo del último movimiento del cursor
-      (setq my-last-cursor-move-time (float-time))
-      ;; Mostrar el resplandor inmediatamente
-      (beacon-blink))
-
-    ;; Ejecutar el resplandor periódico cada 0.8 segundos
-    (run-with-timer 0 1 'my-beacon-periodic-blink)
-
-    ;; Hook para mostrar el resplandor inmediatamente al mover el cursor
-    (add-hook 'post-command-hook 'my-beacon-on-cursor-move)
-
-    ;; Habilitar el modo beacon
+    (require 'beacon)
     (beacon-mode 1))
-#+END_SRC
+
+  ;; beacon-mode ya parpadea solo al cambiar de buffer, al cambiar de ventana y
+  ;; al scrollear (beacon-blink-when-buffer-changes / -window-changes /
+  ;; -window-scrolls, los tres t por defecto, ver beacon--post-command).
+  ;; Lo unico que no trae es el pulso mientras el cursor esta quieto.
+
+  ;; --- PANEL DE CONTROL ---
+  (defvar my/beacon-settings
+    '((idle-delay  . 0.1)   ; inactividad minima antes de empezar a pulsar
+      (pulse-rate  . 1.0)   ; cada cuanto pulsa mientras sigue quieto
+      (idle-size   . 15)    ; largo del haz en el pulso
+      (switch-size . 30))   ; largo del haz al saltar de buffer/ventana
+    "Comportamiento del pulso del cursor.
+  Tras modificarlo, aplicar con \\[my/beacon-apply].")
+
+  (defun my/beacon-get (key)
+    (alist-get key my/beacon-settings))
+
+  (defun my/beacon-use-cursor-color ()
+    "Tine el haz con el color del cursor del frame."
+    (setq beacon-color (or (frame-parameter nil 'cursor-color) "#ffffff")))
+
+  (defun my/beacon-presenting-p ()
+    "No parpadear durante una presentacion con org-tree-slide."
+    (bound-and-true-p org-tree-slide-mode))
+
+  (defun my/beacon-idle-pulse ()
+    "Pulso discreto mientras no se escribe.
+  Usa `beacon-blink-automated' para respetar `beacon-dont-blink-predicates'
+  y `beacon-dont-blink-major-modes'."
+    (when-let* ((idle (current-idle-time))
+                ((> (float-time idle) (my/beacon-get 'idle-delay))))
+      ;; this-command/last-command siguen valiendo el ultimo comando cuando
+      ;; dispara el timer. `beacon-blink-automated' los mira contra
+      ;; `beacon-dont-blink-commands' (next-line, previous-line, forward-line),
+      ;; asi que tras mover con las flechas el pulso quedaba mudo hasta el
+      ;; siguiente comando. Ese guarda es para parpadeos que reaccionan a un
+      ;; comando; el pulso no reacciona a ninguno.
+      (let ((beacon-size (my/beacon-get 'idle-size))
+            (this-command nil) (last-command nil))
+        (beacon-blink-automated))))
+
+  ;; ponytail: el pulso periodico necesita un timer de polling -- run-with-idle-timer
+  ;; con REPEAT dispara UNA vez por racha de inactividad, no cada SECS.
+  (defvar my/beacon-pulse-timer nil)
+
+  (defun my/beacon-apply ()
+    "Aplica `my/beacon-settings'.
+  Recrea el timer en lugar de anadir otro, asi que se puede llamar las veces
+  que haga falta sin acumularlos."
+    (interactive)
+    (setq beacon-size (my/beacon-get 'switch-size))
+    (when (timerp my/beacon-pulse-timer) (cancel-timer my/beacon-pulse-timer))
+    (setq my/beacon-pulse-timer
+          (run-with-timer (my/beacon-get 'pulse-rate)
+                          (my/beacon-get 'pulse-rate)
+                          #'my/beacon-idle-pulse)))
+
+  (with-eval-after-load 'beacon
+    (add-hook 'beacon-before-blink-hook #'my/beacon-use-cursor-color)
+    (add-hook 'beacon-dont-blink-predicates #'my/beacon-presenting-p)
+    (my/beacon-apply))
+#+end_src
 
 ** Highlight-indent-guide
 #+BEGIN_SRC emacs-lisp
