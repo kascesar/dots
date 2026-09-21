@@ -412,6 +412,20 @@ demás  archivos.
   (elpaca flycheck
     :ensure t
     :init(global-flycheck-mode))
+
+  ;; ponytail: org-lint (Org 9.8) devuelve LINE como string propertizado para su
+  ;; tabulated-list, pero flycheck-error-new-at espera un numero. Solo toca la
+  ;; llamada no interactiva (la de flycheck); M-x org-lint queda igual.
+  (defun my/org-lint-numeric-lines (reports)
+    "Convierte a numero el LINE de cada reporte de `org-lint'."
+    (when (listp reports)
+      (dolist (r reports)
+        (let ((v (cadr r)))
+          (when (and (vectorp v) (stringp (aref v 0)))
+            (aset v 0 (string-to-number (aref v 0)))))))
+    reports)
+  (with-eval-after-load 'org-lint
+    (advice-add 'org-lint :filter-return #'my/org-lint-numeric-lines))
 #+end_src
 
 ** Imenu-list
