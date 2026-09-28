@@ -18,6 +18,7 @@ bash setup.sh
 |---|---|
 | `bash/` | `.bashrc`, `.bash_aliases`, configuración de oh-my-posh |
 | `emacs/` | Config literate en `config.org`, script de symlinks |
+| `fastfetch/` | Resumen del sistema al estilo neofetch |
 | `git/` | `.gitconfig` con delta como pager |
 | `kitty/` | `kitty.conf` y tema de colores |
 | `micro/` | Editor de terminal, configurado como editor de commits |
