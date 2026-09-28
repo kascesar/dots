@@ -40,6 +40,10 @@ symlink "$DOTS/yazi/yazi.toml"    "$HOME/.config/yazi/yazi.toml"
 symlink "$DOTS/yazi/keymap.toml" "$HOME/.config/yazi/keymap.toml"
 
 echo ""
+echo "==> fastfetch..."
+symlink "$DOTS/fastfetch/config.jsonc" "$HOME/.config/fastfetch/config.jsonc"
+
+echo ""
 echo "==> kitty..."
 symlink "$DOTS/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
 symlink "$DOTS/kitty/theme.conf" "$HOME/.config/kitty/theme.conf"

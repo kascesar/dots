@@ -45,6 +45,7 @@ try_install git-delta   delta
 try_install micro       micro
 try_install kitty       kitty
 try_install glow        glow
+try_install fastfetch   fastfetch
 try_install hunspell
 try_install hunspell-en
 try_install hunspell-es
