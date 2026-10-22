@@ -1,0 +1,14 @@
+# Un usuario por línea (sin importar mayúsculas). Las líneas con # se ignoran.
+nightbot
+streamelements
+streamlabs
+moobot
+fossabot
+wizebot
+sery_bot
+botrixoficial
+kofistreambot
+soundalerts
+commanderroot
+pokemoncommunitygame
+blerp

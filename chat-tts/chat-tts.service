@@ -1,0 +1,13 @@
+[Unit]
+Description=Lector en voz alta del chat de Twitch (chat-tts)
+After=pipewire.service pipewire-pulse.service
+
+[Service]
+ExecStart=%h/.local/bin/chat-tts
+Restart=on-failure
+RestartSec=5
+# chat_tts.py restaura el volumen de las apps al recibir SIGTERM
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=default.target

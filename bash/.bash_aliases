@@ -23,3 +23,8 @@ alias files=yazi
 alias folder=yazi
 
 alias calibre-sync='rclone bisync Calibre:calibre ~/Calibre'
+
+## chat-tts
+# Lector en voz alta del chat de Twitch (servicio de usuario)
+alias chat-on='systemctl --user start chat-tts'
+alias chat-off='systemctl --user stop chat-tts'

@@ -17,6 +17,7 @@ bash setup.sh
 | Carpeta | Contenido |
 |---|---|
 | `bash/` | `.bashrc`, `.bash_aliases`, configuración de oh-my-posh |
+| `chat-tts/` | Lector en voz alta del chat de Twitch (Piper TTS, servicio de usuario) |
 | `emacs/` | Config literate en `config.org`, script de symlinks |
 | `fastfetch/` | Resumen del sistema al estilo neofetch |
 | `git/` | `.gitconfig` con delta como pager |

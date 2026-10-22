@@ -89,6 +89,10 @@ else
 fi
 
 echo ""
+echo "==> chat-tts..."
+bash "$DOTS/chat-tts/install.sh"
+
+echo ""
 echo "==> blur my shell..."
 if gnome-extensions list 2>/dev/null | grep -q "blur-my-shell@aunetx"; then
     gnome-extensions enable blur-my-shell@aunetx

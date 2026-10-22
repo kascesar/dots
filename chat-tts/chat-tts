@@ -1,0 +1,6 @@
+#!/bin/sh
+# Lee en voz alta el chat de Twitch. Ver README.md de esta carpeta.
+# Se instala como symlink en ~/.local/bin, por eso resuelve su ruta real.
+DIR="$(dirname "$(readlink -f "$0")")"
+DATA="${XDG_DATA_HOME:-$HOME/.local/share}/chat-tts"
+exec "$DATA/venv/bin/python" -I "$DIR/chat_tts.py" "$@"

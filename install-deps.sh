@@ -63,6 +63,16 @@ try_install wl-clipboard wl-copy
 try_install ImageMagick  magick
 try_install p7zip        7z
 
+echo ""
+echo "==> Dependencias de chat-tts..."
+try_install pulseaudio-utils pactl
+if [ "$PM" = "dnf" ]; then
+    try_install pipewire-utils pw-play
+else
+    try_install pipewire-bin   pw-play
+    try_install python3-venv
+fi
+
 # ==============================================================================
 # yazi — requiere repo externo
 # ==============================================================================
