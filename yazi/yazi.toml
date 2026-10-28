@@ -1,12 +1,12 @@
 [opener]
 edit = [
-    { run = 'micro "$@"', block = true, desc = "Editar" },
+    { run = 'micro %s', block = true, desc = "Editar" },
 ]
 folder = [
-    { run = 'xdg-open "$@"', orphan = true, desc = "Abrir en gestor de archivos" },
+    { run = 'xdg-open %s1', orphan = true, desc = "Abrir en gestor de archivos" },
 ]
 default = [
-    { run = 'xdg-open "$@"', orphan = true, desc = "Abrir con aplicación por defecto" },
+    { run = 'xdg-open %s1', orphan = true, desc = "Abrir con aplicación por defecto" },
 ]
 
 [open]
