@@ -2,31 +2,6 @@
 set -e
 
 # ==============================================================================
-# Instalacion de Pop!_Shell
-# ==============================================================================
-# GNOME no detecta la extension automaticamente despues de instalar el paquete.
-# Es necesario cerrar sesion y volver a entrar antes de habilitar la extension.
-
-if [[ "$1" == "--keybindings" ]]; then
-    echo "Aplicando keybindings..."
-else
-    echo "Instalando Pop!_Shell..."
-    if command -v dnf &>/dev/null; then
-        sudo dnf install -y gnome-shell-extension-pop-shell
-    elif command -v apt &>/dev/null; then
-        sudo apt install -y gnome-shell-extension-pop-shell
-    else
-        echo "ERROR: Gestor de paquetes no soportado (se requiere dnf o apt)."
-        exit 1
-    fi
-    echo ""
-    echo "IMPORTANTE: Cierra sesion y vuelve a entrar antes de continuar."
-    echo "Luego ejecuta este script de nuevo con: bash restore.sh --keybindings"
-    echo ""
-    exit 0
-fi
-
-# ==============================================================================
 # Habilitar la extension
 # ==============================================================================
 echo "Habilitando pop-shell..."

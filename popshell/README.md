@@ -18,12 +18,10 @@ Los keybindings se aplican automáticamente con `setup.sh` desde la raíz del re
 
 ## Uso manual
 
-```bash
-# Primera ejecución: instala el paquete
-bash system76style.sh
+Pop!_Shell se instala con `install-deps.sh`. Tras cerrar sesión y volver a entrar:
 
-# Cerrar sesión y volver a entrar, luego:
-bash system76style.sh --keybindings
+```bash
+bash system76style.sh
 ```
 
 ## Keybindings

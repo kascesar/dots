@@ -54,7 +54,6 @@ KC = {
     'LATAM_GRV':  ('`',  C_WHITE),
     'LATAM_CIRC': ('^',  C_WHITE),
     'KC_F11':  ('F11', C_WHITE),
-    'KC_F11':  ('F11', C_WHITE),
     '_______': ('',   C_GRAY),  'XXXXXXX': ('',   C_GRAY),
     'QK_BOOT': ('Boot', C_RED),
     'UG_TOGG': ('TOG',  C_DARK), 'UG_NEXT': ('MOD',  C_DARK),

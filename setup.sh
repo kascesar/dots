@@ -55,7 +55,7 @@ bash "$DOTS/emacs/install.sh"
 echo ""
 echo "==> pop!_shell..."
 if gnome-extensions list 2>/dev/null | grep -q "pop-shell@system76.com"; then
-    bash "$DOTS/popshell/system76style.sh" --keybindings
+    bash "$DOTS/popshell/system76style.sh"
 else
     echo "  Pop!_Shell no detectada — instala primero con install-deps.sh."
     echo "  Luego cierra sesion, vuelve a entrar, y ejecuta setup.sh de nuevo."

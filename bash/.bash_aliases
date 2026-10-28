@@ -12,15 +12,13 @@ fi
 ## exa (eza)
 if command -v eza &>/dev/null; then
     alias ls="eza --icons --group-directories-first -l "
-elif command -v exa &>/dev/null; then
-    alias ls="exa --icons --group-directories-first -l "
 fi
 
 ## yazi
 # Suelo olvidar el nombre de este complemento
 # agrego el alias al que asocio el funcionamiento
-alias files=yazi
-alias folder=yazi
+alias files=y
+alias folder=y
 
 alias calibre-sync='rclone bisync Calibre:calibre ~/Calibre'
 
