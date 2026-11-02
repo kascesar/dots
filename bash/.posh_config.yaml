@@ -36,10 +36,11 @@ blocks:
             /Users/user/Projects/oh-my-posh/: no
           source: cli
           mapped_branches:
-            feat/*: "🚀 "
-            feature/*: "🚀 "
-            bug/*: "🐛 "
-            hotfix/*: "🧯 " 
+            feat/*: "🚀 feat/"
+            feature/*: "🚀 feature/"
+            bug/*: "🐛 bug/"
+            bugfix/*: "🐛 bugfix/"
+            hotfix/*: "🧯 hotfix/" 
   - type: "prompt"
     alignment: "left"
     overflow: hide
