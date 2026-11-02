@@ -1209,6 +1209,9 @@ En el bufer puedes hacer las siguientes cosas
   :config
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
+  ;; LOGBOOK/PROPERTIES plegados al abrir (el default showeverything de org
+  ;; 9.8 los deja abiertos). TAB sobre :LOGBOOK: los abre.
+  (add-hook 'org-mode-hook #'org-fold-hide-drawer-all)
   (setq org-support-shift-select t)
 
   (setq org-todo-keywords
