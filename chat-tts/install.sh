@@ -11,12 +11,18 @@ VOICES=(
     "es/es_MX/claude/high/es_MX-claude-high"
 )
 
-echo "Creando venv con Piper TTS en $DATA/venv..."
+# Python fijo vía uv: onnxruntime (dependencia de Piper) tarda en sacar wheels
+# para cada Python nuevo, y un venv atado a /usr/bin/python3 se rompe cuando
+# Fedora lo actualiza (pasó con 3.14 -> 3.15).
+PYTHON_VERSION="3.14"
+
+echo "Creando venv con Piper TTS en $DATA/venv (Python $PYTHON_VERSION vía uv)..."
 mkdir -p "$DATA/voices"
-if [ ! -x "$DATA/venv/bin/python" ]; then
-    python3 -m venv "$DATA/venv"
+if ! "$DATA/venv/bin/python" -c "import sys; assert sys.version.startswith('$PYTHON_VERSION')" 2>/dev/null; then
+    rm -rf "$DATA/venv"
+    uv venv -q --python "$PYTHON_VERSION" "$DATA/venv"
 fi
-"$DATA/venv/bin/pip" install -q --disable-pip-version-check piper-tts
+VIRTUAL_ENV="$DATA/venv" uv pip install -q piper-tts
 
 echo "Descargando voces..."
 for voice in "${VOICES[@]}"; do
