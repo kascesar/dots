@@ -5,7 +5,7 @@ Lee en voz alta el chat de Twitch mientras hago stream, con voces locales de [Pi
 - Se conecta al chat como espectador anónimo (no necesita token).
 - Ignora a los bots de `bots.txt` y los comandos que empiezan con `!`.
 - Quita los emotes de Twitch, lee los links como "un enlace" y recorta los "jajajajjjjj".
-- Mientras habla, baja las demás apps (el juego) al 60% de su volumen y luego las devuelve a su volumen.
+- La voz suena al 100% y no toca el volumen de las demás apps (con `--atenuar` se puede bajar el juego mientras habla).
 - Si el chat va muy rápido, salta los mensajes más viejos para no quedar atrasado.
 
 ## Dependencias
@@ -36,7 +36,7 @@ Para probar otras opciones sin el servicio, ejecutar `chat-tts` directamente:
 ```bash
 chat-tts --voz es_AR-daniela-high   # otra voz (hay que descargarla, ver abajo)
 chat-tts --velocidad 1.3            # leer 30% más rápido
-chat-tts --atenuar 0.25             # bajar más el juego (1 = no bajarlo)
+chat-tts --atenuar 0.6              # bajar el juego al 60% mientras habla (por defecto 1 = no bajarlo)
 chat-tts --sin-nombre               # no decir "fulano dice:"
 chat-tts --ignorarme                # no leer los mensajes del dueño del canal
 chat-tts --sufijo-bot               # ignorar además todo usuario que termine en "bot"

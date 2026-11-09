@@ -158,8 +158,8 @@ def main():
     p.add_argument("--velocidad", dest="speed", type=float, default=1.0,
                    help="velocidad de lectura; 1.3 = 30%% más rápido")
     p.add_argument("--volumen", dest="volume", type=float, default=1.0, help="0.0 a 1.0")
-    p.add_argument("--atenuar", dest="duck", type=float, default=0.6,
-                   help="volumen de las demás apps mientras habla (0.6 = 60%%; 1 = no bajar)")
+    p.add_argument("--atenuar", dest="duck", type=float, default=1.0,
+                   help="volumen de las demás apps mientras habla (1 = no bajar, por defecto; 0.6 = 60%%)")
     p.add_argument("--max", dest="max_chars", type=int, default=200, help="largo máximo leído por mensaje")
     p.add_argument("--max-cola", dest="max_queue", type=int, default=5,
                    help="si se acumulan más mensajes, se saltan los más viejos")
