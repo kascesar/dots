@@ -45,8 +45,10 @@ symlink "$DOTS/fastfetch/config.jsonc" "$HOME/.config/fastfetch/config.jsonc"
 
 echo ""
 echo "==> kitty..."
-symlink "$DOTS/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
-symlink "$DOTS/kitty/theme.conf" "$HOME/.config/kitty/theme.conf"
+# Todos los .conf (config principal + temas), así los temas nuevos se enlazan solos
+for f in "$DOTS"/kitty/*.conf; do
+    symlink "$f" "$HOME/.config/kitty/$(basename "$f")"
+done
 
 echo ""
 echo "==> emacs..."
