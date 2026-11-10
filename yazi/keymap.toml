@@ -21,3 +21,39 @@ desc = "Entrar al directorio / abrir archivo"
 on  = "i"
 run = "arrow prev"
 desc = "Archivo anterior"
+
+# Mismo layout con Alt (como M-j/k/l/i en Emacs). Ningún default de yazi usa
+# <A-j/k/l/i> en el gestor, así que no pisa nada.
+
+[[mgr.prepend_keymap]]
+on  = "<A-j>"
+run = "leave"
+desc = "Ir al directorio padre"
+
+[[mgr.prepend_keymap]]
+on  = "<A-k>"
+run = "arrow next"
+desc = "Archivo siguiente"
+
+[[mgr.prepend_keymap]]
+on  = "<A-l>"
+run = "enter"
+desc = "Entrar al directorio / abrir archivo"
+
+[[mgr.prepend_keymap]]
+on  = "<A-i>"
+run = "arrow prev"
+desc = "Archivo anterior"
+
+# El popup de autocompletado trae <A-k>=anterior / <A-j>=siguiente (estilo vi).
+# Se reasigna a i=↑ k=↓ para que sea consistente.
+
+[[cmp.prepend_keymap]]
+on  = "<A-i>"
+run = "arrow prev"
+desc = "Opción anterior"
+
+[[cmp.prepend_keymap]]
+on  = "<A-k>"
+run = "arrow next"
+desc = "Opción siguiente"

@@ -24,10 +24,13 @@ Las flechas siguen funcionando igual en cualquier teclado.
 
 | Tecla | Acción |
 |---|---|
-| `j` / `←` | Subir al directorio padre |
-| `k` / `↓` | Archivo siguiente |
-| `l` / `→` | Entrar al directorio / abrir archivo |
-| `i` / `↑` | Archivo anterior |
+| `j` / `M-j` / `←` | Subir al directorio padre |
+| `k` / `M-k` / `↓` | Archivo siguiente |
+| `l` / `M-l` / `→` | Entrar al directorio / abrir archivo |
+| `i` / `M-i` / `↑` | Archivo anterior |
+
+Las variantes con Alt (`M-`) siguen el mismo esquema que Emacs. En el popup de
+autocompletado, `M-i` / `M-k` suben y bajan (el default de yazi era `M-k` / `M-j`).
 
 ## Dependencias
 
