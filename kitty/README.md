@@ -8,6 +8,7 @@ Configuración del emulador de terminal kitty con tema de colores personalizado.
 |---|---|---|
 | `kitty.conf` | `~/.config/kitty/kitty.conf` | Config principal: splits, keybindings, fuente, cursor |
 | `gruvbox-dark-hard.conf` | `~/.config/kitty/gruvbox-dark-hard.conf` | Paleta Gruvbox Dark (hard contrast), la activa |
+| `gruvbox-light-soft.conf` | `~/.config/kitty/gruvbox-light-soft.conf` | Paleta Gruvbox Light (soft contrast), no activa |
 | `theme.conf` | `~/.config/kitty/theme.conf` | Paleta anterior (fondo como la terminal de GNOME) |
 
 El tema activo se elige con la línea `include` al inicio de `kitty.conf`.
