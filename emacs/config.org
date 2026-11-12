@@ -114,7 +114,6 @@ Descomentar la linea "mapc" para instalar los lenguajes
         (js2-mode . js-ts-mode)
         (json-mode . json-ts-mode)
         (makefile-mode . make-ts-mode)
-        (markdown-mode . markdown-ts-mode)
         (toml-mode . toml-ts-mode)
         (typescript-mode . typescript-ts-mode)
         (yaml-mode . yaml-ts-mode)))
@@ -153,8 +152,6 @@ Descomentar la linea "mapc" para instalar los lenguajes
   ;; Mostrar el número de columna en el modo de línea
   (column-number-mode)
 
-  ;; Desactivar la visualización de números de columna en org-mode
-  (add-hook 'org-mode-hook (lambda () (column-number-mode -1)))
   ;; Habilitar los números de línea en la izquierda en modos de programación
   (add-hook 'prog-mode-hook
             (lambda ()
@@ -248,9 +245,12 @@ el uso por defecto.
 ** quarto
 cuando se abre un qmd, se activa el markdown-mode
 #+begin_src emacs-lisp
-(setq major-mode-remap-alist
-      '((markdown-mode . markdown-mode)))
 (add-to-list 'auto-mode-alist '("\\.qmd\\'" . markdown-mode))
+;; ```{.python} (bloque no ejecutable de quarto): markdown-mode captura ".python"
+;; y no encuentra modo; se quita el punto. ```{python} ya funciona solo.
+(with-eval-after-load 'markdown-mode
+  (advice-add 'markdown-get-lang-mode :filter-args
+              (lambda (args) (list (string-remove-prefix "." (car args))))))
 #+end_src
 
 * Keybindings
@@ -2051,6 +2051,10 @@ Configuración de Emacs:
 
 ** markdown
 #+begin_src emacs-lisp
+  ;; resaltado de bloques ```{mermaid} / ```{.mermaid} en md/qmd
+  (use-package mermaid-mode
+    :ensure t)
+
   (use-package markdown-mode
     :ensure t
     :mode ("\\.md\\'" "\\.markdown\\'")
