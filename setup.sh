@@ -16,7 +16,7 @@ symlink() {
         echo "  backup: $dst => $dst.bak"
         mv "$dst" "$dst.bak"
     fi
-    ln -sf "$src" "$dst"
+    ln -sfn "$src" "$dst"  # -n: no entrar en dst si ya es symlink a un directorio
     echo "  $dst -> $src"
 }
 
@@ -49,6 +49,25 @@ echo "==> kitty..."
 for f in "$DOTS"/kitty/*.conf; do
     symlink "$f" "$HOME/.config/kitty/$(basename "$f")"
 done
+
+echo ""
+echo "==> claude (memoria + historial en Dropbox)..."
+# ponytail: solo projects/; el resto de ~/.claude es estado local (locks, sesiones, credenciales)
+CLAUDE_SYNC="$HOME/Dropbox/claude/projects"
+if [ -d "$HOME/Dropbox" ]; then
+    # Primer equipo: mueve lo existente a Dropbox. En los siguientes, lo local queda como .bak
+    if [ ! -e "$CLAUDE_SYNC" ] && [ -d "$HOME/.claude/projects" ] && [ ! -L "$HOME/.claude/projects" ]; then
+        mkdir -p "$(dirname "$CLAUDE_SYNC")"
+        mv "$HOME/.claude/projects" "$CLAUDE_SYNC"
+    fi
+    mkdir -p "$CLAUDE_SYNC"
+    symlink "$CLAUDE_SYNC" "$HOME/.claude/projects"
+    # Instrucciones globales (aplican a todos los proyectos)
+    touch "$HOME/Dropbox/claude/CLAUDE.md"
+    symlink "$HOME/Dropbox/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+else
+    echo "  ~/Dropbox no existe — omitiendo."
+fi
 
 echo ""
 echo "==> emacs..."
