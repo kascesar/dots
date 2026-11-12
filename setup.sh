@@ -53,18 +53,22 @@ done
 echo ""
 echo "==> claude (memoria + historial en Dropbox)..."
 # ponytail: solo projects/; el resto de ~/.claude es estado local (locks, sesiones, credenciales)
-CLAUDE_SYNC="$HOME/Dropbox/claude/projects"
+CLAUDE_SYNC="$HOME/Dropbox/claude"
 if [ -d "$HOME/Dropbox" ]; then
-    # Primer equipo: mueve lo existente a Dropbox. En los siguientes, lo local queda como .bak
-    if [ ! -e "$CLAUDE_SYNC" ] && [ -d "$HOME/.claude/projects" ] && [ ! -L "$HOME/.claude/projects" ]; then
-        mkdir -p "$(dirname "$CLAUDE_SYNC")"
-        mv "$HOME/.claude/projects" "$CLAUDE_SYNC"
-    fi
     mkdir -p "$CLAUDE_SYNC"
-    symlink "$CLAUDE_SYNC" "$HOME/.claude/projects"
-    # Instrucciones globales (aplican a todos los proyectos)
-    touch "$HOME/Dropbox/claude/CLAUDE.md"
-    symlink "$HOME/Dropbox/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+    # projects: memoria e historial; CLAUDE.md: instrucciones globales; settings.json: plugins y opciones
+    for item in projects CLAUDE.md settings.json; do
+        # Primer equipo: mueve lo existente a Dropbox. En los siguientes, lo local queda como .bak
+        if [ ! -e "$CLAUDE_SYNC/$item" ] && [ -e "$HOME/.claude/$item" ] && [ ! -L "$HOME/.claude/$item" ]; then
+            mv "$HOME/.claude/$item" "$CLAUDE_SYNC/$item"
+        fi
+    done
+    mkdir -p "$CLAUDE_SYNC/projects"
+    touch "$CLAUDE_SYNC/CLAUDE.md"
+    [ -e "$CLAUDE_SYNC/settings.json" ] || echo '{}' > "$CLAUDE_SYNC/settings.json"
+    for item in projects CLAUDE.md settings.json; do
+        symlink "$CLAUDE_SYNC/$item" "$HOME/.claude/$item"
+    done
 else
     echo "  ~/Dropbox no existe — omitiendo."
 fi
