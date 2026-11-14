@@ -4,6 +4,7 @@ Lee en voz alta el chat de Twitch mientras hago stream, con voces locales de [Pi
 
 - Se conecta al chat como espectador anónimo (no necesita token).
 - Ignora a los bots de `bots.txt` y los comandos que empiezan con `!`.
+- Ignora el spam de venta de viewers: los mensajes que son la primera intervención del usuario en el canal y traen un link o un dominio separado con espacios ("streamboo .com"). Esos bots cambian de nombre en cada mensaje, por eso no sirve agregarlos a `bots.txt`.
 - Quita los emotes de Twitch, lee los links como "un enlace" y recorta los "jajajajjjjj".
 - La voz suena al 100% y no toca el volumen de las demás apps (con `--atenuar` se puede bajar el juego mientras habla).
 - Si el chat va muy rápido, salta los mensajes más viejos para no quedar atrasado.

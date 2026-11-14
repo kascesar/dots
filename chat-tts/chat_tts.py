@@ -29,6 +29,8 @@ BOTS_FILE = CONFIG / "bots.txt"
 
 URL = re.compile(r"https?://\S+|www\.\S+", re.I)
 REPEATS = re.compile(r"(.)\1{3,}")
+# Dominio escrito con espacios para esquivar el filtro de links de Twitch: "streamboo .com".
+SPACED_DOMAIN = re.compile(r"\w\s+\.\s*[a-z]{2,10}\b", re.I)
 
 
 def load_bots():
@@ -68,6 +70,24 @@ def clean(text, max_chars):
     return text
 
 
+def is_spam(message, first_msg):
+    """Detecta el spam de venta de viewers que llega desde cuentas recién creadas.
+
+    Esos bots cambian de nombre en cada mensaje, así que bots.txt no los atrapa.
+    Lo que tienen en común es que escriben por primera vez en el canal y traen un
+    link o un dominio separado con espacios ("streamboo .com").
+
+    Args:
+        message (str): texto del mensaje tal como llega del chat.
+        first_msg (bool): True si Twitch marca el mensaje como la primera
+            intervención del usuario en el canal (tag first-msg=1).
+
+    Returns:
+        bool: True si el mensaje es una primera intervención con un link o dominio.
+    """
+    return first_msg and bool(URL.search(message) or SPACED_DOMAIN.search(message))
+
+
 def is_bot(user, bots, args):
     user = user.lower()
     if user in bots or user == args.channel.lower() and args.skip_self:
@@ -100,7 +120,8 @@ def chat(args, out):
                         tags = parse_tags(tags)
                         login = rest[1:].split("!", 1)[0]
                         message = rest.split(" :", 1)[1]
-                        out.put((login, tags.get("display-name") or login, tags.get("emotes", ""), message))
+                        out.put((login, tags.get("display-name") or login, tags.get("emotes", ""), message,
+                                 tags.get("first-msg") == "1"))
         except (OSError, ConnectionError) as err:
             print(f"Chat desconectado ({err}), reconectando en 5 s...", file=sys.stderr, flush=True)
             time.sleep(5)
@@ -184,10 +205,10 @@ def main():
 
     try:
         while True:
-            login, name, emotes, message = messages.get()
+            login, name, emotes, message, first_msg = messages.get()
             while messages.qsize() > args.max_queue:
                 messages.get()
-            if message.startswith("!") or is_bot(login, bots, args):
+            if message.startswith("!") or is_bot(login, bots, args) or is_spam(message, first_msg):
                 print(f"(saltado) {name}: {message}", flush=True)
                 continue
             if message.startswith("\x01ACTION "):
