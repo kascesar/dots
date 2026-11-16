@@ -1070,6 +1070,19 @@ Sustituye al segmento de ~flymake~ del original, que aquí no aplica.
     ;; Configuración de banner
     (setq dashboard-startup-banner 'logo) ;; Usa el logo de Emacs
     (setq dashboard-banner-logo-title (format "Buen día %s" user-full-name))
+    ;; Frases del pie del dashboard: se elige una al azar en cada apertura.
+    ;; Reemplaza la lista por defecto del paquete.
+    (setq dashboard-footer-messages
+          '("Lo simple funciona; lo complejo se rompe a las 3 de la mañana."
+            "Primero hazlo funcionar, después hazlo bien, al final hazlo rápido."
+            "El mejor código es el que no hubo que escribir."
+            "Si no está en git, no existe."
+            "Lee el error completo antes de buscarlo en internet."
+            "Un buen nombre ahorra un comentario."
+            "Los datos limpios no existen; existen los datos revisados."
+            "Hoy es un buen día para borrar código."
+            "Documenta para quien llega sin contexto: mañana serás tú."
+            "Mide antes de optimizar."))
     (setq dashboard-center-content t)
     (setq dashboard-set-heading-icons t)
     (setq dashboard-set-file-icons t)
