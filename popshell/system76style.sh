@@ -45,6 +45,11 @@ gsettings set org.gnome.shell.extensions.pop-shell tile-resize-down  "['<Shift>D
 gsettings set org.gnome.shell.extensions.pop-shell tile-resize-right "['<Shift>Right', '<Shift>KP_Right', '<Shift>l']"
 gsettings set org.gnome.shell.extensions.pop-shell tile-resize-up    "['<Shift>Up',    '<Shift>KP_Up',    '<Shift>i']"
 
+# Launcher — desactivado. En GNOME 51 el launcher de Pop Shell se abre pero no
+# recibe el teclado (ni texto ni Escape) y deja la sesión atrapada. Para lanzar
+# aplicaciones se usa la búsqueda nativa de GNOME: Super y escribir.
+gsettings set org.gnome.shell.extensions.pop-shell activate-launcher "[]"
+
 # Mover ventana a otro monitor — Ctrl+Alt+Super+arrow/jkli
 gsettings set org.gnome.shell.extensions.pop-shell pop-monitor-left  "['<Control><Alt><Super>Left',  '<Control><Alt><Super>KP_Left',  '<Control><Alt><Super>j']"
 gsettings set org.gnome.shell.extensions.pop-shell pop-monitor-right "['<Control><Alt><Super>Right', '<Control><Alt><Super>KP_Right', '<Control><Alt><Super>l']"
