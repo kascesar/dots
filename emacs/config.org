@@ -1025,7 +1025,33 @@ Sustituye al segmento de ~flymake~ del original, que aquí no aplica.
                           (my/beacon-get 'pulse-rate)
                           #'my/beacon-idle-pulse)))
 
+  (defun my/beacon-shine-visual-line ()
+    "Dibuja el haz de beacon sin salir de la linea visual del cursor.
+  Reemplaza a `beacon--shine', que colorea caracteres del buffer hacia
+  adelante y, si la linea se ajusta (soft wrap), sigue en la linea visual de
+  abajo. Ademas, el relleno tras el fin de linea se limita por pixeles y no por
+  columnas: con `line-prefix' (org-indent), margenes o fuentes proporcionales
+  el calculo por columnas de beacon se pasaba del borde y el relleno saltaba
+  de linea."
+    (let ((colors (beacon--color-range))
+          (eol (save-excursion (end-of-visual-line) (point))))
+      (save-excursion
+        (while (and colors (< (point) eol))
+          (beacon--colored-overlay (pop colors))
+          (forward-char 1))
+        (when-let* (((and colors (eolp)))
+                    (posn (posn-at-point))
+                    (room (- (window-body-width nil t) (car (posn-x-y posn))))
+                    (cols (1- (/ room (default-font-width))))
+                    ((> cols 0)))
+          (beacon--ov-put-after-string (beacon--make-overlay 0)
+                                       (seq-take colors cols))))))
+
+  ;; ponytail: pisa una funcion interna de beacon (`beacon--shine'); si una
+  ;; actualizacion del paquete la renombra, el advice deja de tener efecto y
+  ;; vuelve el comportamiento original, sin romper nada.
   (with-eval-after-load 'beacon
+    (advice-add 'beacon--shine :override #'my/beacon-shine-visual-line)
     (add-hook 'beacon-before-blink-hook #'my/beacon-use-cursor-color)
     (add-hook 'beacon-dont-blink-predicates #'my/beacon-presenting-p)
     (my/beacon-apply))
